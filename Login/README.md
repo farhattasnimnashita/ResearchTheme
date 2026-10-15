@@ -4,6 +4,12 @@ A Go + SQLite university research collaboration starter with a full-screen ivory
 
 **Updating an existing copy? Read UPDATE_BN.md first. Keep your .env and database.**
 
+## ResearchTheme Student dashboard
+
+Student login opens the imported dashboard from `farhattasnimnashita/ResearchTheme` (`dashboard.html` and `static/dashboard.css`). Its profile and proposal summaries use the authenticated APIs. Proposal and feedback actions open the existing functional workspace at `/workspace/student`. Teacher login continues to use `/dashboard/teacher`. Both Student routes require a verified Student session. Run this Go app from the `Login` folder when integrating into that repository; do not run or copy the old root server into it.
+
+The imported team, profile-editing, milestone and meeting features remain previews. File uploads are not implemented. The placeholder Meet URL has been removed. Source design attribution: https://github.com/farhattasnimnashita/ResearchTheme .
+
 ## What works
 
 - Full-screen responsive authentication page: login first, with a small Register link beneath the login button and an additional signup suggestion when an email has no account. Separate `/login/student` and `/login/teacher` routes remain available; `/signup` is a direct signup route.

@@ -234,22 +234,30 @@ func (a *App) routes() http.Handler {
 	m.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assets))))
 	m.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path
-		if p != "/" && p != "/login/student" && p != "/login/teacher" && p != "/signup" && p != "/verify" && p != "/dashboard/student" && p != "/dashboard/teacher" {
+		if p != "/" && p != "/login/student" && p != "/login/teacher" && p != "/signup" && p != "/verify" && p != "/dashboard/student" && p != "/dashboard/teacher" && p != "/workspace/student" {
 			http.NotFound(w, r)
 			return
 		}
-		if strings.HasPrefix(p, "/dashboard/") {
+		if strings.HasPrefix(p, "/dashboard/") || p == "/workspace/student" {
 			u, e := a.user(r)
 			if e != nil {
-				http.Redirect(w, r, "/login/"+strings.TrimPrefix(p, "/dashboard/"), 303)
+				role := strings.TrimPrefix(p, "/dashboard/")
+				if p == "/workspace/student" {
+					role = "student"
+				}
+				http.Redirect(w, r, "/login/"+role, 303)
 				return
 			}
-			if p != "/dashboard/"+u.Role {
+			if p != "/dashboard/"+u.Role && !(p == "/workspace/student" && u.Role == "student") {
 				http.Redirect(w, r, "/dashboard/"+u.Role, 303)
 				return
 			}
 		}
-		b, e := frontend.ReadFile("web/index.html")
+		page := "web/index.html"
+		if p == "/dashboard/student" {
+			page = "web/student-dashboard.html"
+		}
+		b, e := frontend.ReadFile(page)
 		if e != nil {
 			http.Error(w, "Page unavailable", 500)
 			return

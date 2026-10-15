@@ -272,13 +272,17 @@ function initials(name) {
 async function loadDashboard() {
   try {
     state.user = await api("/api/me");
-    if (location.pathname !== "/dashboard/" + state.user.role) {
+    if (location.pathname !== "/dashboard/" + state.user.role &&
+        !(location.pathname === "/workspace/student" && state.user.role === "student")) {
       location.replace("/dashboard/" + state.user.role);
       return;
     }
     state.projects = await api("/api/projects");
     if (state.user.role === "student")
       state.teachers = await api("/api/teachers");
+    if (location.pathname === "/workspace/student" && ["projects", "feedback", "account"].includes(location.hash.slice(1))) {
+      state.view = location.hash.slice(1);
+    }
     dashboard();
   } catch (err) {
     root.innerHTML = `<main class="verify-card"><h2>Unable to open your workspace.</h2><p>${esc(err.message)}</p><a class="btn" href="/">Return to login</a><button class="btn light" id="retry">Try again</button></main>`;
@@ -325,6 +329,13 @@ function dashboard() {
     .join(
       "",
     )}</nav><div class="sidebar-bottom"><div class="user-chip"><span class="avatar">${esc(initials(u.name))}</span><span><strong>${esc(u.name)}</strong>${student ? "Student researcher" : "Research supervisor"}</span></div><p>Small questions.<br>Meaningful discoveries.</p><button class="btn light wide" data-logout>Log out ↗</button></div></aside><main class="main"><header class="dash-top"><span>Workspace / ${esc(label(v))}</span><div><span class="verified">✓ Email verified</span> <button class="btn link" data-logout>Log out</button></div></header><div class="page-title"><div><p class="eyebrow muted">${esc(u.name.split(" ")[0])}'s workspace</p><h1>${titles[v]}</h1><p>${student ? "A little structure for your next big idea." : "Guide promising ideas toward meaningful research."}</p></div>${student && v !== "account" ? '<button class="btn" id="new-project">＋ New proposal</button>' : ""}</div><div class="notice" id="dash-message" role="status"></div>${v === "account" ? `<section class="account"><div class="avatar">${esc(initials(u.name))}</div><h2>${esc(u.name)}</h2><dl><dt>Email</dt><dd>${esc(u.email)}</dd><dt>Account role</dt><dd>${student ? "Student researcher" : "Teacher / Supervisor"}</dd><dt>Institution</dt><dd>${esc(u.institution || "Not provided (registered before this update)")}</dd>${student ? `<dt>Department</dt><dd>${esc(u.department || "Not provided")}</dd><dt>Academic year</dt><dd>${u.academic_year ? esc(u.academic_year) : "Not provided"}</dd><dt>Semester</dt><dd>${u.semester ? esc(u.semester) : "Not provided"}</dd>` : ""}<dt>Verification</dt><dd>✓ Verified</dd></dl><p class="small muted">Your account role controls which workspace and actions you can access.</p></section>` : `${v === "overview" ? `<section class="dash-banner"><p class="eyebrow">A shared space for discovery</p><h2>${student ? "Big ideas begin<br>with a first draft." : "Good guidance.<br>Greater possibilities."}</h2><p>${student ? "Turn a question into a proposal. Connect with a supervisor, get feedback, and take your next step." : "Review student proposals, share your perspective, and help the next generation of researchers find their way."}</p></section><section class="stats"><div class="stat"><label>${student ? "YOUR PROPOSALS" : "ASSIGNED PROPOSALS"}</label><strong>${state.projects.length.toString().padStart(2, "0")}</strong></div><div class="stat"><label>${student ? "AWAITING REVIEW" : "TO REVIEW"}</label><strong>${String(pending).padStart(2, "0")}</strong></div><div class="stat"><label>APPROVED</label><strong>${String(approved).padStart(2, "0")}</strong></div></section>` : ""}<div class="section-title"><h3>${v === "feedback" ? "Supervisor feedback" : v === "review" ? "Ready for your review" : student ? "Your proposals" : "Student proposals"}</h3><span>${visible.length} ${visible.length === 1 ? "proposal" : "proposals"}</span></div>${visible.length ? visible.map(projectCard).join("") : `<section class="empty"><span class="feature-icon">${student ? "↗" : "♧"}</span><h3>${v === "feedback" ? "Your feedback will appear here." : v === "review" ? "Your review queue is clear." : student ? "Make space for your first idea." : "Ready for the next promising idea."}</h3><p>${student ? "Create a proposal and submit it to a verified supervisor." : "Student proposals assigned to you will appear here after submission."}</p>${student && v !== "feedback" ? '<button class="btn light" id="empty-create">Create your first proposal →</button>' : ""}</section>`}<section class="hint-panel"><h3>${student ? "Your next step" : "A note on supervision"}</h3><p>${student ? "Draft your idea → choose a verified teacher → submit for review → read feedback. Your drafts are visible only to you." : "You can review proposals assigned to you. Your decision and feedback are shared with the student immediately."}</p></section>`}</main></div>`;
+  if (student) {
+    const back = document.createElement("a");
+    back.href = "/dashboard/student";
+    back.className = "btn light wide";
+    back.textContent = "← Student dashboard";
+    document.querySelector(".sidebar-bottom").prepend(back);
+  }
   document.querySelectorAll("[data-view]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -429,5 +440,5 @@ function reviewProject(p) {
   bindDialog(d, `/api/projects/${p.id}/review`, (data) => data);
 }
 if (location.pathname === "/verify") verifyPage();
-else if (location.pathname.startsWith("/dashboard/")) loadDashboard();
+else if (location.pathname.startsWith("/dashboard/") || location.pathname === "/workspace/student") loadDashboard();
 else authPage();

@@ -1,11 +1,26 @@
 # ResearchBridge — নতুন login ও signup update
 
-## সর্বশেষ ছোট update: Register link ও moving orbit
+## সর্বশেষ update: Student login → GitHub ResearchTheme dashboard
 
-Login button-এর নিচে New here? Register an account link সব সময় দেখা যায়। Student/Teacher role বেছে link চাপলে সেই role-এর signup খুলবে। Globe-এর চারপাশে animated gold orbit tracks ও travelling light points আছে। Device-এ reduced motion চাইলে স্থির background থাকে।
+GitHub `farhattasnimnashita/ResearchTheme`-এর `dashboard.html` এবং `static/dashboard.css` থেকে Student dashboard যুক্ত করা হয়েছে। Student login সফল হলে `/dashboard/student`-এ এই dashboard খুলবে। Teacher তার নিজের dashboard পাবে। Login ছাড়া dashboard খোলা যাবে না।
 
-**আগের full-screen/profile update ইতিমধ্যে বসানো থাকলে এবার শুধু web/assets/app.js ও web/assets/auth.css replace করুন।** তারপর Go server restart এবং browser-এ Ctrl+F5 দিন। .env/database/Go files বদলানোর প্রয়োজন নেই।
+### আপনার Login folder-এ বসান
 
+1. চলমান server-এ Ctrl+C দিন এবং বর্তমান Login folder-এর backup রাখুন।
+2. ZIP extract করে ResearchBridge folder-এর সব `.go` files, `go.mod`, `go.sum` ও পুরো `web` folder আপনার `D:\project-250\ResearchTheme-GitHub\Login` folder-এ copy/replace করুন।
+3. আপনার `.env` এবং database রেখে দিন। `.env.example` দিয়ে `.env` overwrite করবেন না। GitHub repo root-এর পুরনো `main.go`/`database.go` Login folder-এ copy করবেন না।
+4. PowerShell-এ চালান:
+
+```powershell
+cd D:\project-250\ResearchTheme-GitHub\Login
+go run .
+```
+
+5. http://localhost:8080 খুলে Ctrl+F5 দিন। Verified Student account দিয়ে login করুন।
+
+My Profile-এ আসল signup তথ্য দেখাবে। Proposal ও Files & Feedback থেকে কাজ করা proposal workspace খুলবে; সেখান থেকে Student dashboard-এ ফেরার link আছে। Supervisor বেছে proposal submit করা যায়। Team, milestones, profile editing ও meeting scheduling এখনো preview। File upload নেই; Files & Feedback button proposal feedback খুলবে।
+
+মূল GitHub dashboard-এর design রাখা হয়েছে; inline script আলাদা file-এ সরিয়ে strict security policy বজায় রাখা হয়েছে। পুরনো server ও নতুন Login server একই 8080 port-এ একসঙ্গে চালাবেন না।
 
 ## এই update-এ কী আছে
 
