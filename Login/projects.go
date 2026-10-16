@@ -162,6 +162,7 @@ func (a *App) submitProject(w http.ResponseWriter, r *http.Request) {
 		fail(w, 409, "Proposal unavailable, supervisor invalid, or proposal is no longer editable.")
 		return
 	}
+	a.notifyProject(id, u.ID, "request", "New proposal ready for supervision: review requested")
 	reply(w, 200, map[string]string{"message": "Proposal submitted to your supervisor."})
 }
 func (a *App) reviewProject(w http.ResponseWriter, r *http.Request) {
@@ -201,5 +202,6 @@ func (a *App) reviewProject(w http.ResponseWriter, r *http.Request) {
 		fail(w, 409, "Proposal unavailable or already reviewed.")
 		return
 	}
+	a.notifyProject(id, u.ID, "submission", "Proposal review: "+p.Status)
 	reply(w, 200, map[string]string{"message": "Review saved and shared with the student."})
 }

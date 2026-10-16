@@ -35,8 +35,8 @@ func TestResearchThemeDashboardAccess(t *testing.T) {
 	}
 	w = call(t, a, "GET", "/dashboard/teacher", nil, teacher)
 	expect(t, w, 200)
-	if !strings.Contains(w.Body.String(), "/assets/app.js") {
-		t.Fatal("teacher dashboard changed")
+	if !strings.Contains(w.Body.String(), "/assets/teacher-dashboard.js") {
+		t.Fatal("teacher dashboard must use the sky-blue workspace")
 	}
 	expect(t, call(t, a, "GET", "/assets/student-dashboard.html", nil, nil), 404)
 }

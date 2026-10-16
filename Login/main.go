@@ -34,11 +34,13 @@ type Config struct {
 	SMTPUser, SMTPPass                                   string
 }
 type App struct {
-	db     *sql.DB
-	cfg    Config
-	send   func(string, string) error
-	mu     sync.Mutex
-	limits map[string]window
+	db        *sql.DB
+	cfg       Config
+	send      func(string, string) error
+	mu        sync.Mutex
+	limits    map[string]window
+	resetOnce sync.Once
+	resetJobs chan string
 }
 type window struct {
 	start time.Time
@@ -174,6 +176,10 @@ func openDB(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, e
 	}
+	if e = migrateWorkspace(db); e != nil {
+		db.Close()
+		return nil, e
+	}
 	return db, nil
 }
 func token() (string, error) {
@@ -212,6 +218,25 @@ func email(s string) (string, bool) {
 func role(s string) bool { return s == "student" || s == "teacher" }
 func (a *App) routes() http.Handler {
 	m := http.NewServeMux()
+	m.HandleFunc("POST /api/forgot-password", a.forgotPassword)
+	m.HandleFunc("POST /api/reset-password", a.resetPassword)
+	m.HandleFunc("GET /api/researcher-profile", a.researcherProfile)
+	m.HandleFunc("POST /api/researcher-profile", a.researcherProfile)
+	m.HandleFunc("GET /api/collaboration-projects", a.collaborationProjects)
+	m.HandleFunc("GET /api/workspace/{id}/members", a.workspaceMembers)
+	m.HandleFunc("POST /api/workspace/{id}/members", a.workspaceMembers)
+	m.HandleFunc("GET /api/invitations", a.invitations)
+	m.HandleFunc("POST /api/invitations", a.invitations)
+	m.HandleFunc("GET /api/workspace/{id}/records", a.records)
+	m.HandleFunc("POST /api/workspace/{id}/records", a.records)
+	m.HandleFunc("GET /api/records/{id}/history", a.recordHistory)
+	m.HandleFunc("GET /api/workspace/{id}/permissions", a.permissions)
+	m.HandleFunc("POST /api/workspace/{id}/permissions", a.permissions)
+	m.HandleFunc("GET /api/workspace/{id}/files", a.workspaceFiles)
+	m.HandleFunc("POST /api/workspace/{id}/files", a.workspaceFiles)
+	m.HandleFunc("GET /api/files/{id}", a.downloadFile)
+	m.HandleFunc("GET /api/notifications", a.notifications)
+	m.HandleFunc("POST /api/notifications", a.notifications)
 	m.HandleFunc("POST /api/register", a.register)
 	m.HandleFunc("POST /api/login", a.login)
 	m.HandleFunc("POST /api/verify", a.verify)
@@ -234,21 +259,21 @@ func (a *App) routes() http.Handler {
 	m.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assets))))
 	m.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path
-		if p != "/" && p != "/login/student" && p != "/login/teacher" && p != "/signup" && p != "/verify" && p != "/dashboard/student" && p != "/dashboard/teacher" && p != "/workspace/student" {
+		if p != "/" && p != "/login/student" && p != "/login/teacher" && p != "/signup" && p != "/verify" && p != "/dashboard/student" && p != "/dashboard/teacher" && p != "/workspace/student" && p != "/research" && p != "/forgot-password" && p != "/reset-password" {
 			http.NotFound(w, r)
 			return
 		}
-		if strings.HasPrefix(p, "/dashboard/") || p == "/workspace/student" {
+		if strings.HasPrefix(p, "/dashboard/") || p == "/workspace/student" || p == "/research" {
 			u, e := a.user(r)
 			if e != nil {
 				role := strings.TrimPrefix(p, "/dashboard/")
-				if p == "/workspace/student" {
+				if p == "/workspace/student" || p == "/research" {
 					role = "student"
 				}
 				http.Redirect(w, r, "/login/"+role, 303)
 				return
 			}
-			if p != "/dashboard/"+u.Role && !(p == "/workspace/student" && u.Role == "student") {
+			if p != "/dashboard/"+u.Role && !(p == "/workspace/student" && u.Role == "student") && p != "/research" {
 				http.Redirect(w, r, "/dashboard/"+u.Role, 303)
 				return
 			}
@@ -256,6 +281,12 @@ func (a *App) routes() http.Handler {
 		page := "web/index.html"
 		if p == "/dashboard/student" {
 			page = "web/student-dashboard.html"
+		}
+		if p == "/dashboard/teacher" || p == "/research" {
+			page = "web/teacher-dashboard.html"
+		}
+		if p == "/forgot-password" || p == "/reset-password" {
+			page = "web/password-recovery.html"
 		}
 		b, e := frontend.ReadFile(page)
 		if e != nil {
@@ -272,7 +303,7 @@ func (a *App) routes() http.Handler {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		if strings.HasPrefix(r.URL.Path, "/api/") && r.Method == "POST" {
-			if r.Header.Get("Origin") != a.cfg.URL || r.Header.Get("X-Requested-With") != "ResearchBridge" || !strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+			if r.Header.Get("Origin") != a.cfg.URL || r.Header.Get("X-Requested-With") != "ResearchBridge" || !(strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") || (strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;") && strings.HasSuffix(r.URL.Path, "/files"))) {
 				fail(w, 403, "Invalid request origin. Open the app using APP_URL.")
 				return
 			}
@@ -513,6 +544,10 @@ func (a *App) logout(w http.ResponseWriter, r *http.Request) {
 	reply(w, 200, map[string]bool{"ok": true})
 }
 func main() {
+	if _, err := os.Stat(".env"); errors.Is(err, os.ErrNotExist) && os.Getenv("EMAIL_MODE") == "" {
+		folder, _ := os.Getwd()
+		log.Fatalf("No .env in %s. Copy your existing Gmail-configured .env into this folder before running. Email mode will not silently fall back to console.", folder)
+	}
 	if e := loadEnv(); e != nil {
 		log.Fatal(e)
 	}

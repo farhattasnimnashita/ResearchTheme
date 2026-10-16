@@ -120,7 +120,7 @@ function authPage() {
  <label class="field">Email address<input name="email" type="email" autocomplete="email" placeholder="you@university.edu" required maxlength="254" value="${esc(draft.email || "")}"></label>
  <label class="field">Password<span class="password-wrap"><input id="password" name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" placeholder="${signup ? "At least 8 characters" : "Your ResearchBridge password"}" required minlength="${signup ? "8" : "1"}" maxlength="72"><button type="button" id="show-password" aria-label="Show password">Show</button></span></label>
  <button class="btn wide auth-submit" type="submit">${signup ? "Create " + state.role + " account" : "Log in as " + state.role}<span aria-hidden="true">→</span></button></form>
- ${signup ? "" : '<p class="register-prompt">New here? <a id="register-link" href="/signup">Register an account</a></p>'}
+ ${signup ? "" : '<p class="register-prompt"><a href="/forgot-password">Forgot password?</a> · New here? <a id="register-link" href="/signup">Register an account</a></p>'}
  <p class="auth-note">${signup ? "Email verification is required before login." : "Use the password you created on ResearchBridge."}</p><div class="auth-verification"><span>Need to verify your email?</span><button type="button" class="btn link" id="resend">Resend verification</button></div>
  <div class="auth-panel-footer"><span>Thoughtful research starts with connection.</span><span aria-hidden="true">✧</span></div></section></main>
  <footer class="auth-footer"><span>© ${new Date().getFullYear()} ResearchBridge</span><span>Student ideas. Teacher guidance. Shared progress.</span></footer></div>`;
@@ -334,6 +334,7 @@ function dashboard() {
     back.href = "/dashboard/student";
     back.className = "btn light wide";
     back.textContent = "← Student dashboard";
+ const research = document.createElement("a");research.href="/research#projects";research.className="btn light wide";research.textContent="Research workspace →";document.querySelector(".sidebar-bottom").prepend(research);
     document.querySelector(".sidebar-bottom").prepend(back);
   }
   document.querySelectorAll("[data-view]").forEach(

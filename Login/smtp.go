@@ -89,10 +89,11 @@ func verificationMail(from, to, link string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	subject, message := accountMailText(link)
 	var out bytes.Buffer
-	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: Verify your ResearchBridge account\r\nDate: %s\r\nMessage-ID: <%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", sender.String(), recipient.String(), time.Now().Format(time.RFC1123Z), id, strings.SplitN(sender.Address, "@", 2)[1])
+	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\nMessage-ID: <%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", sender.String(), recipient.String(), subject, time.Now().Format(time.RFC1123Z), id, strings.SplitN(sender.Address, "@", 2)[1])
 	body := quotedprintable.NewWriter(&out)
-	_, err = fmt.Fprintf(body, "Welcome to ResearchBridge!\n\nVerify your email by opening this link, then pressing Verify email:\n%s\n\nThis link expires in 30 minutes. If you did not register, ignore this email.\n", link)
+	_, err = body.Write([]byte(message))
 	if err != nil {
 		return nil, err
 	}
