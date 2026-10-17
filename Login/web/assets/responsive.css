@@ -1,0 +1,32 @@
+/* Laptop, tablet and Android browser layout. Loaded after all theme styles. */
+html{scroll-padding-top:20px}body{min-width:0}main,.main,.research-main,section,article,form,.field{min-width:0}img,svg,video{max-width:100%}input,select,textarea{max-width:100%}button,a{touch-action:manipulation}p,h1,h2,h3,dd,.record-body,.file-list{overflow-wrap:anywhere}dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}textarea{resize:vertical}.device-menu>summary{display:none}.device-menu-body{min-width:0}
+@media(min-width:1025px){.device-menu{display:contents}.device-menu-body{display:contents}}
+@media(max-width:1024px){
+ aside.sidebar,aside.research-sidebar{position:relative;inset:auto;width:100%;height:auto;max-height:none;padding:18px 22px;border-right:0;border-bottom:1px solid var(--line,#cfe5f1);overflow:visible;z-index:3}
+ body>main,.shell>.main,.research-app .research-main{margin-left:0;width:100%;padding:24px 22px 90px;max-width:none}.shell{display:block}
+ .device-menu{margin-top:14px;border:1px solid var(--line,#cfe5f1);border-radius:12px;background:var(--surface,#fff)}
+ .device-menu>summary{display:flex;align-items:center;justify-content:space-between;min-height:46px;padding:12px 15px;cursor:pointer;font-weight:600;color:var(--deep,var(--ink));list-style:none}.device-menu>summary::-webkit-details-marker{display:none}.device-menu>summary::after{content:'＋';font-size:18px}.device-menu[open]>summary::after{content:'−'}
+ .device-menu-body{padding:8px 12px 16px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain}
+ .device-menu:not([open])>.device-menu-body{display:none}
+ .device-menu nav,.device-menu #main-nav,.device-menu .more-tools nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:6px;margin:0;padding:0}
+ .device-menu nav a,.device-menu nav button,.device-menu #main-nav a{white-space:normal;min-height:46px;font-size:13px;margin:0}
+ .device-menu .workspace-label,.device-menu .menu-title{margin:12px 10px}.device-menu .sidebar-note,.device-menu .sidebar-end,.device-menu .sidebar-bottom{display:block;margin-top:16px;padding:14px}.device-menu .sidebar-end .button{display:none}.device-menu .more-tools{margin-top:14px}
+ .research-app .research-top{flex-wrap:wrap}.research-app .research-top .page-heading{display:block}.research-app .research-top .session-actions{width:auto;max-width:100%;flex-wrap:wrap}
+ .research-app .grid-two,.content-grid{grid-template-columns:1fr}.research-app .dashboard-columns{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+ .auth-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media(max-width:760px){
+ body>main,.shell>.main,.research-app .research-main{padding:20px 16px 90px}aside.sidebar,aside.research-sidebar{padding:16px}.research-app .dashboard-columns,.grid-two,.content-grid{grid-template-columns:1fr}
+ .research-app .dashboard-stats,.summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .auth-layout{display:flex;flex-direction:column;padding:18px 16px}.auth-panel{width:100%;min-width:0}.auth-story h1{font-size:clamp(28px,7vw,42px)}
+ .research-app .research-top .session-actions,.session-actions{width:100%;flex-wrap:wrap;gap:8px}.session-actions>span{min-width:0;overflow-wrap:anywhere}.research-app .page-heading h1{font-size:25px}
+ .research-app .workspace-toolbar{flex-direction:column;align-items:stretch}.workspace-toolbar .field{max-width:none}.research-app .module-tabs{max-height:220px;overflow-y:auto;overscroll-behavior:contain}.research-app .module-tabs button{flex:1 1 140px;min-height:44px}
+ .research-app .feature-heading{flex-wrap:wrap;align-items:flex-start;gap:10px}.research-app .feature-heading>.button{width:100%;margin-bottom:18px}.card-top{flex-wrap:wrap}.record-card .actions,.project-card .actions{align-items:stretch}
+ .field :is(input,select,textarea),.auth-panel input,dialog :is(input,select,textarea){font-size:16px;min-width:0}button,.button,.btn,input[type=submit],.role{min-height:44px}.check{min-height:44px}input[type=checkbox],input[type=radio]{width:20px;height:20px;flex-shrink:0}
+ .research-app .thesis-hero{padding:32px 24px;min-height:330px}.research-app .thesis-hero .hero-copy{max-width:100%}.research-app .supervision-reveal{position:relative;inset:auto;width:100%;max-height:none;margin-top:24px}.research-app .thesis-hero:is(:hover,:focus-within,.is-revealed) .hero-copy{max-width:100%}
+ dialog{width:calc(100vw - 24px);padding:20px}.dialog-top h2{font-size:20px}.file-list li{flex-direction:column;align-items:flex-start}.file-list li>div{max-width:100%}.auth-recovery{width:calc(100% - 24px);margin:24px auto;padding:24px}
+ .floating-theme,.research-app .floating-theme{bottom:max(14px,env(safe-area-inset-bottom));right:14px}.team-banner{max-width:100%;min-width:0}.team-info{min-width:0}header,.dash-top{flex-wrap:wrap}
+}
+@media(max-width:420px){.research-app .dashboard-stats,.summary{grid-template-columns:1fr}.device-menu nav,.device-menu #main-nav,.device-menu .more-tools nav{grid-template-columns:1fr}.research-app .stats:not(.dashboard-stats){grid-template-columns:1fr}.research-app .panel,.research-app .project-card,.research-app .record-card{padding:18px}.research-app .thesis-hero h2{font-size:25px}.research-app .thesis-hero{padding:28px 20px}.actions .button,.actions .btn{width:100%}.details>div{grid-template-columns:1fr}.auth-header .brand{font-size:19px}}
+@media(hover:none),(pointer:coarse){.research-app #research-content :is(.thesis-hero,.stat,.panel,.project-card,.record-card,.empty,.module-tabs):hover{transform:none}.research-app .button:hover{transform:none}}
+html[data-theme=dark] .device-menu{background:var(--surface,#132332);border-color:var(--line,#2b4357)}

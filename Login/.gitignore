@@ -1,0 +1,8 @@
+.env
+*.db
+*.db-*
+*.exe
+/researchbridge
+/coverage.out
+
+backup*/
