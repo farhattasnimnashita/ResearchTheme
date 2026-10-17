@@ -334,7 +334,6 @@ function dashboard() {
     back.href = "/dashboard/student";
     back.className = "btn light wide";
     back.textContent = "← Student dashboard";
- const research = document.createElement("a");research.href="/research#projects";research.className="btn light wide";research.textContent="Research workspace →";document.querySelector(".sidebar-bottom").prepend(research);
     document.querySelector(".sidebar-bottom").prepend(back);
   }
   document.querySelectorAll("[data-view]").forEach(

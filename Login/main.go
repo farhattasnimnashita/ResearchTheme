@@ -218,6 +218,9 @@ func email(s string) (string, bool) {
 func role(s string) bool { return s == "student" || s == "teacher" }
 func (a *App) routes() http.Handler {
 	m := http.NewServeMux()
+	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
+	m.HandleFunc("GET /api/students", a.searchStudents)
+m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
 	m.HandleFunc("POST /api/forgot-password", a.forgotPassword)
 	m.HandleFunc("POST /api/reset-password", a.resetPassword)
 	m.HandleFunc("GET /api/researcher-profile", a.researcherProfile)

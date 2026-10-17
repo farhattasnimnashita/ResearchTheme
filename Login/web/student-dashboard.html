@@ -6,11 +6,7 @@
 
     <title>Student Dashboard | ResearchBridge</title>
 
-    <link rel="stylesheet" href="/assets/researchtheme-dashboard.css">
-<link rel="stylesheet" href="/assets/theme.css">
-<script src="/assets/theme.js"></script>
-<link rel="stylesheet" href="/assets/responsive.css">
-<script src="/assets/responsive.js" defer></script>
+    <link rel="stylesheet" href="/assets/nashita-dashboard.css">
 </head>
 
 <body>
@@ -21,7 +17,6 @@
         </a>
 
         <p class="menu-title">STUDENT WORKSPACE</p>
-<a class="button" href="/research#projects">Research workspace →</a>
 
         <nav aria-label="Student menu">
             <a href="#dashboard" class="active">Dashboard</a>
@@ -47,8 +42,8 @@
                 <h1 id="page-title">Student Dashboard</h1>
             </div>
 
-            <div class="session-actions"><span id="session-name">Loading account…</span> <button class="button secondary" id="logout">Log out</button></div>
-        </header><p id="data-status" role="status" aria-live="polite"></p>
+            <span class="preview">Design preview</span>
+        </header>
 
         <!-- Dashboard -->
         <section id="dashboard" class="page">
@@ -109,7 +104,7 @@
 
                 <article class="card">
                     <p class="label">PROPOSAL</p>
-                    <h3 id="proposal-status">Loading…</h3>
+                    <h3>Not submitted</h3>
                     <a href="#proposal" class="text-link">Start planning →</a>
                 </article>
 
@@ -129,7 +124,7 @@
             <div class="content-grid">
                 <div class="column">
                     <article class="card">
-                        <h2>Current Project</h2><p id="current-project"></p>
+                        <h2>Current Project</h2>
 
                         <div class="empty">
                             <div class="empty-icon" aria-hidden="true">＋</div>
@@ -194,7 +189,7 @@
                     <article class="card">
                         <h2>Supervisor Feedback</h2>
                         <p class="description">
-                            <span id="latest-feedback">No feedback yet.</span> After submitting your work,
+                            No feedback yet. After submitting your work,
                             you can read your supervisor's comments here.
                         </p>
                         <a href="#files" class="text-link">
@@ -221,17 +216,38 @@
                     Add your academic information, skills and interests.
                 </p>
 
-                <dl class="details" id="student-profile">
-                    <div><dt>Name</dt><dd>Not added</dd></div>
-                    <div><dt>Department</dt><dd>Not added</dd></div>
-                    <div><dt>Batch</dt><dd>Not added</dd></div>
-                    <div><dt>Skills</dt><dd>Not added</dd></div>
-                    <div><dt>Research interests</dt><dd>Not added</dd></div>
-                </dl>
+              <dl class="details">
+    <div>
+        <dt>Name</dt>
+        <dd id="profile-name">Loading...</dd>
+    </div>
+    <div>
+        <dt>Email</dt>
+        <dd id="profile-email">Loading...</dd>
+    </div>
+    <div>
+        <dt>Institution</dt>
+        <dd id="profile-institution">Loading...</dd>
+    </div>
+    <div>
+        <dt>Department</dt>
+        <dd id="profile-department">Loading...</dd>
+    </div>
+    <div>
+        <dt>Academic Year</dt>
+        <dd id="profile-year">Loading...</dd>
+    </div>
+    <div>
+        <dt>Semester</dt>
+        <dd id="profile-semester">Loading...</dd>
+    </div>
+</dl>
 
-                <button class="button" data-feature="Profile editing">
-                    Edit Profile
-                </button>
+<p id="profile-message" role="status"></p>
+
+               <button type="button" class="button" id="edit-profile-button">
+    Edit Profile
+</button>
             </article>
         </section>
 
@@ -265,7 +281,10 @@
                     <h3>No supervisor assigned</h3>
                     <p>Explore research interests and available capacity.</p>
 
-                    <a class="button" href="/workspace/student#projects">Browse Supervisors &amp; Proposals</a>
+                    <button class="button"
+                            data-feature="Supervisor browsing">
+                        Browse Supervisors
+                    </button>
                 </div>
             </article>
         </section>
@@ -278,7 +297,9 @@
                     <h3>No proposal submitted</h3>
                     <p>Describe your problem, objectives, method and timeline.</p>
 
-                    <a class="button" href="/workspace/student#projects">Manage Proposals</a>
+                    <button class="button" data-feature="Proposal drafting">
+                        Start a Proposal
+                    </button>
                 </div>
             </article>
         </section>
@@ -305,7 +326,9 @@
                     <h3>No submissions yet</h3>
                     <p>Keep your reports, code links and feedback together.</p>
 
-                    <a class="button" href="/workspace/student#feedback">View Proposals & Feedback</a>
+                    <button class="button" data-feature="File submission">
+                        Submit Work
+                    </button>
                 </div>
             </article>
         </section>
@@ -325,15 +348,21 @@
             </p>
 
             <!-- href-এর জায়গায় তোমার আসল Meet link বসাও -->
-            <p>No meeting scheduled. Your supervisor can share a meeting link with you.</p>
+            <a
+                href="https://meet.google.com/xxx-yyyy-zzz"
+                class="button"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Join Google Meet ↗
+            </a>
         </div>
     </article>
 </section>
-
-        <footer>
-            ResearchBridge · Student workspace
-            <p>Profile and proposals are connected. Team, milestone and meeting tools are coming soon.</p>
-        </footer>
+<footer>
+    ResearchBridge · Student workspace
+    <p>Search students, send invitations and build your research team.</p>
+</footer>
     </main>
 
     <dialog id="notice" aria-labelledby="notice-title">
@@ -345,6 +374,7 @@
         </form>
     </dialog>
 
-    <script src="/assets/researchtheme-dashboard.js" defer></script>
+       <script src="/assets/nashita-dashboard.js" defer></script>
+       <script src="/assets/team-search.js" defer></script>
 </body>
 </html>
