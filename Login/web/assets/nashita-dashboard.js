@@ -5,6 +5,7 @@
         const titles = {
             dashboard: "Student Dashboard",
             profile: "My Profile",
+            "project-ideas": "Choose Project",
             team: "My Team",
             supervisor: "Supervisor",
             proposal: "My Proposal",
@@ -88,6 +89,11 @@
         }
 
         const user = await response.json();
+        const welcome = document.getElementById("student-welcome");
+
+if (welcome) {
+    welcome.textContent = "Welcome, " + user.name + "! ";
+}
 
         for (const [elementId, fieldName] of Object.entries(fields)) {
             const element = document.getElementById(elementId);
@@ -404,4 +410,217 @@ showProfile(updatedUser);
     } else {
         setupProfileEditor();
     }
+})();
+// Student Logout
+
+
+
+const studentLogoutButton = document.getElementById("student-logout");
+
+if (studentLogoutButton) {
+    studentLogoutButton.addEventListener("click", async () => {
+
+        studentLogoutButton.disabled = true;
+        studentLogoutButton.textContent = "Logging out...";
+
+        try {
+            const response = await fetch("/api/logout", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "ResearchBridge"
+                },
+                body: JSON.stringify({})
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Logout failed.");
+            }
+
+            window.location.replace("/login/student");
+
+        } catch (error) {
+            alert(error.message);
+
+            studentLogoutButton.disabled = false;
+            studentLogoutButton.textContent = "↪ Logout";
+        }
+    });
+}
+
+
+/* Team Invitation Notifications */
+
+/* Notification Bell Dropdown */
+
+(() => {
+    const bell = document.getElementById("notification-bell");
+    const panel = document.getElementById("notification-panel");
+    const badge = document.getElementById("notification-count");
+    const list = document.getElementById("notification-list");
+    const message = document.getElementById("notification-message");
+
+    if (!bell || !panel || !badge || !list || !message) return;
+
+    const escapeHTML = value => String(value ?? "").replace(
+        /[&<>"']/g,
+        c => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[c]
+    );
+
+    async function api(url, data) {
+        const options = {
+            credentials: "same-origin",
+            cache: "no-store"
+        };
+
+        if (data !== undefined) {
+            options.method = "POST";
+            options.headers = {
+                "Content-Type": "application/json",
+                "X-Requested-With": "ResearchBridge"
+            };
+            options.body = JSON.stringify(data);
+        }
+
+        const response = await fetch(url, options);
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Request failed.");
+        }
+
+        return result;
+    }
+
+    let loading = false;
+
+    async function loadNotifications() {
+        if (loading) return;
+        loading = true;
+
+        try {
+            const [invites, updates] = await Promise.all([
+                api("/api/invitations"),
+                api("/api/notifications")
+            ]);
+
+            const unread = updates.filter(n => !n.read_at).length;
+            const total = invites.length + unread;
+
+            badge.textContent = total > 99 ? "99+" : String(total);
+            badge.hidden = total === 0;
+
+            list.innerHTML = `
+                <h4>Team Invitations</h4>
+
+                ${invites.map(inv => `
+                    <div class="bell-item">
+                        <strong>New Team Invitation</strong>
+                        <p>
+                            ${escapeHTML(inv.name)}
+                            invited you to join
+                            ${escapeHTML(inv.title)}.
+                        </p>
+
+                        <div class="bell-actions">
+                            <button type="button" class="button"
+                                data-invite-id="${Number(inv.id)}"
+                                data-accept="true">
+                                Accept
+                            </button>
+
+                            <button type="button" class="button secondary"
+                                data-invite-id="${Number(inv.id)}"
+                                data-accept="false">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join("") || "<p>No pending invitations.</p>"}
+
+                <h4>Recent Activity</h4>
+
+                ${updates.map(n => `
+                    <div class="bell-item">
+                        <p>${escapeHTML(n.message)}</p>
+                        <small>
+                            ${new Date(n.created_at * 1000).toLocaleString()}
+                        </small>
+                    </div>
+                `).join("") || "<p>No recent activity.</p>"}
+            `;
+
+            message.textContent = "";
+
+        } catch (error) {
+            message.textContent = "❌ " + error.message;
+        } finally {
+            loading = false;
+        }
+    }
+
+    bell.addEventListener("click", async () => {
+        panel.hidden = !panel.hidden;
+        bell.setAttribute("aria-expanded", String(!panel.hidden));
+
+        if (!panel.hidden) {
+            await loadNotifications();
+
+            try {
+                await api("/api/notifications", {});
+                await loadNotifications();
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        }
+    });
+
+    list.addEventListener("click", async event => {
+        const button = event.target.closest("button[data-invite-id]");
+        if (!button) return;
+
+        button.disabled = true;
+
+        try {
+            const result = await api("/api/invitations", {
+                id: Number(button.dataset.inviteId),
+                accept: button.dataset.accept === "true"
+            });
+
+            await loadNotifications();
+            message.textContent = "✅ " + result.message;
+
+            window.dispatchEvent(
+                new Event("team-members-changed")
+            );
+
+        } catch (error) {
+            message.textContent = "❌ " + error.message;
+            button.disabled = false;
+        }
+    });
+
+    document.addEventListener("click", event => {
+        if (!event.target.closest(".bell-wrapper")) {
+            panel.hidden = true;
+            bell.setAttribute("aria-expanded", "false");
+        }
+    });
+
+    setInterval(() => {
+        if (document.visibilityState === "visible") {
+            loadNotifications();
+        }
+    }, 15000);
+
+    loadNotifications();
 })();

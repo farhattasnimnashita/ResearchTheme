@@ -165,36 +165,66 @@ results.innerHTML = students.map(s => `
 
   select.addEventListener("change", loadMembers);
 
-  results.addEventListener("click", async event => {
-    const button = event.target.closest("button[data-student-id]");
-    if (!button) return;
+ 
+results.addEventListener("click", async event => {
+  const button = event.target.closest("button[data-student-id]");
+  if (!button) return;
 
-    if (!select.value) {
-      status.textContent = "Create or select your project first.";
-      return;
-    }
+  if (!select.value) {
+    status.textContent = "❌ Please create or select a project first.";
+    return;
+  }
 
+  button.disabled = true;
+  button.textContent = "Sending Invitation...";
+  status.textContent = "Sending invitation...";
+
+  try {
+    const result = await api("/api/team/invite", {
+      project_id: Number(select.value),
+      student_id: Number(button.dataset.studentId)
+    });
+
+    // Success message
+    status.textContent = "✅ " + result.message;
+
+    // Change button
+    button.textContent = "⏳ Waiting for Response...";
     button.disabled = true;
 
-    try {
-      const result = await api("/api/team/invite", {
-        project_id: Number(select.value),
-        student_id: Number(button.dataset.studentId)
-      });
+    // Find selected student card
+    const card = button.closest(".student-card");
+    const actions = button.closest(".student-actions");
 
-      status.textContent = result.message;
-      button.textContent = "Invitation Sent";
-    } catch (error) {
-      status.textContent = error.message;
-      button.disabled = false;
+    // Add pending status message
+    let pendingMessage = card.querySelector(".invitation-pending");
+
+    if (!pendingMessage) {
+      pendingMessage = document.createElement("div");
+      pendingMessage.className = "invitation-pending";
+      pendingMessage.setAttribute("role", "status");
+      actions.appendChild(pendingMessage);
     }
-  });
+
+    pendingMessage.innerHTML = `
+      <strong>✅ Invitation Sent Successfully!</strong>
+      <p>Your invitation has been sent.</p>
+      <span>⏳ Pending — Waiting for Acceptance</span>
+    `;
+
+  } catch (error) {
+    status.textContent = "❌ " + error.message;
+    button.textContent = "Invite to Team";
+    button.disabled = false;
+  }
+});
+
 
   async function initialize() {
     try {
       const me = await api("/api/me");
       const projects = await api("/api/collaboration-projects");
-      const mine = projects.filter(p => p.student_id === me.id);
+      const mine = projects;
 
       select.replaceChildren();
 
@@ -215,5 +245,12 @@ results.innerHTML = students.map(s => `
     }
   }
 
-  initialize();
+window.addEventListener("team-members-changed", initialize);
+
+window.addEventListener("hashchange", () => {
+    if (location.hash === "#team") {
+        loadMembers();
+    }
+});
+initialize();
 })();

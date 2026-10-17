@@ -1311,3 +1311,623 @@ button:focus-visible {
         width: 100%;
     }
 }
+/* Top Right Notification Bell */
+
+main > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.dashboard-notification {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: #f8e9ee;
+    border: 1px solid #e6c6d0;
+    color: #68152B;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: 0.2s ease;
+}
+
+.dashboard-notification:hover {
+    background: #68152B;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.notification-icon {
+    font-size: 20px;
+}
+
+#notification-count:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 50%;
+    background: #b4234a;
+    color: white;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    main > header {
+        flex-wrap: wrap;
+    }
+
+    .dashboard-notification {
+        padding: 10px 12px;
+    }
+}
+
+/* Invitation Waiting Status */
+
+.invitation-pending {
+    margin-top: 12px;
+    padding: 11px 15px;
+    background: #fff2dc;
+    color: #815400;
+    border: 1px solid #eed3a0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.student-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.student-actions button:disabled {
+    background: #e6cbd4;
+    color: #68152B;
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+/* ===================================
+   FULL PAGE 3D BACKGROUND
+   ResearchBridge
+   =================================== */
+
+body {
+    min-height: 100vh;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            ellipse at 85% 15%,
+            rgba(255,255,255,0.85),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 20% 75%,
+            rgba(182,133,183,0.35),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #fff9fa 0%,
+            #f6e3ec 35%,
+            #e9cddd 70%,
+            #dec2d7 100%
+        );
+
+    background-attachment: fixed;
+}
+
+/* Floating 3D Sphere - Top Right */
+
+body::before {
+    content: "";
+    position: fixed;
+
+    width: 340px;
+    height: 340px;
+    top: 12%;
+    right: 5%;
+
+    border-radius: 50%;
+
+    background: radial-gradient(
+        circle at 30% 25%,
+        rgba(255,255,255,0.95),
+        rgba(241,197,217,0.65) 40%,
+        rgba(148,68,92,0.28) 75%,
+        rgba(104,21,43,0.15)
+    );
+
+    box-shadow:
+        inset -25px -30px 50px rgba(104,21,43,0.12),
+        inset 15px 15px 35px rgba(255,255,255,0.9),
+        25px 35px 65px rgba(104,21,43,0.12);
+
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Floating 3D Sphere - Bottom Left */
+
+body::after {
+    content: "";
+    position: fixed;
+
+    width: 250px;
+    height: 250px;
+    bottom: 3%;
+    left: 24%;
+
+    border-radius: 50%;
+
+    background: radial-gradient(
+        circle at 28% 25%,
+        rgba(255,255,255,0.95),
+        rgba(220,202,240,0.65) 45%,
+        rgba(146,117,176,0.3) 80%
+    );
+
+    box-shadow:
+        inset -20px -25px 40px rgba(83,51,112,0.12),
+        20px 30px 55px rgba(83,51,112,0.12);
+
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Keep all dashboard content above background */
+
+main {
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar {
+    z-index: 2;
+}
+
+/* Mobile friendly */
+
+@media (max-width: 700px) {
+    body::before {
+        width: 190px;
+        height: 190px;
+        right: -45px;
+    }
+
+    body::after {
+        width: 150px;
+        height: 150px;
+        left: -35px;
+    }
+}
+/* =========================================
+   CHOOSE PROJECT — BEAUTIFUL UI
+   ========================================= */
+
+.project-picker-card {
+    padding: 28px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 68, 92, 0.16);
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(67, 13, 24, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.project-picker-card h2 {
+    margin: 6px 0 10px;
+    font-size: 32px;
+    color: #430D18;
+}
+
+.project-picker-card .description {
+    color: #6d5962;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+/* Top search and button */
+.project-ideas-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: end;
+    margin: 24px 0;
+    padding: 18px;
+    background: rgba(255, 245, 249, 0.92);
+    border: 1px solid #edd7df;
+    border-radius: 18px;
+}
+
+.project-ideas-toolbar label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #68152B;
+}
+
+.project-ideas-toolbar input {
+    width: 100%;
+    padding: 13px 15px;
+    border-radius: 14px;
+    border: 1px solid #d9bbc8;
+    background: white;
+    font-size: 14px;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(67, 13, 24, 0.04);
+}
+
+.project-ideas-toolbar input:focus {
+    border-color: #94445C;
+    box-shadow: 0 0 0 4px rgba(148, 68, 92, 0.12);
+}
+
+.project-ideas-toolbar .button.secondary {
+    height: 48px;
+    padding: 0 20px;
+    border-radius: 14px;
+    white-space: nowrap;
+}
+
+/* Project cards grid */
+.project-idea-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 26px;
+}
+
+/* Beautiful project buttons/cards */
+.project-idea-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    text-align: left;
+    gap: 8px;
+    min-height: 120px;
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+    border: 1px solid #e6ccd6;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,0.95), rgba(252,236,242,0.95));
+    box-shadow:
+        0 10px 20px rgba(67, 13, 24, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.project-idea-option:hover {
+    transform: translateY(-4px);
+    border-color: #c88ea6;
+    box-shadow:
+        0 18px 28px rgba(67, 13, 24, 0.11),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.project-idea-option[aria-pressed="true"] {
+    border: 2px solid #68152B;
+    background:
+        linear-gradient(145deg, #fff7fa, #f7dde8);
+    box-shadow:
+        0 18px 30px rgba(104, 21, 43, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.project-idea-option strong {
+    display: block;
+    font-size: 20px;
+    line-height: 1.35;
+    color: #430D18;
+    font-weight: 800;
+}
+
+.project-idea-option span {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f6e4eb;
+    color: #7b5162;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Selected project details form */
+.project-details-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(255, 247, 250, 0.95);
+    border: 1px solid #ead4dc;
+    border-radius: 22px;
+    box-shadow: 0 10px 22px rgba(67, 13, 24, 0.06);
+}
+
+.project-details-form h3 {
+    grid-column: 1 / -1;
+    margin: 0 0 4px;
+    font-size: 28px;
+    color: #430D18;
+}
+
+.project-details-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #68152B;
+}
+
+.project-details-form input,
+.project-details-form textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 14px;
+    border: 1px solid #d9bbc8;
+    background: white;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.project-details-form input:focus,
+.project-details-form textarea:focus {
+    border-color: #94445C;
+    box-shadow: 0 0 0 4px rgba(148, 68, 92, 0.12);
+}
+
+.project-details-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Make description field full width */
+.project-details-form label[for="new-project-description"],
+#new-project-description {
+    grid-column: 1 / -1;
+}
+
+.project-details-form .description {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #78636b;
+}
+
+#save-project-idea {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#project-idea-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-weight: 700;
+    color: #68152B;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .project-idea-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-details-form {
+        grid-template-columns: 1fr;
+    }
+
+    .project-ideas-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .project-ideas-toolbar .button.secondary {
+        width: 100%;
+    }
+
+    .project-picker-card h2 {
+        font-size: 26px;
+    }
+
+    .project-details-form h3 {
+        font-size: 24px;
+    }
+
+    .project-idea-option strong {
+        font-size: 18px;
+    }
+}
+/* Logged-in Student Welcome */
+
+#student-welcome {
+    font-size: 25px;
+    font-weight: 700;
+    color: #68152B;
+    margin: 8px 0 5px;
+}
+
+#page-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #856573;
+    margin-top: 0;
+}
+
+@media (max-width: 600px) {
+    #student-welcome {
+        font-size: 20px;
+    }
+}
+/* Header Actions */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Small Notification Button */
+
+.header-actions .dashboard-notification {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    border-radius: 12px;
+    background: #f8e9ee;
+    border: 1px solid #e6c6d0;
+
+    font-size: 19px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.header-actions .dashboard-notification:hover {
+    background: #efd3dd;
+    transform: translateY(-2px);
+}
+
+/* Notification Count */
+
+.header-actions #notification-count:not([hidden]) {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 19px;
+    height: 19px;
+    border-radius: 50%;
+
+    background: #b4234a;
+    color: white;
+    font-size: 10px;
+}
+
+/* Logout Button */
+
+.dashboard-logout {
+    height: 42px;
+    padding: 0 17px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: linear-gradient(135deg, #94445C, #68152B);
+    color: white;
+
+    font-weight: 600;
+    font-size: 13px;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.dashboard-logout:hover {
+    background: #430D18;
+    transform: translateY(-2px);
+}
+
+.dashboard-logout:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+@media (max-width: 600px) {
+    .header-actions {
+        gap: 8px;
+    }
+
+    .dashboard-logout {
+        padding: 0 12px;
+    }
+}
+/* Notification Bell Dropdown */
+
+.bell-wrapper {
+    position: relative;
+}
+
+.notification-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(360px, calc(100vw - 30px));
+    max-height: 450px;
+    overflow-y: auto;
+    z-index: 100;
+
+    padding: 20px;
+    background: #fffafa;
+    border: 1px solid #e8c5cf;
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(67, 13, 24, 0.18);
+}
+
+.notification-panel[hidden] {
+    display: none !important;
+}
+
+.notification-panel h3 {
+    color: #430D18;
+    margin-bottom: 16px;
+}
+
+.notification-panel h4 {
+    margin: 18px 0 10px;
+    color: #68152B;
+}
+
+.bell-item {
+    padding: 14px;
+    background: linear-gradient(145deg, #fff, #f8e9ee);
+    border: 1px solid #ecd4dd;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.bell-item p {
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+.bell-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.bell-actions .button {
+    padding: 8px 14px;
+    font-size: 12px;
+}
+
+#notification-message {
+    font-size: 13px;
+    color: #68152B;
+}

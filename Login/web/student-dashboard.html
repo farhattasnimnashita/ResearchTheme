@@ -21,6 +21,7 @@
         <nav aria-label="Student menu">
             <a href="#dashboard" class="active">Dashboard</a>
             <a href="#profile">My Profile</a>
+            <a href="#project-ideas">Choose Project</a>
             <a href="#team">My Team</a>
             <a href="#supervisor">Supervisor</a>
             <a href="#proposal">Proposal</a>
@@ -36,14 +37,39 @@
     </aside>
 
     <main>
-        <header>
-            <div>
-                <p class="eyebrow">YOUR RESEARCH WORKSPACE</p>
-                <h1 id="page-title">Student Dashboard</h1>
-            </div>
+        <header class="dashboard-topbar">
+    <div class="dashboard-title-block">
+        <p class="eyebrow">YOUR RESEARCH WORKSPACE</p>
+        <h2 id="student-welcome">Welcome!</h2>
+        <h1 id="page-title">Student Dashboard</h1>
+    </div>
 
-            <span class="preview">Design preview</span>
-        </header>
+    <div class="header-actions">
+        <div class="bell-wrapper">
+    <button type="button"
+            id="notification-bell"
+            class="dashboard-notification"
+            aria-label="Notifications"
+            aria-expanded="false"
+            aria-controls="notification-panel">
+        🔔
+        <span id="notification-count" hidden></span>
+    </button>
+
+    <div id="notification-panel" class="notification-panel" hidden>
+        <h3>🔔 Notifications</h3>
+        <p id="notification-message" role="status"></p>
+        <div id="notification-list">Loading...</div>
+    </div>
+</div>
+
+        <button type="button"
+                id="student-logout"
+                class="dashboard-logout">
+            ↪ Logout
+        </button>
+    </div>
+</header>
 
         <!-- Dashboard -->
         <section id="dashboard" class="page">
@@ -250,7 +276,62 @@
 </button>
             </article>
         </section>
+<!-- Choose Project -->
+<section id="project-ideas" class="page" hidden>
+    <article class="card project-picker-card">
+        <p class="eyebrow">RESEARCH IDEAS</p>
+        <h2>Choose Your Research Project</h2>
+        <p class="description">
+            Explore suggested topics or create your own unique project.
+        </p>
 
+        <div class="project-ideas-toolbar">
+            <label for="project-idea-search">Search Suggested Projects</label>
+            <input type="search" id="project-idea-search"
+                   placeholder="AI, Web, Data Science, IoT...">
+
+            <button type="button" class="button secondary"
+                    id="custom-project-button">
+                + Create My Own Project
+            </button>
+        </div>
+
+        <div id="project-idea-list" class="project-idea-grid"></div>
+
+        <form id="project-idea-form" class="project-details-form">
+            <h3>Selected Project Details</h3>
+
+            <label for="new-project-title">Project Name</label>
+            <input id="new-project-title" type="text"
+                   minlength="5" maxlength="160" required
+                   placeholder="Enter your project name">
+
+            <label for="new-project-area">Research Area</label>
+            <input id="new-project-area" type="text"
+                   minlength="2" maxlength="80" required
+                   placeholder="e.g. Artificial Intelligence">
+
+            <label for="new-project-description">
+                Short Project Description
+            </label>
+            <textarea id="new-project-description"
+                      rows="4" minlength="20" maxlength="6000"
+                      required
+                      placeholder="Describe your project idea..."></textarea>
+
+            <p class="description">
+                This will be saved as a draft.
+                You can develop the proposal before supervisor review.
+            </p>
+
+            <button type="submit" class="button" id="save-project-idea">
+                Save Project & Continue to My Team →
+            </button>
+
+            <p id="project-idea-status" role="status"></p>
+        </form>
+    </article>
+</section>
         <!-- Team -->
         <section id="team" class="page" hidden>
             <article class="card">
@@ -272,6 +353,14 @@
                 </div>
             </article>
         </section>
+        <!-- Notifications -->
+<section id="notifications" class="page" hidden>
+    <article class="card">
+        <h2>🔔 Team Notifications</h2>
+        <p id="notification-message" role="status"></p>
+        <div id="notification-list">Loading notifications...</div>
+    </article>
+</section>
 
         <!-- Supervisor -->
         <section id="supervisor" class="page" hidden>
@@ -376,5 +465,6 @@
 
        <script src="/assets/nashita-dashboard.js" defer></script>
        <script src="/assets/team-search.js" defer></script>
+       <script src="/assets/project-ideas.js" defer></script>
 </body>
 </html>
