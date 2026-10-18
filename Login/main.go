@@ -33,6 +33,7 @@ type Config struct {
 	Addr, URL, DBPath, Env, EmailMode, APIKey, EmailFrom string
 	SMTPUser, SMTPPass                                   string
 	DatabaseURL                                          string
+	SupabaseURL, SupabaseKey                             string
 }
 type App struct {
 	db        *Database
@@ -107,7 +108,8 @@ func env(k, d string) string {
 func config() (Config, error) {
 	c := Config{
 		DatabaseURL: strings.TrimSpace(os.Getenv("DATABASE_URL")),
-		Addr:        env("APP_ADDR", "127.0.0.1:8080"), URL: env("APP_URL", "http://localhost:8080"),
+		SupabaseURL: strings.TrimRight(strings.TrimSpace(os.Getenv("SUPABASE_URL")), "/"), SupabaseKey: strings.TrimSpace(os.Getenv("SUPABASE_PUBLISHABLE_KEY")),
+		Addr: env("APP_ADDR", "127.0.0.1:8080"), URL: env("APP_URL", "http://localhost:8080"),
 		DBPath: env("DB_PATH", "researchbridge.db"), Env: env("APP_ENV", "development"),
 		EmailMode: env("EMAIL_MODE", "console"), APIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom: os.Getenv("EMAIL_FROM"), SMTPUser: strings.TrimSpace(os.Getenv("SMTP_USER")),
@@ -117,8 +119,8 @@ func config() (Config, error) {
 	if e != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" || (u.Scheme != "http" && u.Scheme != "https") {
 		return c, errors.New("APP_URL must be an http(s) origin without trailing slash")
 	}
-	if c.EmailMode != "console" && c.EmailMode != "resend" && c.EmailMode != "smtp" {
-		return c, errors.New("EMAIL_MODE must be console, resend or smtp")
+	if c.EmailMode != "console" && c.EmailMode != "resend" && c.EmailMode != "smtp" && c.EmailMode != "supabase" {
+		return c, errors.New("EMAIL_MODE must be console, resend, smtp or supabase")
 	}
 	if c.Env != "development" && c.Env != "production" {
 		return c, errors.New("APP_ENV must be development or production")
@@ -157,6 +159,15 @@ func config() (Config, error) {
 			return c, errors.New("EMAIL_FROM must use the same Gmail address as SMTP_USER")
 		}
 	}
+	if c.EmailMode == "supabase" {
+		endpoint, err := url.Parse(c.SupabaseURL)
+		if err != nil || endpoint.Scheme != "https" || endpoint.Host == "" || endpoint.Path != "" || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" || c.SupabaseKey == "" {
+			return c, errors.New("SUPABASE_URL must be an HTTPS origin and SUPABASE_PUBLISHABLE_KEY is required")
+		}
+		if strings.HasPrefix(c.SupabaseKey, "sb_secret_") {
+			return c, errors.New("Use the publishable key, not a Supabase secret key")
+		}
+	}
 	return c, nil
 }
 func openSQLite(path string) (*sql.DB, error) {
@@ -166,19 +177,7 @@ func openSQLite(path string) (*sql.DB, error) {
 	}
 	db.SetMaxOpenConns(1)
 	_, e = db.Exec(`PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL;
-CREATE TABLE IF NOT EXISTS users(
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('student','teacher')),
-    verified INTEGER NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL,
-    institution TEXT NOT NULL DEFAULT '',
-    department TEXT NOT NULL DEFAULT '',
-    academic_year TEXT NOT NULL DEFAULT '',
-    semester TEXT NOT NULL DEFAULT ''
-);
+ CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('student','teacher')),verified INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS verifications(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,student_id INTEGER NOT NULL REFERENCES users(id),teacher_id INTEGER REFERENCES users(id),title TEXT NOT NULL,area TEXT NOT NULL,abstract TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','submitted','approved','changes_requested','rejected')),feedback TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL);`)
@@ -232,6 +231,9 @@ func email(s string) (string, bool) {
 func role(s string) bool { return s == "student" || s == "teacher" }
 func (a *App) routes() http.Handler {
 	m := http.NewServeMux()
+	m.HandleFunc("GET /api/auth-config", func(w http.ResponseWriter, r *http.Request) {
+		reply(w, 200, map[string]bool{"supabase": a.cfg.EmailMode == "supabase"})
+	})
 	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
 	m.HandleFunc("GET /api/students", a.searchStudents)
 	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
@@ -305,6 +307,9 @@ func (a *App) routes() http.Handler {
 		if p == "/forgot-password" || p == "/reset-password" {
 			page = "web/password-recovery.html"
 		}
+		if a.cfg.EmailMode == "supabase" && (p == "/verify" || p == "/forgot-password" || p == "/reset-password") {
+			page = "web/supabase-otp.html"
+		}
 		b, e := frontend.ReadFile(page)
 		if e != nil {
 			http.Error(w, "Page unavailable", 500)
@@ -363,10 +368,20 @@ func (a *App) user(r *http.Request) (User, error) {
 	if e != nil {
 		return u, e
 	}
+	if a.cfg.EmailMode == "supabase" {
+		var present int
+		if a.db.QueryRow("SELECT 1 FROM supabase_sessions WHERE hash=?", digest(c.Value)).Scan(&present) != nil {
+			return u, errors.New("sign in again")
+		}
+	}
 	e = a.db.QueryRow(`SELECT u.id,u.name,u.email,u.role,u.verified,u.institution,u.department,u.academic_year,u.semester FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires>? AND u.verified=1`, digest(c.Value), time.Now().Unix()).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.Verified, &u.Institution, &u.Department, &u.AcademicYear, &u.Semester)
 	return u, e
 }
 func (a *App) register(w http.ResponseWriter, r *http.Request) {
+	if a.cfg.EmailMode == "supabase" {
+		a.sbRegister(w, r)
+		return
+	}
 	var c credentials
 	if !decode(w, r, &c) {
 		return
@@ -426,6 +441,10 @@ func (a *App) issueVerification(id int64, em string) error {
 	return nil
 }
 func (a *App) resend(w http.ResponseWriter, r *http.Request) {
+	if a.cfg.EmailMode == "supabase" {
+		a.sbResend(w, r)
+		return
+	}
 	var c struct {
 		Email string `json:"email"`
 	}
@@ -452,6 +471,10 @@ func (a *App) resend(w http.ResponseWriter, r *http.Request) {
 	reply(w, 200, map[string]string{"message": msg})
 }
 func (a *App) verify(w http.ResponseWriter, r *http.Request) {
+	if a.cfg.EmailMode == "supabase" {
+		a.sbVerify(w, r)
+		return
+	}
 	var c struct {
 		Token string `json:"token"`
 	}
@@ -495,6 +518,10 @@ func (a *App) verify(w http.ResponseWriter, r *http.Request) {
 var dummyHash, _ = bcrypt.GenerateFromPassword([]byte("unused-timing-password"), bcrypt.DefaultCost)
 
 func (a *App) login(w http.ResponseWriter, r *http.Request) {
+	if a.cfg.EmailMode == "supabase" {
+		a.sbLogin(w, r)
+		return
+	}
 	var c credentials
 	if !decode(w, r, &c) {
 		return
@@ -572,16 +599,15 @@ func main() {
 		log.Fatal(e)
 	}
 	defer db.Close()
-
-	if e = seedDemoStudents(db); e != nil {
-		log.Fatal("Seed demo students: ", e)
+	if c.EmailMode == "supabase" {
+		if e = initSupabaseTables(db); e != nil {
+			log.Fatal("Could not initialize Supabase Auth mappings: ", e)
+		}
 	}
 	fmt.Printf("Database mode: %s\n", db.Mode())
-
 	a := &App{db: db, cfg: c}
 	a.send = a.sendEmail
-	server := &http.Server{Addr: c.Addr, Handler: a.routes(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
+	server := &http.Server{Addr: c.Addr, Handler: a.routes(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 90 * time.Second, IdleTimeout: 60 * time.Second}
 	fmt.Printf("ResearchBridge: %s\nEmail mode: %s\n", c.URL, c.EmailMode)
 	log.Fatal(server.ListenAndServe())
 }
-

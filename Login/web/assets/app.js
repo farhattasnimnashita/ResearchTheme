@@ -1,3 +1,4 @@
+let supabaseAuth = false;
 "use strict";
 const root = document.querySelector("#app");
 let state = {
@@ -215,6 +216,7 @@ function makeDialog(title, content) {
   return d;
 }
 function resendDialog() {
+ if (supabaseAuth) { location.assign("/verify"); return; }
   const d = makeDialog(
     "Verify your email.",
     `<p class="muted small">Enter the email you used to register. Links expire after 30 minutes.</p><div class="notice" id="resend-message" role="status"></div><form id="resend-form"><label class="field">Email address<input type="email" name="email" autocomplete="email" required></label><button class="btn wide">Send verification link →</button></form>`,
@@ -439,6 +441,11 @@ function reviewProject(p) {
   );
   bindDialog(d, `/api/projects/${p.id}/review`, (data) => data);
 }
-if (location.pathname === "/verify") verifyPage();
+async function bootAuth() {
+ try { const r=await fetch("/api/auth-config"); if(!r.ok)throw Error(); supabaseAuth=(await r.json()).supabase; } catch (_) { root.textContent="Unable to load authentication settings. Refresh to try again.";return; }
+ if (location.pathname === "/verify") verifyPage();
 else if (location.pathname.startsWith("/dashboard/") || location.pathname === "/workspace/student") loadDashboard();
 else authPage();
+
+}
+bootAuth();

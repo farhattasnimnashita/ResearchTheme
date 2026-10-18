@@ -154,14 +154,14 @@ func seedDemoStudents(db *Database) error {
 	}
 
 	for _, s := range students {
-		// Create the demo student if the email does not already exist.
-
+		// Create the student if no conflicting record exists.
 		_, err := db.Exec(`
-    INSERT OR IGNORE INTO users
-        (name, email, password_hash, role, verified, created_at,
-         institution, department, academic_year, semester)
-    VALUES (?, ?, ?, 'student', 1, ?, ?, ?, ?, ?)
-`,
+			INSERT INTO users
+				(name, email, password_hash, role, verified, created_at,
+				 institution, department, academic_year, semester)
+			VALUES (?, ?, ?, 'student', 1, ?, ?, ?, ?, ?)
+			ON CONFLICT DO NOTHING
+		`,
 			s.name,
 			s.email,
 			"demo-account-no-login",
@@ -175,7 +175,7 @@ func seedDemoStudents(db *Database) error {
 			return fmt.Errorf("insert demo student %s: %w", s.email, err)
 		}
 
-		// Update existing demo accounts too, including their universities.
+		// Update existing demo students.
 		_, err = db.Exec(`
 			UPDATE users
 			SET name = ?,
@@ -199,15 +199,14 @@ func seedDemoStudents(db *Database) error {
 		var userID int64
 
 		err = db.QueryRow(`
-    SELECT id FROM users
-    WHERE email = ?
-`, s.email).Scan(&userID)
-
+			SELECT id FROM users
+			WHERE email = ?
+		`, s.email).Scan(&userID)
 		if err != nil {
 			return fmt.Errorf("find demo student %s: %w", s.email, err)
 		}
 
-		// Add or update the research profile for this student.
+		// Add or update the student's research profile.
 		_, err = db.Exec(`
 			INSERT INTO researcher_profiles
 				(user_id, bio, interests, expertise)
