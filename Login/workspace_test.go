@@ -261,8 +261,10 @@ func TestAllResearchModulesPersistAndMigrationRepeats(t *testing.T) {
 		a.limits = nil
 		saveRecordTest(t, a, supervisor, 0, WorkspaceRecord{Kind: kind, Title: "Published " + kind, Body: "Members, projects, details and application instructions", Status: "published"})
 	}
-	if err := migrateWorkspace(a.db); err != nil {
-		t.Fatal(err)
+	if !a.db.postgres {
+		if err := migrateWorkspace(a.db.DB); err != nil {
+			t.Fatal(err)
+		}
 	}
 	var n int
 	a.db.QueryRow("SELECT COUNT(*) FROM workspace_records WHERE project_id=?", id).Scan(&n)

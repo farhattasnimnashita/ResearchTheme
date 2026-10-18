@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -15,11 +17,25 @@ import (
 
 func setup(t *testing.T) (*App, map[string]string) {
 	t.Helper()
-	db, e := openDB(filepath.Join(t.TempDir(), "test.db"))
+	var db *Database
+	var e error
+	if connection := os.Getenv("POSTGRES_TEST_URL"); connection != "" {
+		schema := fmt.Sprintf("rb_test_%d", time.Now().UnixNano())
+		db, e = openPostgresSchema(connection, schema)
+		if e == nil {
+			t.Cleanup(func() { db.Exec("DROP SCHEMA " + schema + " CASCADE"); db.Close() })
+		}
+	} else {
+		db, e = openDB(filepath.Join(t.TempDir(), "test.db"))
+	}
 	if e != nil {
 		t.Fatal(e)
 	}
-	t.Cleanup(func() { db.Close() })
+	t.Cleanup(func() {
+		if !db.postgres {
+			db.Close()
+		}
+	})
 	links := map[string]string{}
 	a := &App{db: db, cfg: Config{URL: "http://localhost:8080", EmailMode: "console"}}
 	a.send = func(email, link string) error { links[email] = link; return nil }

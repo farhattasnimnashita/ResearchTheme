@@ -32,9 +32,10 @@ var frontend embed.FS
 type Config struct {
 	Addr, URL, DBPath, Env, EmailMode, APIKey, EmailFrom string
 	SMTPUser, SMTPPass                                   string
+	DatabaseURL                                          string
 }
 type App struct {
-	db        *sql.DB
+	db        *Database
 	cfg       Config
 	send      func(string, string) error
 	mu        sync.Mutex
@@ -105,7 +106,8 @@ func env(k, d string) string {
 }
 func config() (Config, error) {
 	c := Config{
-		Addr: env("APP_ADDR", "127.0.0.1:8080"), URL: env("APP_URL", "http://localhost:8080"),
+		DatabaseURL: strings.TrimSpace(os.Getenv("DATABASE_URL")),
+		Addr:        env("APP_ADDR", "127.0.0.1:8080"), URL: env("APP_URL", "http://localhost:8080"),
 		DBPath: env("DB_PATH", "researchbridge.db"), Env: env("APP_ENV", "development"),
 		EmailMode: env("EMAIL_MODE", "console"), APIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom: os.Getenv("EMAIL_FROM"), SMTPUser: strings.TrimSpace(os.Getenv("SMTP_USER")),
@@ -157,7 +159,7 @@ func config() (Config, error) {
 	}
 	return c, nil
 }
-func openDB(path string) (*sql.DB, error) {
+func openSQLite(path string) (*sql.DB, error) {
 	db, e := sql.Open("sqlite", path)
 	if e != nil {
 		return nil, e
@@ -220,7 +222,7 @@ func (a *App) routes() http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
 	m.HandleFunc("GET /api/students", a.searchStudents)
-m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
+	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
 	m.HandleFunc("POST /api/forgot-password", a.forgotPassword)
 	m.HandleFunc("POST /api/reset-password", a.resetPassword)
 	m.HandleFunc("GET /api/researcher-profile", a.researcherProfile)
@@ -372,7 +374,7 @@ func (a *App) register(w http.ResponseWriter, r *http.Request) {
 		fail(w, 500, "Could not secure password.")
 		return
 	}
-	result, e := a.db.Exec(`INSERT INTO users(name,email,password_hash,role,created_at,institution,department,academic_year,semester) VALUES(?,?,?,?,?,?,?,?,?)`, c.Name, em, string(h), c.Role, time.Now().Unix(), c.Institution, c.Department, c.AcademicYear, c.Semester)
+	id, e := a.db.InsertID(`INSERT INTO users(name,email,password_hash,role,created_at,institution,department,academic_year,semester) VALUES(?,?,?,?,?,?,?,?,?)`, c.Name, em, string(h), c.Role, time.Now().Unix(), c.Institution, c.Department, c.AcademicYear, c.Semester)
 	if e != nil {
 		var id int64
 		if a.db.QueryRow("SELECT id FROM users WHERE email=?", em).Scan(&id) == nil {
@@ -380,11 +382,6 @@ func (a *App) register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fail(w, 500, "Could not save account.")
 		}
-		return
-	}
-	id, e := result.LastInsertId()
-	if e != nil {
-		fail(w, 500, "Could not finish registration.")
 		return
 	}
 	if e = a.issueVerification(id, em); e != nil {
@@ -558,11 +555,12 @@ func main() {
 	if e != nil {
 		log.Fatal(e)
 	}
-	db, e := openDB(c.DBPath)
+	db, e := openConfiguredDB(c)
 	if e != nil {
 		log.Fatal(e)
 	}
 	defer db.Close()
+	fmt.Printf("Database mode: %s\n", db.Mode())
 	a := &App{db: db, cfg: c}
 	a.send = a.sendEmail
 	server := &http.Server{Addr: c.Addr, Handler: a.routes(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
