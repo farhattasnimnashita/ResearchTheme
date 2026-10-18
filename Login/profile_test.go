@@ -96,7 +96,7 @@ func TestProfileMigrationPreservesExistingData(t *testing.T) {
 		t.Fatal(err)
 	}
 	db.Close()
-	db, err = openDB(path)
+	db, err = openSQLite(path)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestProfileMigrationPreservesExistingData(t *testing.T) {
 		t.Fatal(err)
 	}
 	db.Close()
-	db, err = openDB(path)
+	db, err = openSQLite(path)
 	if err != nil {
 		t.Fatal(err)
 	}

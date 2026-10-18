@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 )
@@ -18,7 +17,7 @@ type demoStudent struct {
 	bio        string
 }
 
-func seedDemoStudents(db *sql.DB) error {
+func seedDemoStudents(db *Database) error {
 	students := []demoStudent{
 		{
 			name:       "Ayesha Rahman",

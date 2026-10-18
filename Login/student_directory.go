@@ -34,6 +34,7 @@ func (a *App) searchStudents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pattern := "%" + strings.NewReplacer("!", "!!", "%", "!%", "_", "!_").Replace(q) + "%"
 	rows, err := a.db.Query(`
         SELECT u.id, u.name, u.institution,
                u.department, u.academic_year, u.semester,
@@ -46,15 +47,15 @@ func (a *App) searchStudents(w http.ResponseWriter, r *http.Request) {
           AND u.id != ?
           AND (
               ? = ''
-              OR instr(lower(u.name), lower(?)) > 0
-              OR instr(lower(u.department), lower(?)) > 0
-              OR instr(lower(u.institution), lower(?)) > 0
-              OR instr(lower(COALESCE(rp.expertise,'')), lower(?)) > 0
-              OR instr(lower(COALESCE(rp.interests,'')), lower(?)) > 0
+              OR lower(u.name) LIKE lower(?) ESCAPE '!'
+              OR lower(u.department) LIKE lower(?) ESCAPE '!'
+              OR lower(u.institution) LIKE lower(?) ESCAPE '!'
+              OR lower(COALESCE(rp.expertise,'')) LIKE lower(?) ESCAPE '!'
+              OR lower(COALESCE(rp.interests,'')) LIKE lower(?) ESCAPE '!'
           )
-        ORDER BY u.name COLLATE NOCASE
+        ORDER BY lower(u.name),u.id
         LIMIT 50
-    `, me.ID, q, q, q, q, q, q)
+    `, me.ID, q, pattern, pattern, pattern, pattern, pattern)
 
 	if err != nil {
 		fail(w, 500, "Could not search students.")

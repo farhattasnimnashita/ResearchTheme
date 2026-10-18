@@ -113,14 +113,9 @@ func (a *App) createProject(w http.ResponseWriter, r *http.Request) {
 		}
 		teacher = p.TeacherID
 	}
-	result, e := a.db.Exec("INSERT INTO projects(student_id,teacher_id,title,area,abstract,updated_at) VALUES(?,?,?,?,?,?)", u.ID, teacher, p.Title, p.Area, p.Abstract, time.Now().Unix())
+	id, e := a.db.InsertID("INSERT INTO projects(student_id,teacher_id,title,area,abstract,updated_at) VALUES(?,?,?,?,?,?)", u.ID, teacher, p.Title, p.Area, p.Abstract, time.Now().Unix())
 	if e != nil {
 		fail(w, 500, "Could not save proposal.")
-		return
-	}
-	id, e := result.LastInsertId()
-	if e != nil {
-		fail(w, 500, "Could not finish saving.")
 		return
 	}
 	reply(w, 201, map[string]any{"id": id, "message": "Draft saved. Submit it when you are ready for review."})

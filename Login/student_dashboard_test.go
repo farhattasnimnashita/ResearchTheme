@@ -19,7 +19,7 @@ func TestResearchThemeDashboardAccess(t *testing.T) {
 	student := loginUser(t, a, "student@example.com", "student")
 	w := call(t, a, "GET", "/dashboard/student", nil, student)
 	expect(t, w, 200)
-	if !strings.Contains(w.Body.String(), "/assets/researchtheme-dashboard.js") || strings.Contains(w.Body.String(), "<script>") {
+	if !strings.Contains(w.Body.String(), "/assets/nashita-dashboard.js") || strings.Contains(w.Body.String(), "<script>") {
 		t.Fatal("must serve imported dashboard with CSP-compatible external script")
 	}
 	expect(t, call(t, a, "GET", "/workspace/student", nil, student), 200)

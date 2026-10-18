@@ -62,12 +62,11 @@ func (a *App) workspaceFiles(w http.ResponseWriter, r *http.Request) {
 			fail(w, 409, "This project has reached its 64 MB attachment limit. Use a repository or document link instead.")
 			return
 		}
-		result, e := tx.Exec("INSERT INTO workspace_files(project_id,author_id,name,media_type,data,created_at) VALUES(?,?,?,?,?,?)", pid, u.ID, name, "application/octet-stream", data, time.Now().Unix())
+		id, e := tx.InsertID("INSERT INTO workspace_files(project_id,author_id,name,media_type,data,created_at) VALUES(?,?,?,?,?,?)", pid, u.ID, name, "application/octet-stream", data, time.Now().Unix())
 		if e != nil {
 			fail(w, 500, "Could not upload file.")
 			return
 		}
-		id, _ := result.LastInsertId()
 		if tx.Commit() != nil {
 			fail(w, 500, "Could not save file.")
 			return

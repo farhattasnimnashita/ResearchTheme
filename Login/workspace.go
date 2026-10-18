@@ -171,10 +171,10 @@ func (a *App) invitations(w http.ResponseWriter, r *http.Request) {
 		}
 		defer tx.Rollback()
 
-var projectID, ownerID int64
-var projectTitle string
+		var projectID, ownerID int64
+		var projectTitle string
 
-err := tx.QueryRow(`
+		err := tx.QueryRow(`
     SELECT r.project_id, p.student_id, p.title
     FROM workspace_records r
     JOIN projects p ON p.id = r.project_id
@@ -183,94 +183,94 @@ err := tx.QueryRow(`
       AND r.kind = 'invitation'
       AND r.status = 'pending'
 `, in.ID, u.ID).Scan(
-    &projectID,
-    &ownerID,
-    &projectTitle,
-)
+			&projectID,
+			&ownerID,
+			&projectTitle,
+		)
 
-if err != nil {
-    fail(w, 404, "Invitation not found or already processed.")
-    return
-}
+		if err != nil {
+			fail(w, 404, "Invitation not found or already processed.")
+			return
+		}
 
-status := "declined"
-message := u.Name + " rejected your invitation for " +
-    projectTitle + ". Find another team member."
+		status := "declined"
+		message := u.Name + " rejected your invitation for " +
+			projectTitle + ". Find another team member."
 
-if in.Accept {
-    var memberCount int
+		if in.Accept {
+			var memberCount int
 
-    err = tx.QueryRow(`
+			err = tx.QueryRow(`
         SELECT COUNT(*)
         FROM team_members
         WHERE project_id = ?
     `, projectID).Scan(&memberCount)
 
-    if err != nil {
-        fail(w, 500, "Could not check team size.")
-        return
-    }
+			if err != nil {
+				fail(w, 500, "Could not check team size.")
+				return
+			}
 
-    if memberCount >= 2 {
-        fail(w, 409, "This team is already full.")
-        return
-    }
+			if memberCount >= 2 {
+				fail(w, 409, "This team is already full.")
+				return
+			}
 
-    _, err = tx.Exec(`
-        INSERT OR IGNORE INTO team_members
+			_, err = tx.Exec(`
+        INSERT INTO team_members
         (project_id, user_id)
-        VALUES (?, ?)
+        VALUES (?, ?) ON CONFLICT(project_id,user_id) DO NOTHING
     `, projectID, u.ID)
 
-    if err != nil {
-        fail(w, 500, "Could not join team.")
-        return
-    }
+			if err != nil {
+				fail(w, 500, "Could not join team.")
+				return
+			}
 
-    status = "accepted"
-    message = u.Name + " accepted your invitation for " +
-        projectTitle + " and joined your team."
-}
+			status = "accepted"
+			message = u.Name + " accepted your invitation for " +
+				projectTitle + " and joined your team."
+		}
 
-// Save the invitation decision.
-_, err = tx.Exec(`
+		// Save the invitation decision.
+		_, err = tx.Exec(`
     UPDATE workspace_records
     SET status = ?, updated_at = ?
     WHERE id = ? AND status = 'pending'
 `, status, time.Now().Unix(), in.ID)
 
-if err != nil {
-    fail(w, 500, "Could not update invitation.")
-    return
-}
+		if err != nil {
+			fail(w, 500, "Could not update invitation.")
+			return
+		}
 
-// Notify the team owner about acceptance or rejection.
-_, err = tx.Exec(`
+		// Notify the team owner about acceptance or rejection.
+		_, err = tx.Exec(`
     INSERT INTO workspace_notifications
     (user_id, project_id, kind, message, created_at)
     VALUES (?, ?, 'team', ?, ?)
 `, ownerID, projectID, message, time.Now().Unix())
 
-if err != nil {
-    fail(w, 500, "Could not create notification.")
-    return
-}
+		if err != nil {
+			fail(w, 500, "Could not create notification.")
+			return
+		}
 
-if err = tx.Commit(); err != nil {
-    fail(w, 500, "Could not finish invitation.")
-    return
-}
+		if err = tx.Commit(); err != nil {
+			fail(w, 500, "Could not finish invitation.")
+			return
+		}
 
-if in.Accept {
-    reply(w, 200, map[string]string{
-        "message": "Invitation accepted. You are now a team member.",
-    })
-} else {
-    reply(w, 200, map[string]string{
-        "message": "Invitation rejected.",
-    })
-}
-return
+		if in.Accept {
+			reply(w, 200, map[string]string{
+				"message": "Invitation accepted. You are now a team member.",
+			})
+		} else {
+			reply(w, 200, map[string]string{
+				"message": "Invitation rejected.",
+			})
+		}
+		return
 
 	}
 	rows, e := a.db.Query("SELECT r.id,p.title,u.name FROM workspace_records r JOIN projects p ON p.id=r.project_id JOIN users u ON u.id=r.author_id WHERE r.kind='invitation' AND r.status='pending' AND r.assignee_id=?", u.ID)
@@ -491,10 +491,10 @@ func (a *App) saveRecord(w http.ResponseWriter, r *http.Request, u User, pid int
 		parent = in.ParentID
 	}
 	if in.ID == 0 {
-		result, err := tx.Exec(`INSERT INTO workspace_records(project_id,author_id,kind,title,body,link,status,feedback,due_at,progress,score,criteria,assignee_id,parent_id,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, project, u.ID, in.Kind, in.Title, in.Body, in.Link, in.Status, in.Feedback, in.DueAt, in.Progress, in.Score, in.Criteria, assignee, parent, in.UpdatedAt)
+		id, err := tx.InsertID(`INSERT INTO workspace_records(project_id,author_id,kind,title,body,link,status,feedback,due_at,progress,score,criteria,assignee_id,parent_id,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, project, u.ID, in.Kind, in.Title, in.Body, in.Link, in.Status, in.Feedback, in.DueAt, in.Progress, in.Score, in.Criteria, assignee, parent, in.UpdatedAt)
 		e = err
 		if e == nil {
-			in.ID, e = result.LastInsertId()
+			in.ID = id
 		}
 		in.AuthorID = u.ID
 	} else {
@@ -506,7 +506,7 @@ func (a *App) saveRecord(w http.ResponseWriter, r *http.Request, u User, pid int
 	if e == nil {
 		_, e = tx.Exec("INSERT INTO workspace_history(record_id,actor_id,snapshot,created_at) VALUES(?,?,?,?)", in.ID, u.ID, string(snapshot), time.Now().Unix())
 	}
-	
+
 	if e == nil {
 		e = tx.Commit()
 	}
