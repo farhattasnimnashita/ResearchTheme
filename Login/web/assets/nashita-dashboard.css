@@ -1931,3 +1931,223 @@ main {
     font-size: 13px;
     color: #68152B;
 }
+/* ===== Sidebar image background ===== */
+
+.sidebar {
+    background-color: #430D18;   /* image er upore faka jayga bhorbe */
+    background-image:
+        linear-gradient(180deg,
+            rgba(67, 13, 24, 0.88) 0%,
+            rgba(90, 26, 53, 0.72) 100%),
+        url("istockphoto-2073274980-612x612.jpg");
+    background-size: 100% 100%, 100% auto;   /* 1st = gradient (puro), 2nd = image */
+    background-position: center, center bottom;
+    background-repeat: no-repeat, no-repeat;
+    border-right: none;
+}
+
+/* Text readable korar jonno light color */
+
+.sidebar .brand { color: #fff; }
+
+.sidebar .logo {
+    background: #FAEDEA;
+    color: var(--maroon);
+}
+
+.sidebar .menu-title { color: #e8c5cf; }
+
+.sidebar nav a { color: #f6e3e9; }
+
+.sidebar nav a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.sidebar nav a.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-left-color: #FFEAC9;
+}
+
+.sidebar .sidebar-note {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.sidebar .sidebar-note p { color: #f3d8e0; }
+/* ===== Welcome banner image background (add at the very end) ===== */
+
+/* 1) Baire er banner e image + left side e halka white layer (text porar jonno) */
+#dashboard > .banner {
+
+background-image:
+    linear-gradient(90deg,
+        rgba(255, 255, 255, 0.65) 0%,
+        rgba(255, 255, 255, 0.35) 45%,
+        rgba(255, 255, 255, 0) 80%),
+    url("research-bg-books.jpg");
+
+background-size: cover;
+background-position: center bottom;
+background-repeat: no-repeat;
+box-shadow: 0 12px 30px rgba(104, 21, 43, 0.12);
+}
+
+
+/* purono decorative circle gulo bondho */
+#dashboard > .banner::before,
+#dashboard > .banner::after {
+    display: none;
+}
+
+/* 2) Bhitor er step-shape er rong muche dao, jate image dekha jay */
+.banner.team-banner::before {
+    background: none;
+}
+
+/* 3) Text er color dark maroon */
+#dashboard > .banner .banner-label { color: #8a3a55; }
+
+#dashboard > .banner h2 { color: #430D18; }
+
+#dashboard > .banner p { color: #5b3a46; }
+
+#dashboard > .banner .hover-hint { color: #68152B; }
+
+/* Button */
+#dashboard > .banner .button.white {
+    background: #68152B;
+    color: #fff;
+}
+
+#dashboard > .banner .button.white:hover {
+    background: #430D18;
+}
+
+/* 4) Hover korle je team details panel ashe */
+#dashboard > .banner .team-info {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(104, 21, 43, 0.18);
+    backdrop-filter: blur(6px);
+}
+
+#dashboard > .banner .team-info h3 { color: #430D18; }
+
+#dashboard > .banner .team-info dt { color: #78636C; }
+
+#dashboard > .banner .team-info dd { color: #35242B; }
+
+#dashboard > .banner .team-info dl > div {
+    border-bottom-color: rgba(104, 21, 43, 0.15);
+}
+/* ===== Banner aro chapta: team panel compact ===== */
+
+#dashboard .banner .team-info {
+    min-width: 340px;   /* hidden obosthay row gulo jate bhenge na jay */
+    padding: 12px 18px;
+    border-radius: 14px;
+}
+
+#dashboard .banner .team-info h3 {
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+#dashboard .banner .team-info dl {
+    margin: 6px 0 0;
+}
+
+/* label ar value ek line e */
+#dashboard .banner .team-info dl > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2px 14px;
+    padding: 6px 0;
+}
+
+#dashboard .banner .team-info dt,
+#dashboard .banner .team-info dd {
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* chhoto screen / touch device e overflow bondho */
+@media (max-width: 900px), (hover: none) {
+    #dashboard .banner .team-info {
+        min-width: 0;
+    }
+}
+/* ===== Current Project card background ===== */
+
+#dashboard .content-grid > .column:first-child > .card:first-child {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)),
+        url("research-bg-campus.jpg");
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-color: #f3e9ee;
+}
+/* ===== Banner text: normal size ===== */
+
+#dashboard .banner .banner-content .banner-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+#dashboard .banner h2 {
+    font-size: 30px;
+    line-height: 1.3;
+}
+
+#dashboard .banner .banner-content p {
+    font-size: 16px;
+}
+
+#dashboard .banner .button {
+    font-size: 14px;
+    padding: 10px 18px;
+}
+
+#dashboard .banner .hover-hint {
+    font-size: 13px;
+}
+
+/* Right side er "Your Research Team" panel */
+#dashboard .banner .team-info {
+    min-width: 320px;
+}
+
+#dashboard .banner .team-info h3 {
+    font-size: 18px;
+}
+
+#dashboard .banner .team-info dt {
+    font-size: 13px;
+}
+
+#dashboard .banner .team-info dd {
+    font-size: 15px;
+}
+
+/* Hover column ratio ager normal obosthay */
+@media (min-width: 901px) and (hover: hover) {
+    #dashboard .banner.team-banner:hover,
+    #dashboard .banner.team-banner:focus-within {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    }
+}
+
+/* Chhoto screen / touch device */
+@media (max-width: 900px), (hover: none) {
+    #dashboard .banner .team-info { min-width: 0; }
+}
+
+@media (max-width: 600px) {
+    #dashboard .banner h2 { font-size: 24px; }
+    #dashboard .banner .banner-content p { font-size: 15px; }
+}

@@ -164,7 +164,19 @@ func openDB(path string) (*sql.DB, error) {
 	}
 	db.SetMaxOpenConns(1)
 	_, e = db.Exec(`PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL;
- CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('student','teacher')),verified INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS users(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('student','teacher')),
+    verified INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    institution TEXT NOT NULL DEFAULT '',
+    department TEXT NOT NULL DEFAULT '',
+    academic_year TEXT NOT NULL DEFAULT '',
+    semester TEXT NOT NULL DEFAULT ''
+);
  CREATE TABLE IF NOT EXISTS verifications(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,student_id INTEGER NOT NULL REFERENCES users(id),teacher_id INTEGER REFERENCES users(id),title TEXT NOT NULL,area TEXT NOT NULL,abstract TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','submitted','approved','changes_requested','rejected')),feedback TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL);`)
@@ -563,6 +575,9 @@ func main() {
 		log.Fatal(e)
 	}
 	defer db.Close()
+	if e = seedDemoStudents(db); e != nil {
+    log.Fatal("Seed demo students: ", e)
+}
 	a := &App{db: db, cfg: c}
 	a.send = a.sendEmail
 	server := &http.Server{Addr: c.Addr, Handler: a.routes(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
