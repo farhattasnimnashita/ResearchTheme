@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard | ResearchBridge</title>
+
+    <link rel="stylesheet" href="/assets/nashita-dashboard.css">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <a href="/dashboard/student" class="brand">
+            <span class="logo">R</span>
+            ResearchBridge
+        </a>
+
+        <p class="menu-title">STUDENT WORKSPACE</p>
+
+        <nav aria-label="Student menu">
+            <a href="#dashboard" class="active">Dashboard</a>
+            <a href="#profile">My Profile</a>
+            <a href="#project-ideas">Choose Project</a>
+            <a href="#team">My Team</a>
+            <a href="#supervisor">Supervisor</a>
+            <a href="#proposal">Proposal</a>
+            <a href="#milestones">Milestones</a>
+            <a href="#files">Files & Feedback</a>
+            <a href="#meetings">Meetings</a>
+        </nav>
+
+        <div class="sidebar-note">
+            <strong>Start small. Discover more.</strong>
+            <p>Your research journey begins with a good team.</p>
+        </div>
+    </aside>
+
+    <main>
+        <header class="dashboard-topbar">
+    <div class="dashboard-title-block">
+        <p class="eyebrow">YOUR RESEARCH WORKSPACE</p>
+        <h2 id="student-welcome">Welcome!</h2>
+        <h1 id="page-title">Student Dashboard</h1>
+    </div>
+
+    <div class="header-actions">
+        <div class="bell-wrapper">
+    <button type="button"
+            id="notification-bell"
+            class="dashboard-notification"
+            aria-label="Notifications"
+            aria-expanded="false"
+            aria-controls="notification-panel">
+        🔔
+        <span id="notification-count" hidden></span>
+    </button>
+
+    <div id="notification-panel" class="notification-panel" hidden>
+        <h3>🔔 Notifications</h3>
+        <p id="notification-message" role="status"></p>
+        <div id="notification-list">Loading...</div>
+    </div>
+</div>
+
+        <button type="button"
+                id="student-logout"
+                class="dashboard-logout">
+            ↪ Logout
+        </button>
+    </div>
+</header>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="page">
+            <div class="banner">
+                <div class="banner team-banner" tabindex="0"
+     aria-label="Research overview. Focus to view team details.">
+
+    <div class="banner-content">
+        <p class="banner-label">FROM IDEAS TO IMPACT</p>
+
+        <h2>Welcome to ThesisNest!</h2>
+
+        <p>
+            Find your team, shape your idea,
+            and start your research journey.
+        </p>
+
+        <a href="#profile" class="button white">
+            Set up your profile →
+        </a>
+
+        <small class="hover-hint">
+            Hover here or tap to see your team details →
+        </small>
+    </div>
+
+    <div class="team-reveal">
+        <div class="team-info">
+            <h3>Your Research Team</h3>
+
+            <dl>
+                <div>
+                    <dt>Team Members</dt>
+                    <dd>No members added yet</dd>
+                </div>
+
+                <div>
+                    <dt>Supervisor</dt>
+                    <dd>Not assigned yet</dd>
+                </div>
+
+                <div>
+                    <dt>Research Topic</dt>
+                    <dd>No topic selected yet</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+            </div>
+
+            <div class="summary">
+                <article class="card">
+                    <p class="label">MY TEAM</p>
+                    <h3>No team yet</h3>
+                    <a href="#team" class="text-link">Find your team →</a>
+                </article>
+
+                <article class="card">
+                    <p class="label">PROPOSAL</p>
+                    <h3>Not submitted</h3>
+                    <a href="#proposal" class="text-link">Start planning →</a>
+                </article>
+
+                <article class="card">
+                    <p class="label">PROGRESS</p>
+                    <h3>Not started</h3>
+                    <p class="small">No approved milestones yet</p>
+                </article>
+
+                <article class="card">
+                    <p class="label">NEXT DEADLINE</p>
+                    <h3>Not scheduled</h3>
+                    <p class="small">No upcoming deadline</p>
+                </article>
+            </div>
+
+            <div class="content-grid">
+                <div class="column">
+                    <article class="card">
+                        <h2>Current Project</h2>
+
+                        <div class="empty">
+                            <div class="empty-icon" aria-hidden="true">＋</div>
+                            <h3>Your project starts here.</h3>
+                            <p>
+                                Create or join a team to begin
+                                your research journey.
+                            </p>
+                            <a href="#team" class="button">Explore Teams</a>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h2>Getting Started</h2>
+
+                        <a href="#profile" class="step">
+                            <span>1</span>
+                            <div>
+                                <strong>Complete your profile</strong>
+                                <p>Add your skills and research interests.</p>
+                            </div>
+                        </a>
+
+                        <a href="#team" class="step">
+                            <span>2</span>
+                            <div>
+                                <strong>Find your team</strong>
+                                <p>Connect with students who share your interests.</p>
+                            </div>
+                        </a>
+
+                        <a href="#supervisor" class="step">
+                            <span>3</span>
+                            <div>
+                                <strong>Explore supervisors</strong>
+                                <p>Find guidance for your research.</p>
+                            </div>
+                        </a>
+                    </article>
+
+                    <article class="card">
+                        <h2>Upcoming Tasks</h2>
+                        <p class="description">
+                            No assigned tasks yet. Your tasks
+                            and deadlines will appear here.
+                        </p>
+                    </article>
+                </div>
+
+                <div class="column">
+                    <article class="card">
+                        <h2>Next Meeting</h2>
+                        <div class="empty compact">
+                            <h3>No meeting scheduled</h3>
+                            <p>Your confirmed meetings will appear here.</p>
+                            <a href="#meetings" class="text-link">
+                                View meetings →
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h2>Supervisor Feedback</h2>
+                        <p class="description">
+                            No feedback yet. After submitting your work,
+                            you can read your supervisor's comments here.
+                        </p>
+                        <a href="#files" class="text-link">
+                            Files & Feedback →
+                        </a>
+                    </article>
+
+                    <article class="card">
+                        <h2>Recent Activity</h2>
+                        <p class="description">
+                            No activity yet. Team updates and submissions
+                            will appear here.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile -->
+        <section id="profile" class="page" hidden>
+            <article class="card">
+                <h2>My Profile</h2>
+                <p class="description">
+                    Add your academic information, skills and interests.
+                </p>
+
+              <dl class="details">
+    <div>
+        <dt>Name</dt>
+        <dd id="profile-name">Loading...</dd>
+    </div>
+    <div>
+        <dt>Email</dt>
+        <dd id="profile-email">Loading...</dd>
+    </div>
+    <div>
+        <dt>Institution</dt>
+        <dd id="profile-institution">Loading...</dd>
+    </div>
+    <div>
+        <dt>Department</dt>
+        <dd id="profile-department">Loading...</dd>
+    </div>
+    <div>
+        <dt>Academic Year</dt>
+        <dd id="profile-year">Loading...</dd>
+    </div>
+    <div>
+        <dt>Semester</dt>
+        <dd id="profile-semester">Loading...</dd>
+    </div>
+</dl>
+
+<p id="profile-message" role="status"></p>
+
+               <button type="button" class="button" id="edit-profile-button">
+    Edit Profile
+</button>
+            </article>
+        </section>
+<!-- Choose Project -->
+<section id="project-ideas" class="page" hidden>
+    <article class="card project-picker-card">
+        <p class="eyebrow">RESEARCH IDEAS</p>
+        <h2>Choose Your Research Project</h2>
+        <p class="description">
+            Explore suggested topics or create your own unique project.
+        </p>
+
+        <div class="project-ideas-toolbar">
+            <label for="project-idea-search">Search Suggested Projects</label>
+            <input type="search" id="project-idea-search"
+                   placeholder="AI, Web, Data Science, IoT...">
+
+            <button type="button" class="button secondary"
+                    id="custom-project-button">
+                + Create My Own Project
+            </button>
+        </div>
+
+        <div id="project-idea-list" class="project-idea-grid"></div>
+
+        <form id="project-idea-form" class="project-details-form">
+            <h3>Selected Project Details</h3>
+
+            <label for="new-project-title">Project Name</label>
+            <input id="new-project-title" type="text"
+                   minlength="5" maxlength="160" required
+                   placeholder="Enter your project name">
+
+            <label for="new-project-area">Research Area</label>
+            <input id="new-project-area" type="text"
+                   minlength="2" maxlength="80" required
+                   placeholder="e.g. Artificial Intelligence">
+
+            <label for="new-project-description">
+                Short Project Description
+            </label>
+            <textarea id="new-project-description"
+                      rows="4" minlength="20" maxlength="6000"
+                      required
+                      placeholder="Describe your project idea..."></textarea>
+
+            <p class="description">
+                This will be saved as a draft.
+                You can develop the proposal before supervisor review.
+            </p>
+
+            <button type="submit" class="button" id="save-project-idea">
+                Save Project & Continue to My Team →
+            </button>
+
+            <p id="project-idea-status" role="status"></p>
+        </form>
+    </article>
+</section>
+        <!-- Team -->
+        <section id="team" class="page" hidden>
+            <article class="card">
+                <h2>My Team</h2>
+                <div class="empty">
+                    <h3>You do not have a team yet.</h3>
+                    <p>Create your own team or find one to join.</p>
+
+                    <div class="actions">
+                        <button class="button" data-feature="Team creation">
+                            Create a Team
+                        </button>
+
+                        <button class="button secondary"
+                                data-feature="Team search">
+                            Find a Team
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </section>
+        <!-- Notifications -->
+<section id="notifications" class="page" hidden>
+    <article class="card">
+        <h2>🔔 Team Notifications</h2>
+        <p id="notification-message" role="status"></p>
+        <div id="notification-list">Loading notifications...</div>
+    </article>
+</section>
+
+        <!-- Supervisor -->
+        <section id="supervisor" class="page" hidden>
+            <article class="card">
+                <h2>Supervisor</h2>
+                <div class="empty">
+                    <h3>No supervisor assigned</h3>
+                    <p>Explore research interests and available capacity.</p>
+
+                    <button class="button"
+                            data-feature="Supervisor browsing">
+                        Browse Supervisors
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <!-- Proposal -->
+        <section id="proposal" class="page" hidden>
+            <article class="card">
+                <h2>My Proposal</h2>
+                <div class="empty">
+                    <h3>No proposal submitted</h3>
+                    <p>Describe your problem, objectives, method and timeline.</p>
+
+                    <button class="button" data-feature="Proposal drafting">
+                        Start a Proposal
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <!-- Milestones -->
+        <section id="milestones" class="page" hidden>
+            <article class="card">
+                <h2>Milestones</h2>
+                <div class="empty">
+                    <h3>No milestones yet</h3>
+                    <p>
+                        Assigned tasks, deadlines and approval status
+                        will appear here.
+                    </p>
+                </div>
+            </article>
+        </section>
+
+        <!-- Files -->
+        <section id="files" class="page" hidden>
+            <article class="card">
+                <h2>Files & Feedback</h2>
+                <div class="empty">
+                    <h3>No submissions yet</h3>
+                    <p>Keep your reports, code links and feedback together.</p>
+
+                    <button class="button" data-feature="File submission">
+                        Submit Work
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <!-- Meetings -->
+<section id="meetings" class="page" hidden>
+    <article class="card">
+        <h2>Meetings</h2>
+
+        <div class="meeting-card">
+            <span class="meeting-tag">Google Meet</span>
+
+            <h3>Research Discussion</h3>
+
+            <p class="description">
+                Join your team and supervisor for a research discussion.
+            </p>
+
+            <!-- href-এর জায়গায় তোমার আসল Meet link বসাও -->
+            <a
+                href="https://meet.google.com/xxx-yyyy-zzz"
+                class="button"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Join Google Meet ↗
+            </a>
+        </div>
+    </article>
+</section>
+<footer>
+    ResearchBridge · Student workspace
+    <p>Search students, send invitations and build your research team.</p>
+</footer>
+    </main>
+
+    <dialog id="notice" aria-labelledby="notice-title">
+        <h2 id="notice-title">Feature preview</h2>
+        <p id="notice-message"></p>
+
+        <form method="dialog">
+            <button class="button">Close</button>
+        </form>
+    </dialog>
+
+       <script src="/assets/nashita-dashboard.js" defer></script>
+       <script src="/assets/team-search.js" defer></script>
+       <script src="/assets/project-ideas.js" defer></script>
+</body>
+</html>

@@ -34,6 +34,7 @@ type Config struct {
 	SMTPUser, SMTPPass                                   string
 	DatabaseURL                                          string
 	SupabaseURL, SupabaseKey                             string
+	StorageMode, StorageKey, StorageBucket               string
 }
 type App struct {
 	db        *Database
@@ -113,7 +114,10 @@ func config() (Config, error) {
 		DBPath: env("DB_PATH", "researchbridge.db"), Env: env("APP_ENV", "development"),
 		EmailMode: env("EMAIL_MODE", "console"), APIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom: os.Getenv("EMAIL_FROM"), SMTPUser: strings.TrimSpace(os.Getenv("SMTP_USER")),
-		SMTPPass: strings.ReplaceAll(strings.TrimSpace(os.Getenv("SMTP_PASS")), " ", ""),
+		SMTPPass:      strings.ReplaceAll(strings.TrimSpace(os.Getenv("SMTP_PASS")), " ", ""),
+		StorageMode:   env("STORAGE_MODE", "local"),
+		StorageKey:    strings.TrimSpace(os.Getenv("STORAGE_KEY")),
+		StorageBucket: env("STORAGE_BUCKET", "research-files"),
 	}
 	u, e := url.Parse(c.URL)
 	if e != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" || (u.Scheme != "http" && u.Scheme != "https") {

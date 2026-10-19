@@ -172,50 +172,13 @@ func TestOptInTeamMembershipAndProtectedFiles(t *testing.T) {
 	a, owner, teacher, outsider, id := workspaceFixture(t)
 	path := "/api/workspace/" + itoa(id)
 	var mateID int64
-
-	_, e := a.db.Exec(
-		`INSERT INTO users(
-        name, email, password_hash, role, verified, created_at,
-        institution, department, academic_year, semester
-    ) VALUES(?,?,?,?,?,?,?,?,?,?)`,
-		"Team Mate",
-		"mate@example.com",
-		"unused",
-		"student",
-		1,
-		time.Now().Unix(),
-		"SUST",
-		"CSE",
-		2,
-		4,
-	)
+	_, e := a.db.Exec("INSERT INTO users(name,email,password_hash,role,verified,created_at) VALUES('Team Mate','mate@example.com','unused','student',1,?)", time.Now().Unix())
 	if e != nil {
-		t.Fatal("could not create mate user:", e)
+		t.Fatal(e)
 	}
-	if e != nil {
-		t.Fatal("could not create mate user:", e)
-	}
-
-	e = a.db.QueryRow(
-		"SELECT id FROM users WHERE email=?",
-		"mate@example.com",
-	).Scan(&mateID)
-	if e != nil {
-		t.Fatal("could not find mate user:", e)
-	}
-
+	a.db.QueryRow("SELECT id FROM users WHERE email='mate@example.com'").Scan(&mateID)
 	raw := "mate-session"
-
-	_, e = a.db.Exec(
-		"INSERT INTO sessions(hash,user_id,expires) VALUES(?,?,?)",
-		digest(raw),
-		mateID,
-		time.Now().Add(time.Hour).Unix(),
-	)
-	if e != nil {
-		t.Fatal("could not create mate session:", e)
-	}
-
+	a.db.Exec("INSERT INTO sessions(hash,user_id,expires) VALUES(?,?,?)", digest(raw), mateID, time.Now().Add(time.Hour).Unix())
 	mate := &http.Cookie{Name: "rb_session", Value: raw}
 	expect(t, call(t, a, "GET", path+"/members", nil, mate), 403)
 	expect(t, call(t, a, "POST", path+"/members", map[string]string{"email": "mate@example.com", "action": "invite"}, teacher), 403)

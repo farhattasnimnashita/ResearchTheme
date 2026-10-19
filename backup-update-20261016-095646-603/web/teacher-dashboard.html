@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Teacher Dashboard | ResearchBridge</title>
+ <meta name="description" content="A shared workspace for research supervision, feedback and collaboration.">
+ <link rel="stylesheet" href="/assets/teacher-dashboard.css">
+ <link rel="stylesheet" href="/assets/theme.css">
+ <link rel="stylesheet" href="/assets/teacher-layout.css">
+ <script src="/assets/theme.js"></script>
+ <script src="/assets/teacher-dashboard.js" defer></script>
+</head>
+<body class="research-app">
+ <aside class="research-sidebar">
+  <a class="research-brand" href="/dashboard/teacher"><span>R</span>ResearchBridge</a>
+  <p class="workspace-label" id="role-label">TEACHER WORKSPACE</p>
+  <nav aria-label="Workspace navigation" id="main-nav">
+   <a href="#overview" data-page="overview"><span>Dashboard</span></a>
+   <a href="#profile" data-page="profile"><span>My Profile</span></a>
+   <a href="#tools/team" data-tool="team"><span>Assigned Teams</span></a>
+   <a href="#requests" data-page="requests"><span>Supervision Requests</span></a>
+   <a href="#proposals" data-page="proposals"><span>Proposal Review</span></a>
+   <a href="#tools/milestone" data-tool="milestone"><span>Milestones</span></a>
+   <a href="#tools/files" data-tool="files"><span>Files & Feedback</span></a>
+   <a href="#tools/meeting" data-tool="meeting"><span>Meetings</span></a>
+  </nav>
+  <details class="more-tools" open><summary>More supervision tools</summary><nav id="tools-nav" aria-label="More supervision tools"></nav></details>
+  <a class="queue-link" href="#review" data-page="review">Pending work & notifications <span id="pending-badge" class="count"></span></a>
+  <div class="sidebar-end"><p id="sidebar-user"></p><strong>Guide ideas. Inspire discovery.</strong><p class="subtle">Help your teams take the next step in research.</p><a id="student-back" href="/dashboard/student" hidden>← Student dashboard</a><button class="button secondary" data-logout>Log out ↗</button></div>
+ </aside>
+ <main class="research-main">
+  <header class="research-top"><div class="page-heading"><p class="eyebrow">YOUR RESEARCH WORKSPACE</p><h1 id="page-title">Teacher Dashboard</h1><span id="breadcrumb" hidden></span></div><div class="session-actions"><span id="header-user"></span><span class="verified">Email verified</span><button class="button secondary" data-logout>Log out</button></div></header>
+  <button class="floating-theme" data-theme-toggle aria-label="Switch to dark mode">☾ Dark mode</button>
+  <div id="app-status" class="status" role="status" aria-live="polite"></div>
+  <div id="research-content"><p class="loading">Loading your research workspace…</p></div>
+ </main>
+ <dialog id="editor" aria-labelledby="editor-title"><div class="dialog-top"><h2 id="editor-title">Workspace record</h2><button type="button" class="icon-button" id="close-editor" aria-label="Close dialog">✕</button></div><div id="editor-body"></div></dialog>
+ <noscript>Please enable JavaScript to use your dashboard.</noscript>
+</body>
+</html>

@@ -12,10 +12,6 @@ import (
 
 // Link tokens are hashed at rest and consumed atomically; recovery revokes every session.
 func (a *App) forgotPassword(w http.ResponseWriter, r *http.Request) {
-	if a.cfg.EmailMode == "supabase" {
-		a.sbForgot(w, r)
-		return
-	}
 	var in struct {
 		Email string `json:"email"`
 	}
@@ -73,10 +69,6 @@ func (a *App) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	reply(w, 200, map[string]string{"message": "If this account exists, a reset link will arrive by email. Check Inbox and Spam. The link expires in 30 minutes."})
 }
 func (a *App) resetPassword(w http.ResponseWriter, r *http.Request) {
-	if a.cfg.EmailMode == "supabase" {
-		a.sbReset(w, r)
-		return
-	}
 	var in struct {
 		Token    string `json:"token"`
 		Password string `json:"password"`

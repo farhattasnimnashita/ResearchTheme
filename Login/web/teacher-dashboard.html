@@ -8,11 +8,13 @@
  <link rel="stylesheet" href="/assets/theme.css">
  <link rel="stylesheet" href="/assets/teacher-layout.css">
  <script src="/assets/theme.js"></script>
- <script src="/assets/teacher-dashboard.js" defer></script>
+ <script src="/assets/teacher-dashboard.js?v=20261020-supervision-links2" defer></script>
 <link rel="stylesheet" href="/assets/responsive.css">
+
 <script src="/assets/responsive.js" defer></script>
+ <link rel="stylesheet" href="/assets/teacher-visual.css?v=20261020-supervision-links2">
 </head>
-<body class="research-app">
+<body class="research-app teacher-design">
  <aside class="research-sidebar">
   <a class="research-brand" href="/dashboard/teacher"><span>R</span>ResearchBridge</a>
   <p class="workspace-label" id="role-label">TEACHER WORKSPACE</p>
@@ -31,7 +33,7 @@
   <div class="sidebar-end"><p id="sidebar-user"></p><strong>Guide ideas. Inspire discovery.</strong><p class="subtle">Help your teams take the next step in research.</p><a id="student-back" href="/dashboard/student" hidden>← Student dashboard</a><button class="button secondary" data-logout>Log out ↗</button></div>
  </aside>
  <main class="research-main">
-  <header class="research-top"><div class="page-heading"><p class="eyebrow">YOUR RESEARCH WORKSPACE</p><h1 id="page-title">Teacher Dashboard</h1><span id="breadcrumb" hidden></span></div><div class="session-actions"><span id="header-user"></span><span class="verified">Email verified</span><button class="button secondary" data-logout>Log out</button></div></header>
+  <header class="research-top"><div class="page-heading"><p class="eyebrow">YOUR RESEARCH WORKSPACE</p><h1 id="page-title">Teacher Dashboard</h1><span id="breadcrumb" hidden></span></div><div class="session-actions"><a class="top-notification" href="#review" aria-label="Teacher notifications" title="Notifications"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ecaa23" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM9 20h6"/></svg><span id="teacher-notification-count" hidden></span></a><span id="header-user"></span><span class="verified">Email verified</span><button class="button secondary" data-logout>Log out</button></div></header>
   <button class="floating-theme" data-theme-toggle aria-label="Switch to dark mode">☾ Dark mode</button>
   <div id="app-status" class="status" role="status" aria-live="polite"></div>
   <div id="research-content"><p class="loading">Loading your research workspace…</p></div>

@@ -26,7 +26,7 @@ type sbResponse struct {
 	User        sbUser `json:"user"`
 }
 
-var sbHTTP = &http.Client{Timeout: 60* time.Second, CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }}
+var sbHTTP = &http.Client{Timeout: 60 * time.Second, CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }}
 
 func initSupabaseTables(db *Database) error {
 	for _, q := range []string{
@@ -55,9 +55,9 @@ func (a *App) sbCall(ctx context.Context, method, path, bearer string, input, ou
 	}
 	res, err := sbHTTP.Do(req)
 	if err != nil {
-    println("Supabase connection error:", err.Error())
-    return errors.New("Authentication service unavailable. Try again shortly.")
-}
+		println("Supabase connection error:", err.Error())
+		return errors.New("Authentication service unavailable. Try again shortly.")
+	}
 	defer res.Body.Close()
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		if res.StatusCode == 429 {

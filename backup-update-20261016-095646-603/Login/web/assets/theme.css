@@ -1,0 +1,17 @@
+.floating-theme{position:fixed;right:20px;bottom:20px;z-index:50;border:1px solid #7daac6;border-radius:25px;background:#fff;color:#07527c;font:600 12px/1.4 system-ui;padding:11px 17px;cursor:pointer;box-shadow:0 4px 20px #0002}
+html[data-theme=dark]{color-scheme:dark;--page:#0c1723;--surface:#132332;--soft:#1b354b;--ink:#e0edf6;--muted:#a1b9cc;--line:#2b4357;--blue:#40a6dd;--deep:#8bd4fc;--shadow:0 12px 35px #0001}
+html[data-theme=dark] .research-app .hero{background-image:linear-gradient(90deg,#062c4bf7,#0b415bbb 60%,#1431468c),url('/assets/library.png')}
+html[data-theme=dark] .research-app .button:not(.secondary){color:#071e30}
+html[data-theme=dark] .floating-theme{background:#162e42;color:#bfe8ff;border-color:#416783}
+html[data-theme=dark] body:not(.research-app){background:#0e1926;color:#e0edf6}
+html[data-theme=dark] body:not(.research-app) :is(.sidebar,.card,.stat,.project,.account,.empty,.verify-card,dialog,.auth-panel,.hint-panel){background:#152638;color:#e0edf6;border-color:#334b60}
+html[data-theme=dark] body:not(.research-app) :is(h1,h2,h3,.brand,.logo,.label,.user-chip strong){color:#e4f0f9}
+html[data-theme=dark] body:not(.research-app) :is(.muted,.description,.small,.project-meta,.auth-sub,.auth-note,.auth-panel-footer,.field,.step-label,.secure-label){color:#b4c9da}
+html[data-theme=dark] body:not(.research-app) :is(input,select,textarea){background:#102031;color:#e0edf6;border-color:#4a6176}
+html[data-theme=dark] body:not(.research-app) :is(nav a,nav button,.auth-back,.register-prompt a,.text-link,.btn.link){color:#b9e4ff}
+html[data-theme=dark] body:not(.research-app) :is(nav .active,.role.active,.feedback,.notice,.sidebar-note,.badge,.step:hover){background:#223e57;color:#d4eafa;border-color:#446782}
+html[data-theme=dark] body:not(.research-app) .auth-screen{background-color:#101c29;background-image:linear-gradient(#07132299,#07132299),url('/assets/discovery-background.png')}
+html[data-theme=dark] body:not(.research-app) .auth-panel{background:#142638f5}
+html[data-theme=dark] body:not(.research-app) .role{background:#122334;border-color:#3c566c;color:#c8e0f0}
+html[data-theme=dark] body:not(.research-app) .btn.light{background:#213b52;color:#d8efff;border-color:#496c86}
+html[data-theme=dark] body:not(.research-app) :is(.session-actions,.verified,.details dd,.details dt,.dash-top,.dash-top span){color:#c5dcef}

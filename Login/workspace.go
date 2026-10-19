@@ -27,6 +27,13 @@ func migrateWorkspace(db *sql.DB) error {
 	return err
 }
 
+func boolInt(v bool) int {
+	if v {
+		return 1
+	}
+	return 0
+}
+
 type ResearcherProfile struct {
 	Bio               string `json:"bio"`
 	Interests         string `json:"interests"`
@@ -34,6 +41,8 @@ type ResearcherProfile struct {
 	NotifyRequests    bool   `json:"notify_requests"`
 	NotifySubmissions bool   `json:"notify_submissions"`
 	NotifyMeetings    bool   `json:"notify_meetings"`
+	Photo             string `json:"photo"`
+	Qualification     string `json:"qualification"`
 }
 
 func (a *App) researcherProfile(w http.ResponseWriter, r *http.Request) {
@@ -50,13 +59,17 @@ func (a *App) researcherProfile(w http.ResponseWriter, r *http.Request) {
 		p.Bio = strings.TrimSpace(p.Bio)
 		p.Interests = strings.TrimSpace(p.Interests)
 		p.Expertise = strings.TrimSpace(p.Expertise)
-		if len(p.Bio) > 3000 || len(p.Interests) > 1500 || len(p.Expertise) > 1500 {
+		if len(p.Bio) > 3000 || len(p.Interests) > 1500 || len(p.Expertise) > 1500 || len(p.Qualification) > 2000 || len(p.Photo) > 450000 || (p.Photo != "" && !strings.HasPrefix(p.Photo, "data:image/")) {
 			fail(w, 400, "Profile text is too long.")
 			return
 		}
-		_, err = a.db.Exec(`INSERT INTO researcher_profiles(user_id,bio,interests,expertise,notify_requests,notify_submissions,notify_meetings) VALUES(?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,interests=excluded.interests,expertise=excluded.expertise,notify_requests=excluded.notify_requests,notify_submissions=excluded.notify_submissions,notify_meetings=excluded.notify_meetings`, u.ID, p.Bio, p.Interests, p.Expertise, p.NotifyRequests, p.NotifySubmissions, p.NotifyMeetings)
+		_, err = a.db.Exec(`INSERT INTO researcher_profiles(user_id,bio,interests,expertise,notify_requests,notify_submissions,notify_meetings,photo,qualification) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,interests=excluded.interests,expertise=excluded.expertise,notify_requests=excluded.notify_requests,notify_submissions=excluded.notify_submissions,notify_meetings=excluded.notify_meetings,photo=excluded.photo,qualification=excluded.qualification`, u.ID, p.Bio, p.Interests, p.Expertise, boolInt(p.NotifyRequests), boolInt(p.NotifySubmissions), boolInt(p.NotifyMeetings), p.Photo, p.Qualification)
 	} else {
-		err = a.db.QueryRow("SELECT bio,interests,expertise,notify_requests,notify_submissions,notify_meetings FROM researcher_profiles WHERE user_id=?", u.ID).Scan(&p.Bio, &p.Interests, &p.Expertise, &p.NotifyRequests, &p.NotifySubmissions, &p.NotifyMeetings)
+		var req, sub, meet int64
+		err = a.db.QueryRow("SELECT bio,interests,expertise,notify_requests,notify_submissions,notify_meetings,photo,qualification FROM researcher_profiles WHERE user_id=?", u.ID).Scan(&p.Bio, &p.Interests, &p.Expertise, &req, &sub, &meet, &p.Photo, &p.Qualification)
+		p.NotifyRequests = req != 0
+		p.NotifySubmissions = sub != 0
+		p.NotifyMeetings = meet != 0
 		if errors.Is(err, sql.ErrNoRows) {
 			err = nil
 		}
@@ -684,4 +697,38 @@ func (a *App) collaborationProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	reply(w, 200, out)
+}
+
+func migrateProfileExtras(db *Database) error {
+	if db.postgres {
+		return nil
+	}
+	for _, name := range []string{"photo", "qualification"} {
+		rows, err := db.Query("PRAGMA table_info(researcher_profiles)")
+		if err != nil {
+			return err
+		}
+		found := false
+		for rows.Next() {
+			var cid, nn, pk int
+			var col, typ string
+			var def any
+			if err = rows.Scan(&cid, &col, &typ, &nn, &def, &pk); err != nil {
+				break
+			}
+			if col == name {
+				found = true
+			}
+		}
+		rows.Close()
+		if err != nil {
+			return err
+		}
+		if !found {
+			if _, err = db.Exec("ALTER TABLE researcher_profiles ADD COLUMN " + name + " TEXT NOT NULL DEFAULT ''"); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

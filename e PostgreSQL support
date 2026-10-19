@@ -1,0 +1,17 @@
+ Login/SUPABASE_SETUP_BN.md      | 109 [32m+++++++++++++++[m
+ Login/cmd/check-db/main.go      |  63 [32m+++++++++[m
+ Login/go.mod                    |  10 [32m+[m[31m-[m
+ Login/go.sum                    |  36 [32m++++[m[31m-[m
+ Login/main.go                   |  20 [32m++[m[31m-[m
+ Login/main_test.go              |  20 [32m++[m[31m-[m
+ Login/postgres.go               | 229 [32m+++++++++++++++++++++++++++++++[m
+ Login/postgres_schema.sql       |  21 [32m+++[m
+ Login/postgres_test.go          |  86 [32m++++++++++++[m
+ Login/profile_test.go           |   4 [32m+[m[31m-[m
+ Login/projects.go               |   7 [32m+[m[31m-[m
+ Login/student_dashboard_test.go |   2 [32m+[m[31m-[m
+ Login/student_directory.go      | 296 [32m++++++++++++++++++++[m[31m--------------------[m
+ Login/workspace.go              | 130 [32m+++++++++[m[31m---------[m
+ Login/workspace_files.go        |   3 [32m+[m[31m-[m
+ Login/workspace_test.go         |   6 [32m+[m[31m-[m
+ 16 files changed, 795 insertions(+), 247 deletions(-)
