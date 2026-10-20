@@ -8,25 +8,26 @@
       <div class="team-header">
         <div>
           <p class="eyebrow">BUILD YOUR RESEARCH TEAM</p>
-          <h2>My Team — Student Directory</h2>
+          <h2>Find Students & Build Your Team</h2>
           <p class="description">
-            Browse students and invite them to your research project.
+            Search students by name, department, skills or interests
+            and invite them to your project.
           </p>
         </div>
-        <div class="team-badge">All Students</div>
+        <div class="team-badge">Student Directory</div>
       </div>
-            <article class="card fixed-team-panel">
+
+      <article class="card fixed-team-panel">
         <p class="eyebrow">CONFIRMED TEAM</p>
         <h3 id="fixed-team-title">No fixed team yet</h3>
-
         <p id="fixed-team-status" role="status">
           An invited student must accept before the team is fixed.
         </p>
-
         <div id="fixed-team-members">
           <p>No confirmed team members yet.</p>
         </div>
       </article>
+
       <div class="team-toolbar">
         <div class="team-field">
           <label for="directory-project">Select My Project</label>
@@ -39,14 +40,18 @@
             <input
               type="search"
               id="directory-search"
-              placeholder="Search name, university, department, skill..."
+              placeholder="Name, university, department, skill..."
             >
-            <button class="button" id="directory-search-button" type="button">
-              Search
-            </button>
-            <button class="button secondary" id="directory-clear-button" type="button">
-              Show All
-            </button>
+            <button
+              class="button"
+              id="directory-search-button"
+              type="button"
+            >Search</button>
+            <button
+              class="button secondary"
+              id="directory-clear-button"
+              type="button"
+            >Show All</button>
           </div>
         </div>
       </div>
@@ -58,7 +63,7 @@
         </p>
       </div>
 
-      <div id="directory-results" class="student-grid" aria-live="polite"></div>
+      <div id="directory-results" class="student-grid"></div>
     </article>
   `;
 
@@ -69,14 +74,9 @@
   const results = section.querySelector("#directory-results");
   const status = section.querySelector("#directory-status");
   const membersText = section.querySelector("#directory-members");
-  const fixedTeamTitle =
-    section.querySelector("#fixed-team-title");
-
-  const fixedTeamStatus =
-    section.querySelector("#fixed-team-status");
-
-  const fixedTeamMembers =
-    section.querySelector("#fixed-team-members");
+  const fixedTeamTitle = section.querySelector("#fixed-team-title");
+  const fixedTeamStatus = section.querySelector("#fixed-team-status");
+  const fixedTeamMembers = section.querySelector("#fixed-team-members");
 
   let projectList = [];
   let currentProject = null;
@@ -97,12 +97,9 @@
       return "Not added";
     }
 
-    const text = String(value);
-    if (/^\d+$/.test(text)) {
-      return "Year " + text;
-    }
-
-    return text;
+    return /^\d+$/.test(String(value))
+      ? "Year " + value
+      : String(value);
   }
 
   function formatSemester(value) {
@@ -110,12 +107,9 @@
       return "Not added";
     }
 
-    const text = String(value);
-    if (/^\d+$/.test(text)) {
-      return "Semester " + text;
-    }
-
-    return text;
+    return /^\d+$/.test(String(value))
+      ? "Semester " + value
+      : String(value);
   }
 
   async function api(path, data) {
@@ -133,13 +127,7 @@
     }
 
     const response = await fetch(path, options);
-
-    let result;
-    try {
-      result = await response.json();
-    } catch {
-      throw new Error("Server returned an invalid response.");
-    }
+    const result = await response.json();
 
     if (!response.ok) {
       throw new Error(result.error || "Request failed.");
@@ -149,17 +137,9 @@
   }
 
   function updateDashboardTeam(members, project) {
-    const summary = document.getElementById(
-      "dashboard-team-summary"
-    );
-
-    const dashboardMembers = document.getElementById(
-      "dashboard-team-members"
-    );
-
-    const dashboardTopic = document.getElementById(
-      "dashboard-team-topic"
-    );
+    const summary = document.getElementById("dashboard-team-summary");
+    const dashboardMembers = document.getElementById("dashboard-team-members");
+    const dashboardTopic = document.getElementById("dashboard-team-topic");
 
     const ownerID = Number(project?.student_id || 0);
 
@@ -188,12 +168,10 @@
   async function loadMembers() {
     if (!select.value) {
       currentProject = null;
-
       membersText.textContent =
         "Select or create a project to manage your team.";
 
       fixedTeamTitle.textContent = "No fixed team yet";
-
       fixedTeamStatus.textContent =
         "Select a project to check its confirmed members.";
 
@@ -213,9 +191,7 @@
         `/api/workspace/${Number(select.value)}/members`
       );
 
-      const ownerID = Number(
-        currentProject?.student_id || 0
-      );
+      const ownerID = Number(currentProject?.student_id || 0);
 
       const hasConfirmedMembers = members.some(
         member => Number(member.id) !== ownerID
@@ -229,70 +205,66 @@
 
       if (hasConfirmedMembers) {
         fixedTeamTitle.textContent = "Fixed Team";
-
         fixedTeamStatus.textContent =
-          "The invited student accepted. Team members are saved.";
+          "An invited student has accepted. Confirmed members are listed below.";
 
         fixedTeamMembers.innerHTML = members.map(member => `
           <p class="fixed-team-member">
             <strong>${esc(member.name)}</strong>
-            <span> — Confirmed member</span>
+            <span>
+              — ${Number(member.id) === ownerID
+                ? "Team owner"
+                : "Confirmed member"}
+            </span>
           </p>
         `).join("");
       } else {
-        fixedTeamTitle.textContent =
-          "Waiting for Team Confirmation";
-
+        fixedTeamTitle.textContent = "Waiting for Team Confirmation";
         fixedTeamStatus.textContent =
-          "Your team will be marked Fixed Team after an invited student accepts.";
+          "Your team will be fixed after an invited student accepts.";
 
-        fixedTeamMembers.innerHTML = members.map(member => `
-          <p class="fixed-team-member">
-            <strong>${esc(member.name)}</strong>
-            <span> — Team owner</span>
-          </p>
-        `).join("");
+        fixedTeamMembers.innerHTML = members.length
+          ? members.map(member => `
+              <p class="fixed-team-member">
+                <strong>${esc(member.name)}</strong>
+                <span> — Team owner</span>
+              </p>
+            `).join("")
+          : "<p>No confirmed team members yet.</p>";
       }
 
       updateDashboardTeam(members, currentProject);
-
     } catch (error) {
       membersText.textContent = error.message;
-
       fixedTeamTitle.textContent = "Team unavailable";
-
       fixedTeamStatus.textContent =
         "Could not load team members. Please refresh the page.";
     }
   }
 
-  function renderStudents(students) {
-    currentStudents = students;
+  async function searchStudents() {
+    const requestNumber = ++searchNumber;
 
-    if (!students.length) {
-      results.innerHTML = `
-        <article class="card">
-          <h3>No students found</h3>
-          <p>Try another name, university, department or skill.</p>
-          <button type="button" class="button secondary" id="empty-show-all">
-            Show All Students
-          </button>
-        </article>
-      `;
+    status.textContent = "Searching...";
+    results.replaceChildren();
 
-      results.querySelector("#empty-show-all").addEventListener("click", () => {
-        searchInput.value = "";
-        searchStudents();
-      });
+    try {
+      const query = searchInput.value.trim();
 
-      return;
-    }
+      const students = await api(
+        "/api/students?q=" + encodeURIComponent(query)
+      );
 
-    results.innerHTML = students.map(student => {
-      const id = Number(student.id);
-      const alreadyInvited = student.invitation_pending === true;
+      // Ignore an older search response.
+      if (requestNumber !== searchNumber) return;
 
-      return `
+      currentStudents = students;
+
+      status.textContent = students.length
+        ? `Showing ${students.length} students (up to 50).`
+        : "No students found.";
+
+      results.innerHTML = students.map(student => `
         <article class="student-card">
           <div class="student-card-top">
             <div class="student-avatar">
@@ -300,21 +272,13 @@
             </div>
 
             <div class="student-main">
-              <h3>${esc(student.name || "Unnamed student")}</h3>
+              <h3>${esc(student.name)}</h3>
               <p class="student-meta">
-                <strong>Student ID:</strong> ${id}
+                ${esc(student.institution)} · ${esc(student.department)}
               </p>
               <p class="student-meta">
-                <strong>University:</strong>
-                ${esc(student.institution || "Not added")}
-              </p>
-              <p class="student-meta">
-                <strong>Department:</strong>
-                ${esc(student.department || "Not added")}
-              </p>
-              <p class="student-meta">
-                ${esc(formatYear(student.academic_year))}
-                · ${esc(formatSemester(student.semester))}
+                ${esc(formatYear(student.academic_year))} ·
+                ${esc(formatSemester(student.semester))}
               </p>
             </div>
           </div>
@@ -325,12 +289,10 @@
           </div>
 
           <div class="student-details">
-            <p>
-              <strong>Skills:</strong>
+            <p><strong>Skills:</strong>
               ${esc(student.skills || "Not added yet")}
             </p>
-            <p>
-              <strong>Research Interests:</strong>
+            <p><strong>Research Interests:</strong>
               ${esc(student.interests || "Not added yet")}
             </p>
           </div>
@@ -339,123 +301,15 @@
             <button
               type="button"
               class="button invite-student-button"
-              data-student-id="${id}"
-              ${!select.value || alreadyInvited ? "disabled" : ""}
-            >
-              ${alreadyInvited ? "Invitation Pending" : "Invite to Team"}
-            </button>
+              data-student-id="${Number(student.id)}"
+            >Invite to Team</button>
             <p class="invitation-message" role="status"></p>
           </div>
         </article>
-      `;
-    }).join("");
-
-    results.querySelectorAll(".invite-student-button").forEach(button => {
-      button.title = select.value
-        ? "Send a team invitation"
-        : "Select a project first";
-    });
-  }
-
-  async function searchStudents() {
-    const thisSearch = ++searchNumber;
-    const query = searchInput.value.trim();
-
-    status.textContent = query
-      ? "Searching students..."
-      : "Loading all students...";
-
-    results.replaceChildren();
-
-    try {
-      const students = await api(
-        "/api/students?q=" + encodeURIComponent(query)
-      );
-
-      // Ignore an older response if a newer search has started.
-      if (thisSearch !== searchNumber) return;
-
-      renderStudents(students);
-
-      status.textContent = students.length
-        ? `Showing ${students.length} student(s).`
-        : "No students found.";
+      `).join("");
     } catch (error) {
-      if (thisSearch !== searchNumber) return;
-
+      if (requestNumber !== searchNumber) return;
       status.textContent = error.message;
-      results.innerHTML = `
-        <article class="card">
-          <h3>Could not load students</h3>
-          <p>${esc(error.message)}</p>
-          <button type="button" class="button" id="directory-retry">
-            Try Again
-          </button>
-        </article>
-      `;
-
-      results.querySelector("#directory-retry").addEventListener(
-        "click",
-        searchStudents
-      );
-    }
-  }
-
-  async function initialize() {
-    status.textContent = "Loading students...";
-
-    try {
-      await api("/api/me");
-
-      const projects = await api("/api/collaboration-projects");
-             projectList = projects;
-      select.replaceChildren();
-
-      if (!Array.isArray(projects) || projects.length === 0) {
-        select.add(new Option("No project yet — create one first", ""));
-        membersText.textContent =
-          "You can browse students now. Create a project before sending invitations.";
-      } else {
-        select.add(new Option("Select a project", ""));
-
-        projects.forEach(project => {
-          select.add(new Option(project.title, String(project.id)));
-        });
-
-        membersText.textContent =
-          "Select your project before inviting a student.";
-      }
-           if (projects.length > 0) {
-        const requestedProject = new URLSearchParams(
-          window.location.search
-        ).get("project_created");
-
-        const selectedProject = projects.find(
-          project => String(project.id) === requestedProject
-        ) || projects[0];
-
-        select.value = String(selectedProject.id);
-      }
-
-      await loadMembers();
-      // Show students immediately, without requiring a search.
-      await searchStudents();
-    } catch (error) {
-      status.textContent = error.message;
-      results.innerHTML = `
-        <article class="card">
-          <h3>Could not initialize Student Directory</h3>
-          <p>${esc(error.message)}</p>
-          <button type="button" class="button" id="directory-retry">
-            Try Again
-          </button>
-        </article>
-      `;
-
-      results.querySelector("#directory-retry").addEventListener(
-        "click",
-        initialize
-      );
     }
   }
 
@@ -475,11 +329,10 @@
 
   select.addEventListener("change", async () => {
     await loadMembers();
-    renderStudents(currentStudents);
   });
 
   results.addEventListener("click", async event => {
-    const button = event.target.closest(".invite-student-button");
+    const button = event.target.closest("button[data-student-id]");
     if (!button) return;
 
     if (!select.value) {
@@ -488,13 +341,14 @@
     }
 
     const studentID = Number(button.dataset.studentId);
+
     if (!studentID) {
       status.textContent = "Invalid student ID.";
       return;
     }
 
-    const message = button.closest(".student-actions")
-      .querySelector(".invitation-message");
+    const card = button.closest(".student-card");
+    const message = card.querySelector(".invitation-message");
 
     button.disabled = true;
     button.textContent = "Sending Invitation...";
@@ -506,23 +360,71 @@
         student_id: studentID
       });
 
-      button.textContent = "Invitation Pending";
-      message.textContent =
-        result.message || "Invitation sent. Waiting for response.";
+      status.textContent =
+        result.message || "Invitation sent successfully.";
 
-      status.textContent = "Invitation sent successfully.";
+      button.textContent = "Waiting for Response";
+      message.textContent =
+        "Invitation sent. Waiting for acceptance.";
 
     } catch (error) {
-      button.disabled = false;
+      status.textContent = error.message;
       button.textContent = "Invite to Team";
+      button.disabled = false;
       message.textContent = error.message;
-      status.textContent = "Could not send invitation.";
     }
   });
 
+  async function initialize() {
+    try {
+      await api("/api/me");
+
+      const projects = await api("/api/collaboration-projects");
+
+      projectList = projects;
+      select.replaceChildren();
+
+      if (!projects.length) {
+        select.add(new Option("No project yet", ""));
+        membersText.innerHTML =
+          'No project found. <a class="inline-link" ' +
+          'href="/workspace/student#projects">' +
+          'Create a project in Research Workspace</a>';
+
+        await loadMembers();
+      } else {
+        projects.forEach(project => {
+          select.add(new Option(project.title, String(project.id)));
+        });
+
+        const requestedProject = new URLSearchParams(
+          window.location.search
+        ).get("project_created");
+
+        const selectedProject = projects.find(
+          project => String(project.id) === requestedProject
+        ) || projects[0];
+
+        select.value = String(selectedProject.id);
+
+        await loadMembers();
+      }
+
+      await searchStudents();
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  }
+
   window.addEventListener("team-members-changed", initialize);
-  // Refresh the team list periodically so the owner's
-  // dashboard can show newly accepted invitations.
+
+  window.addEventListener("hashchange", () => {
+    if (location.hash === "#team") {
+      loadMembers();
+    }
+  });
+
+  // Refresh team membership while the page is visible.
   setInterval(() => {
     if (
       document.visibilityState === "visible" &&
@@ -531,12 +433,6 @@
       loadMembers();
     }
   }, 15000);
-  window.addEventListener("hashchange", () => {
-    if (location.hash === "#team") {
-      loadMembers();
-      searchStudents();
-    }
-  });
 
   initialize();
 })();

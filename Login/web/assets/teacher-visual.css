@@ -1,0 +1,161 @@
+/* Teacher reference layout: artwork never intercepts navigation. */
+body.teacher-design{--deep:#095780;--ink:#173e55;--muted:#67869b;--line:#d3e7f2;--surface:#fff;--soft:#eaf6fd;background:#eef7fb}
+body.teacher-design::before{background:linear-gradient(100deg,#eaf5fbea,#f6fbffde),url('/assets/discovery-background.png') center/cover;pointer-events:none}
+body.teacher-design .research-sidebar{position:fixed;inset:0 auto 0 0;width:232px;padding:26px 16px;z-index:20;background:#f8fcfff5;border-right:1px solid #c7dfed;overflow-y:auto}
+body.teacher-design .research-main{margin-left:232px;padding:28px 28px 60px;max-width:1920px;min-width:0}
+body.teacher-design .research-brand{font-size:18px;letter-spacing:-.6px}
+body.teacher-design .workspace-label{margin:36px 10px 16px;font-size:10px}
+body.teacher-design #main-nav{gap:8px}
+body.teacher-design #main-nav a{border:1px solid transparent;border-radius:12px;min-height:44px;padding:11px 12px;font-size:12px;gap:12px}
+body.teacher-design #main-nav a.active{background:#e2f3ff;border-color:#bce3fa;box-shadow:0 3px 8px #267fac0b}
+body.teacher-design .nav-icon{width:19px;height:19px;flex:0 0 19px;color:#3099e2}
+body.teacher-design .more-tools summary{border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:11px;padding:10px}
+body.teacher-design .more-tools nav a{font-size:11px;border-radius:8px}
+body.teacher-design .research-top{padding:0 0 22px;margin-bottom:16px;min-height:70px;gap:16px}
+body.teacher-design .page-heading h1{font-size:26px;color:var(--ink);margin:8px 0 0}
+body.teacher-design .page-heading .eyebrow{font-size:9px;letter-spacing:1.6px}
+body.teacher-design .session-actions{font-size:12px;padding:8px;gap:7px;border-radius:15px}
+body.teacher-design .verified{font-size:10px}
+body.teacher-design .session-actions .button{font-size:11px;padding:9px 14px;margin-left:4px}
+body.teacher-design #header-user::before{content:'●';display:inline-grid;place-items:center;width:32px;height:32px;margin-right:8px;background:#edf5ff;color:#4974ae;border:1px solid #d4e6f7;border-radius:10px}
+body.teacher-design .thesis-hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,1fr);align-items:center;gap:38px;min-height:360px;padding:36px 28px 36px 40px;border-radius:20px;overflow:hidden;background:linear-gradient(105deg,#00527fe8,#2299c6bf 52%,#a9e7ec9c),url('/assets/discovery-background.png') center/cover;border:1px solid #96d4e7;box-shadow:0 10px 25px #164e711a}
+body.teacher-design .thesis-hero::before{content:'';position:absolute;inset:auto auto -20px 12%;width:47%;height:245px;background:url('/assets/teacher-academic-scene.svg') center bottom/contain no-repeat;border:0;border-radius:0;z-index:-1;pointer-events:none;opacity:.85}
+body.teacher-design .thesis-hero::after{content:none}
+body.teacher-design .hero-shape{display:none}
+body.teacher-design .thesis-hero .hero-copy,body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .hero-copy{position:relative;transform:none;max-width:none;padding:0 0 94px;z-index:1;transition:none}
+body.teacher-design .thesis-hero .eyebrow{font-size:10px;letter-spacing:1.3px;color:#e4f8ff;margin-bottom:18px}
+body.teacher-design .thesis-hero h2{font:750 clamp(25px,2.4vw,37px)/1.15 'Segoe UI',sans-serif;letter-spacing:-1px;margin:0 0 13px;color:white}
+body.teacher-design .thesis-hero p{color:#effaff;font-size:13px;line-height:1.65;max-width:430px}
+body.teacher-design .thesis-hero .hero-button{margin-top:22px;border-radius:11px;background:#f5fbff!important;color:#075780!important;box-shadow:0 6px 16px #003d6530;min-height:43px;font-size:12px}
+body.teacher-design .thesis-hero .supervision-reveal,body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal{position:relative;inset:auto;width:100%;opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:none;padding:25px 25px 17px;background:linear-gradient(130deg,#073e5eef,#075376e8);border:1px solid #a1dcea70;border-radius:17px;box-shadow:0 10px 22px #033c5629;z-index:2;color:white}
+body.teacher-design .supervision-reveal h3{font-size:22px;color:white;margin:0 0 10px}
+body.teacher-design .supervision-reveal dl{margin:0}
+body.teacher-design .supervision-reveal dl>div{position:relative;padding:16px 0 16px 42px;border-bottom:1px solid #b7e6ff30;min-height:72px}
+body.teacher-design .supervision-reveal dl>div:last-child{border:0}
+body.teacher-design .supervision-reveal dl>div::before{position:absolute;left:0;top:20px;font-size:24px;content:'👥'}
+body.teacher-design .supervision-reveal dl>div:nth-child(2)::before{content:'📄'}
+body.teacher-design .supervision-reveal dl>div:nth-child(3)::before{content:'💡'}
+body.teacher-design .supervision-reveal dt{color:#c8e9f7;font-size:11px}
+body.teacher-design .supervision-reveal dd{color:white;margin:5px 0 0;font-size:13px;overflow-wrap:anywhere}
+body.teacher-design .dashboard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+body.teacher-design .dashboard-stats .stat{position:relative;min-height:137px;padding:21px 70px 18px 19px;border:1px solid #cde5f3;border-radius:17px;background:linear-gradient(125deg,#fff,#edf8ff);box-shadow:0 5px 17px #1e62861a;overflow:hidden}
+body.teacher-design .dashboard-stats .stat p{font-size:9px;letter-spacing:.8px}
+body.teacher-design .dashboard-stats .stat strong{font-size:18px;font-weight:700;line-height:1.35;letter-spacing:-.4px;color:var(--deep);margin-top:13px}
+body.teacher-design .dashboard-stats .stat a{position:relative;z-index:1;display:inline-block;font-size:11px;margin-top:15px}
+body.teacher-design .dashboard-stats .stat::after{content:'';position:absolute;right:3px;bottom:14px;width:74px;height:80px;background:url('/assets/teacher-summary-art.svg') 0 0/400% 100% no-repeat;pointer-events:none}
+body.teacher-design .dashboard-stats .stat:nth-child(2)::after{background-position:33.333% 0}
+body.teacher-design .dashboard-stats .stat:nth-child(3)::after{background-position:66.666% 0}
+body.teacher-design .dashboard-stats .stat:nth-child(4)::after{background-position:100% 0}
+body.teacher-design .dashboard-columns{display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+body.teacher-design .dashboard-columns .panel{border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--surface);box-shadow:0 6px 20px #245a7410;margin:0 0 18px}
+body.teacher-design .dashboard-columns .panel h2{font-size:17px;color:var(--deep);margin:0 0 20px}
+body.teacher-design .dashboard-columns>div:first-child>.panel:first-child h2::before{content:'📚';font-size:26px;margin-right:12px;vertical-align:middle}
+body.teacher-design .dashboard-columns>div:last-child>.panel:first-child h2::before{content:'🗓';font-size:26px;margin-right:12px;vertical-align:middle}
+body.teacher-design .dashboard-columns .empty{padding:24px 18px;background:var(--soft);border:0}
+body.teacher-design .empty h3{font-size:16px}
+body.teacher-design .floating-theme{z-index:30}
+html[data-theme=dark] body.teacher-design{--surface:#112b3c;--soft:#18394d;--ink:#e1f3ff;--deep:#9ddcfa;--muted:#a4bfce;--line:#2c4c61;background:#0c202f}
+html[data-theme=dark] body.teacher-design::before{background:linear-gradient(#0c202ff2,#0c202ff2),url('/assets/discovery-background.png') center/cover}
+html[data-theme=dark] body.teacher-design .research-sidebar{background:#102737f7;border-color:var(--line)}
+html[data-theme=dark] body.teacher-design #main-nav a.active{background:#20445b;border-color:#345b70}
+html[data-theme=dark] body.teacher-design .dashboard-stats .stat{background:linear-gradient(130deg,#17364b,#102c3f);border-color:var(--line)}
+@media(min-width:1500px){body.teacher-design .thesis-hero{min-height:390px}body.teacher-design .dashboard-stats .stat{padding-right:95px}body.teacher-design .dashboard-stats .stat::after{width:95px;height:100px}}
+@media(max-width:1150px){body.teacher-design .research-sidebar{width:210px}body.teacher-design .research-main{margin-left:210px;padding:22px}body.teacher-design .session-actions .verified{display:none}body.teacher-design .thesis-hero{gap:20px;padding:28px;grid-template-columns:1fr 1fr}body.teacher-design .dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1024px){body.teacher-design .research-sidebar{position:relative;inset:auto;width:100%;max-height:none;padding:16px;border-bottom:1px solid var(--line)}body.teacher-design .research-main{margin-left:0;padding:18px}body.teacher-design .research-sidebar #main-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}body.teacher-design .workspace-label{margin:16px 10px 8px}body.teacher-design .sidebar-end{display:none}body.teacher-design .research-top{align-items:flex-start;flex-direction:column;gap:12px}body.teacher-design .page-heading h1{font-size:24px}body.teacher-design .session-actions{width:100%;justify-content:space-between}body.teacher-design .thesis-hero{grid-template-columns:1fr;gap:15px;padding:26px 22px;min-height:0}body.teacher-design .thesis-hero .hero-copy,body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .hero-copy{padding-bottom:100px}body.teacher-design .thesis-hero::before{top:125px;bottom:auto;left:25%;width:70%;height:200px}body.teacher-design .dashboard-columns{grid-template-columns:1fr}body.teacher-design .dashboard-stats{gap:10px}body.teacher-design .dashboard-stats .stat{padding:17px 16px 62px;min-height:160px}body.teacher-design .dashboard-stats .stat::after{width:58px;height:62px;bottom:3px;opacity:.8}body.teacher-design .dashboard-stats .stat strong{font-size:17px}body.teacher-design .more-tools:not([open]){padding-bottom:0}}
+@media(prefers-reduced-motion:reduce){body.teacher-design *{animation:none!important;transition:none!important}}
+
+
+/* Reference artwork and a single deliberate supervision reveal. */
+body.teacher-design .thesis-hero{height:350px;min-height:350px;padding:32px 36px;grid-template-columns:minmax(0,1.3fr) minmax(280px,1fr);gap:32px;align-items:start;background:linear-gradient(90deg,#034b7238,transparent 65%),url('/assets/teacher-hero-approved.png') center/cover no-repeat;border-radius:20px;box-shadow:0 10px 26px #12496722}
+body.teacher-design .thesis-hero::before,body.teacher-design .thesis-hero::after{content:none}
+body.teacher-design .thesis-hero .hero-copy,body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .hero-copy{grid-column:1;grid-row:1;padding:4px 0 0;transform:none;max-width:540px;transition:none;text-shadow:0 1px 8px #00334d44}
+body.teacher-design .thesis-hero .eyebrow{margin:0 0 16px;font-size:10px;letter-spacing:1.6px}
+body.teacher-design .thesis-hero h2{font-size:clamp(27px,2.35vw,36px);line-height:1.15;margin:0 0 12px;letter-spacing:-.9px}
+body.teacher-design .thesis-hero .hero-copy>p:not(.eyebrow){font-size:13px;line-height:1.65;max-width:450px}
+body.teacher-design .thesis-hero .hero-button{margin-top:20px;min-height:43px;font-size:12px;padding:11px 18px;box-shadow:0 5px 15px #003b5930;text-shadow:none}
+body.teacher-design .thesis-hero .reveal-toggle{display:block;width:max-content;font-size:10px;margin:12px 0 0;padding:6px 9px;border:1px solid #d0eeff40;border-radius:6px;background:#04456370;color:#e7f7ff;text-shadow:none;cursor:pointer}
+body.teacher-design .hero-art{display:none}
+body.teacher-design .thesis-hero .supervision-reveal{grid-column:2;grid-row:1;position:relative;inset:auto;width:100%;height:284px;min-height:0;margin:0;padding:22px 24px;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(24px);transition:opacity .32s ease,transform .38s cubic-bezier(.2,.7,.2,1),visibility 0s linear .38s;background:linear-gradient(130deg,#064362f5,#075576f2);border:1px solid #9bdaef75;border-radius:16px;box-shadow:0 12px 28px #04395135;overflow:auto;backdrop-filter:blur(8px)}
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0);transition-delay:0s}
+body.teacher-design .supervision-reveal h3{font-size:21px;margin:0 0 9px}
+body.teacher-design .supervision-reveal dl>div{padding:13px 0 13px 40px;min-height:65px}
+body.teacher-design .supervision-reveal dt{font-size:10px}
+body.teacher-design .supervision-reveal dd{font-size:12px;margin-top:5px}
+body.teacher-design .supervision-reveal dl>div::before{font-size:21px;top:17px}
+body.teacher-design .dashboard-stats{margin:16px 0;gap:14px}
+body.teacher-design .dashboard-stats .stat{min-height:132px;padding-top:20px;border-radius:16px}
+body.teacher-design .dashboard-stats .stat strong{font-size:17px;letter-spacing:-.35px;font-weight:700}
+body.teacher-design .dashboard-columns .panel{border-radius:17px}
+body.teacher-design .research-top{margin-bottom:16px}
+body.teacher-design .thesis-hero .hero-button:hover{transform:none}
+@media(min-width:1500px){body.teacher-design .thesis-hero{height:370px;min-height:370px;padding:38px 42px}body.teacher-design .thesis-hero .supervision-reveal{height:292px}}
+@media(max-width:1024px){body.teacher-design .thesis-hero{height:auto;min-height:340px;padding:28px;grid-template-columns:minmax(0,1.1fr) minmax(250px,1fr);gap:20px}body.teacher-design .thesis-hero .hero-copy,body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .hero-copy{padding:0}body.teacher-design .thesis-hero h2{font-size:28px}}
+@media(max-width:650px){body.teacher-design .thesis-hero{display:block;height:auto;min-height:370px;padding:26px 22px;background-position:35% center}body.teacher-design .thesis-hero .hero-copy{max-width:100%}body.teacher-design .thesis-hero h2{font-size:28px}body.teacher-design .thesis-hero .hero-copy>p:not(.eyebrow){max-width:90%}body.teacher-design .thesis-hero .supervision-reveal{position:absolute;inset:20px;width:calc(100% - 40px);height:auto;min-height:285px;padding-top:36px;z-index:5}body.teacher-design .thesis-hero .reveal-toggle{position:relative;z-index:6}body.teacher-design .thesis-hero.is-revealed .reveal-toggle{background:#f2fbff;color:#075176;border-color:#b7dfee}body.teacher-design .dashboard-stats .stat{min-height:162px}}
+@media(hover:none){body.teacher-design .thesis-hero:not(.is-revealed) .supervision-reveal{opacity:0;visibility:hidden;pointer-events:none}body.teacher-design .thesis-hero.is-revealed .supervision-reveal{opacity:1;visibility:visible;pointer-events:auto;transform:none}}
+@media(prefers-reduced-motion:reduce){body.teacher-design .thesis-hero .supervision-reveal{transition:none!important;transform:none!important}}
+/* Keep the rest of the dashboard still; animate only the requested panel. */
+body.teacher-design .thesis-hero,body.teacher-design .thesis-hero:hover{transform:none!important;animation:none!important}
+body.teacher-design .stat,body.teacher-design .panel,body.teacher-design .project-card,body.teacher-design .hero-copy{animation:none!important;opacity:1!important}
+body.teacher-design .supervision-reveal dl>div::before{content:'';width:27px;height:30px;background:url('/assets/teacher-summary-art.svg') 0 0/400% 100% no-repeat}
+body.teacher-design .supervision-reveal dl>div:nth-child(2)::before{content:'';background-position:33.333% 0}
+body.teacher-design .supervision-reveal dl>div:nth-child(3)::before{content:'';background-position:66.666% 0}
+body.teacher-design .dashboard-columns>div>.panel:first-child h2::before{content:'';display:inline-block;width:29px;height:31px;background:url('/assets/teacher-summary-art.svg') 33.333% 0/400% 100% no-repeat}
+body.teacher-design .dashboard-columns>div:last-child>.panel:first-child h2::before{background-position:100% 0}
+@media(max-width:650px){body.teacher-design .thesis-hero.is-revealed .reveal-toggle{position:absolute;top:10px;right:12px;font-size:10px;margin:0;padding:6px 9px}}
+html[data-theme=dark] body.teacher-design .thesis-hero{background:linear-gradient(90deg,#032c4840,#062d4926),url('/assets/teacher-hero-approved.png') center/cover no-repeat!important}
+html[data-theme=dark] body.teacher-design .session-actions .button{background:#20455e;color:#d9f2ff;border-color:#365c73}
+html[data-theme=dark] body.teacher-design #main-nav a{border-color:transparent}
+html[data-theme=dark] body.teacher-design #main-nav a.active{border-color:#3d627a}
+html[data-theme=dark] body.teacher-design .dashboard-stats .stat,html[data-theme=dark] body.teacher-design .dashboard-columns .panel{border-color:#2c4c61}
+
+/* Approved preview: preserve the banner composition and reveal details on hover. */
+body.teacher-design .thesis-hero{height:clamp(350px,25.6vw,440px);min-height:350px;padding:clamp(36px,3.2vw,55px) clamp(30px,3.4vw,58px);grid-template-columns:minmax(0,1.35fr) minmax(300px,1fr);gap:35px;align-items:start;background:linear-gradient(90deg,#004b7320,transparent 65%),url('/assets/teacher-hero-approved.png') center/cover no-repeat}
+body.teacher-design .thesis-hero .hero-copy{max-width:570px}
+body.teacher-design .thesis-hero h2{font-size:clamp(29px,2.1vw,36px);font-weight:750;letter-spacing:-1.1px;white-space:nowrap}
+body.teacher-design .thesis-hero .eyebrow{margin-bottom:22px;font-size:11px}
+body.teacher-design .thesis-hero .hero-copy>p:not(.eyebrow){font-size:clamp(13px,.93vw,16px);max-width:550px}
+body.teacher-design .thesis-hero .hero-button{margin-top:26px;font-size:13px;padding:13px 20px;min-height:46px}
+body.teacher-design .thesis-hero .reveal-toggle{padding:3px 0;background:transparent;border:0;font-size:11px;margin-top:16px;color:#f1fbff}
+body.teacher-design .thesis-hero .supervision-reveal{align-self:center;height:auto;min-height:270px;margin:0 -22px 0 0;width:calc(100% + 22px);padding:26px 28px 21px;opacity:0;visibility:hidden;transform:translate3d(42px,7px,0) scale(.98);filter:blur(3px);transform-origin:right center;transition:opacity .5s ease,transform .65s cubic-bezier(.16,1,.3,1),filter .5s ease,visibility 0s linear .65s;background:linear-gradient(120deg,#073d5ceF,#075274ed);backdrop-filter:blur(5px);overflow:hidden}
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal{opacity:1;visibility:visible;transform:translate3d(0,0,0) scale(1);filter:blur(0);transition-delay:0s}
+body.teacher-design .supervision-reveal h3{font-size:clamp(21px,1.5vw,26px);margin-bottom:15px}
+body.teacher-design .supervision-reveal dl>div{min-height:72px;padding:14px 0 14px 42px;opacity:0;transform:translateY(9px);transition:opacity .4s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal dl>div{opacity:1;transform:translateY(0);transition-delay:.12s}
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal dl>div:nth-child(2){transition-delay:.2s}
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal dl>div:nth-child(3){transition-delay:.28s}
+body.teacher-design .supervision-reveal dt{font-size:clamp(11px,.75vw,13px)}
+body.teacher-design .supervision-reveal dd{font-size:clamp(13px,.86vw,15px)}
+body.teacher-design .dashboard-stats .stat{height:clamp(145px,9.2vw,165px);padding:22px 18px 18px;isolation:isolate}
+body.teacher-design .dashboard-stats .stat p,body.teacher-design .dashboard-stats .stat strong,body.teacher-design .dashboard-stats .stat a{position:relative;z-index:1;max-width:77%}
+body.teacher-design .dashboard-stats .stat p{font-size:10px}
+body.teacher-design .dashboard-stats .stat strong{font-size:clamp(17px,1.22vw,21px);font-weight:700;line-height:1.25;margin-top:14px;letter-spacing:-.65px}
+body.teacher-design .dashboard-stats .stat a{position:absolute;bottom:24px;left:18px;font-size:11px;max-width:60%}
+body.teacher-design .dashboard-stats .stat::after{right:1px;bottom:0;width:105px;height:116px;opacity:1;background-image:url('/assets/teacher-cards-approved.png');background-size:341% 100%;background-position:0 0;z-index:0}
+body.teacher-design .dashboard-stats .stat:first-child::after{width:125px;height:140px;right:0;bottom:-6px}
+body.teacher-design .dashboard-stats .stat:nth-child(2)::after{background-size:505% 100%;background-position:38.6% 0;width:83px;height:114px}
+body.teacher-design .dashboard-stats .stat:nth-child(3)::after{background-size:405% 100%;background-position:67.8% 0;width:94px;height:114px}
+body.teacher-design .dashboard-stats .stat:nth-child(4)::after{background-size:437% 100%;background-position:100% 0;width:100px;height:120px;right:5px}
+body.teacher-design .dashboard-stats .stat:first-child strong{max-width:65%}
+@media(min-width:1500px){body.teacher-design .dashboard-stats .stat:first-child::after{width:151px;height:156px}body.teacher-design .dashboard-stats .stat:nth-child(2)::after{width:96px;height:128px}body.teacher-design .dashboard-stats .stat:nth-child(3)::after{width:106px;height:126px}body.teacher-design .dashboard-stats .stat:nth-child(4)::after{width:112px;height:134px}}
+@media(max-width:1150px){body.teacher-design .thesis-hero{padding:28px;gap:22px;grid-template-columns:1.1fr 1fr}body.teacher-design .thesis-hero h2{white-space:normal;font-size:29px}body.teacher-design .thesis-hero .supervision-reveal{width:100%;margin:0;padding:22px}}
+@media(max-width:650px){body.teacher-design .thesis-hero{display:block;height:390px;min-height:390px;padding:26px 22px;background-position:24% center}body.teacher-design .thesis-hero h2{font-size:28px;white-space:normal}body.teacher-design .thesis-hero .hero-copy>p:not(.eyebrow){font-size:13px}body.teacher-design .thesis-hero .hero-button{margin-top:22px}body.teacher-design .thesis-hero .supervision-reveal{position:absolute;inset:16px;width:calc(100% - 32px);height:calc(100% - 32px);min-height:0;padding:54px 22px 20px;margin:0;z-index:5}body.teacher-design .thesis-hero .supervision-reveal h3{font-size:21px}body.teacher-design .thesis-hero.is-revealed .reveal-toggle{position:absolute;top:15px;right:16px;padding:6px 9px;background:#e7f6ff;color:#075176;border-radius:6px;margin:0;z-index:6}body.teacher-design .dashboard-stats .stat{height:190px;padding:17px 14px}body.teacher-design .dashboard-stats .stat strong,body.teacher-design .dashboard-stats .stat p{max-width:100%}body.teacher-design .dashboard-stats .stat:first-child strong{max-width:100%}body.teacher-design .dashboard-stats .stat a{left:14px;bottom:16px;max-width:62%;font-size:10px}body.teacher-design .dashboard-stats .stat:first-child::after{width:80px;height:90px;bottom:5px}body.teacher-design .dashboard-stats .stat:nth-child(2)::after{width:61px;height:85px}body.teacher-design .dashboard-stats .stat:nth-child(3)::after{width:66px;height:84px}body.teacher-design .dashboard-stats .stat:nth-child(4)::after{width:66px;height:84px}}
+@media(hover:none){body.teacher-design .thesis-hero:not(.is-revealed) .supervision-reveal{opacity:0;visibility:hidden;pointer-events:none}body.teacher-design .thesis-hero.is-revealed .supervision-reveal{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){body.teacher-design .supervision-reveal,body.teacher-design .supervision-reveal dl>div{transition:none!important;transform:none!important;filter:none!important}}
+/* Explicit open-state transition overrides legacy hover rules. */
+body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal{transition:opacity .5s ease,transform .65s cubic-bezier(.16,1,.3,1),filter .5s ease,visibility 0s;transition-delay:0s}
+@media(prefers-reduced-motion:reduce){body.teacher-design .thesis-hero:is(:hover,:focus-within,.is-revealed) .supervision-reveal{transition:none!important}}
+
+
+/* Supervision panel is an actual navigation target, not only a hover decoration. */
+body.teacher-design .supervision-reveal[data-open-supervision]{cursor:pointer;pointer-events:auto;outline:none}
+body.teacher-design .supervision-reveal[data-open-supervision]:hover,
+body.teacher-design .supervision-reveal[data-open-supervision]:focus-visible{box-shadow:0 16px 34px #032b4860,0 0 0 2px #bdeaff80 inset}
+body.teacher-design .supervision-reveal .supervision-open-hint{margin:12px 0 0;color:#d9f5ff;font-size:11px;opacity:.88}
+body.teacher-design .supervision-summary .stat strong{overflow-wrap:anywhere}
+
+/* Supervision rows navigate independently to their existing editable, server-backed modules. */
+body.teacher-design .supervision-reveal .supervision-item-link{display:block;text-decoration:none;color:inherit;border-radius:10px;padding:6px 10px;margin:-6px -10px;transition:background .18s ease,transform .18s ease}
+body.teacher-design .supervision-reveal .supervision-item-link:hover,body.teacher-design .supervision-reveal .supervision-item-link:focus-visible{background:rgba(222,247,255,.17);transform:translateX(4px);outline:2px solid transparent}
+body.teacher-design .supervision-reveal .supervision-item-link:focus-visible{outline-color:#bdeaff}
+body.teacher-design .supervision-reveal .supervision-item-link dt span{float:right;font-size:16px;color:#c9efff}
+body.teacher-design .supervision-reveal dl>div{cursor:default}

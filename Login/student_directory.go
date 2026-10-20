@@ -11,8 +11,8 @@ type DirectoryStudent struct {
 	Name         string `json:"name"`
 	Institution  string `json:"institution"`
 	Department   string `json:"department"`
-	AcademicYear string `json:"academic_year"`
-	Semester     string `json:"semester"`
+	AcademicYear int    `json:"academic_year"`
+	Semester     int    `json:"semester"`
 	Skills       string `json:"skills"`
 	Interests    string `json:"interests"`
 }

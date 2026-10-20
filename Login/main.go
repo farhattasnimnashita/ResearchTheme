@@ -34,6 +34,7 @@ type Config struct {
 	SMTPUser, SMTPPass                                   string
 	DatabaseURL                                          string
 	SupabaseURL, SupabaseKey                             string
+	StorageMode, StorageKey, StorageBucket               string
 }
 type App struct {
 	db        *Database
@@ -113,7 +114,10 @@ func config() (Config, error) {
 		DBPath: env("DB_PATH", "researchbridge.db"), Env: env("APP_ENV", "development"),
 		EmailMode: env("EMAIL_MODE", "console"), APIKey: os.Getenv("RESEND_API_KEY"),
 		EmailFrom: os.Getenv("EMAIL_FROM"), SMTPUser: strings.TrimSpace(os.Getenv("SMTP_USER")),
-		SMTPPass: strings.ReplaceAll(strings.TrimSpace(os.Getenv("SMTP_PASS")), " ", ""),
+		SMTPPass:      strings.ReplaceAll(strings.TrimSpace(os.Getenv("SMTP_PASS")), " ", ""),
+		StorageMode:   env("STORAGE_MODE", "local"),
+		StorageKey:    strings.TrimSpace(os.Getenv("STORAGE_KEY")),
+		StorageBucket: env("STORAGE_BUCKET", "research-files"),
 	}
 	u, e := url.Parse(c.URL)
 	if e != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" || (u.Scheme != "http" && u.Scheme != "https") {
@@ -193,6 +197,12 @@ func openSQLite(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, e
 	}
+
+	if e = migrateProfileExtras(&Database{DB: db}); e != nil {
+		db.Close()
+		return nil, e
+	}
+
 	return db, nil
 }
 func token() (string, error) {
@@ -236,11 +246,26 @@ func (a *App) routes() http.Handler {
 	})
 	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
 	m.HandleFunc("GET /api/profile-picture", a.getProfilePicture)
-m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
+	m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)
 	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
-	m.HandleFunc("POST /api/forgot-password", a.forgotPassword)
-	m.HandleFunc("POST /api/reset-password", a.resetPassword)
+	m.HandleFunc("POST /api/forgot-password", func(w http.ResponseWriter, r *http.Request) {
+		if a.cfg.EmailMode == "supabase" {
+			a.sbForgot(w, r)
+			return
+		}
+
+		a.forgotPassword(w, r)
+	})
+
+	m.HandleFunc("POST /api/reset-password", func(w http.ResponseWriter, r *http.Request) {
+		if a.cfg.EmailMode == "supabase" {
+			a.sbReset(w, r)
+			return
+		}
+
+		a.resetPassword(w, r)
+	})
 	m.HandleFunc("GET /api/researcher-profile", a.researcherProfile)
 	m.HandleFunc("POST /api/researcher-profile", a.researcherProfile)
 	m.HandleFunc("GET /api/collaboration-projects", a.collaborationProjects)
@@ -327,12 +352,12 @@ m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		if strings.HasPrefix(r.URL.Path, "/api/") && r.Method == "POST" {
-if r.Header.Get("Origin") != a.cfg.URL ||
-    r.Header.Get("X-Requested-With") != "ResearchBridge" ||
-    !(strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") ||
-        (strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;") &&
-            (strings.HasSuffix(r.URL.Path, "/files") ||
-                r.URL.Path == "/api/profile-picture"))) {
+			if r.Header.Get("Origin") != a.cfg.URL ||
+				r.Header.Get("X-Requested-With") != "ResearchBridge" ||
+				!(strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") ||
+					(strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;") &&
+						(strings.HasSuffix(r.URL.Path, "/files") ||
+							r.URL.Path == "/api/profile-picture"))) {
 				fail(w, 403, "Invalid request origin. Open the app using APP_URL.")
 				return
 			}

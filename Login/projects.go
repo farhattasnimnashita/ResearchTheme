@@ -25,7 +25,7 @@ func (a *App) teachers(w http.ResponseWriter, r *http.Request) {
 		fail(w, 401, "Please log in.")
 		return
 	}
-	rows, e := a.db.Query("SELECT id,name FROM users WHERE role='teacher' AND verified=1 ORDER BY name")
+	rows, e := a.db.Query("SELECT u.id,u.name,COALESCE(rp.interests,''),COALESCE(rp.expertise,''),COALESCE(rp.qualification,'') FROM users u LEFT JOIN researcher_profiles rp ON rp.user_id=u.id WHERE u.role='teacher' AND u.verified=1 ORDER BY u.name")
 	if e != nil {
 		fail(w, 500, "Could not load supervisors.")
 		return
@@ -34,12 +34,12 @@ func (a *App) teachers(w http.ResponseWriter, r *http.Request) {
 	out := []map[string]any{}
 	for rows.Next() {
 		var id int64
-		var name string
-		if rows.Scan(&id, &name) != nil {
+		var name, interests, expertise, qualification string
+		if rows.Scan(&id, &name, &interests, &expertise, &qualification) != nil {
 			fail(w, 500, "Could not read supervisors.")
 			return
 		}
-		out = append(out, map[string]any{"id": id, "name": name})
+		out = append(out, map[string]any{"id": id, "name": name, "interests": interests, "expertise": expertise, "qualification": qualification})
 	}
 	if rows.Err() != nil {
 		fail(w, 500, "Could not read supervisors.")
