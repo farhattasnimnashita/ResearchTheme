@@ -15,7 +15,18 @@
         </div>
         <div class="team-badge">All Students</div>
       </div>
+            <article class="card fixed-team-panel">
+        <p class="eyebrow">CONFIRMED TEAM</p>
+        <h3 id="fixed-team-title">No fixed team yet</h3>
 
+        <p id="fixed-team-status" role="status">
+          An invited student must accept before the team is fixed.
+        </p>
+
+        <div id="fixed-team-members">
+          <p>No confirmed team members yet.</p>
+        </div>
+      </article>
       <div class="team-toolbar">
         <div class="team-field">
           <label for="directory-project">Select My Project</label>
@@ -58,7 +69,17 @@
   const results = section.querySelector("#directory-results");
   const status = section.querySelector("#directory-status");
   const membersText = section.querySelector("#directory-members");
+  const fixedTeamTitle =
+    section.querySelector("#fixed-team-title");
 
+  const fixedTeamStatus =
+    section.querySelector("#fixed-team-status");
+
+  const fixedTeamMembers =
+    section.querySelector("#fixed-team-members");
+
+  let projectList = [];
+  let currentProject = null;
   let currentStudents = [];
   let searchNumber = 0;
 
@@ -127,24 +148,121 @@
     return result;
   }
 
+  function updateDashboardTeam(members, project) {
+    const summary = document.getElementById(
+      "dashboard-team-summary"
+    );
+
+    const dashboardMembers = document.getElementById(
+      "dashboard-team-members"
+    );
+
+    const dashboardTopic = document.getElementById(
+      "dashboard-team-topic"
+    );
+
+    const ownerID = Number(project?.student_id || 0);
+
+    const hasConfirmedMembers = members.some(
+      member => Number(member.id) !== ownerID
+    );
+
+    if (summary) {
+      summary.textContent = hasConfirmedMembers
+        ? "Fixed Team"
+        : "No team yet";
+    }
+
+    if (dashboardMembers) {
+      dashboardMembers.textContent = members.length
+        ? members.map(member => member.name).join(", ")
+        : "No members added yet";
+    }
+
+    if (dashboardTopic) {
+      dashboardTopic.textContent =
+        project?.title || "No topic selected yet";
+    }
+  }
+
   async function loadMembers() {
     if (!select.value) {
+      currentProject = null;
+
       membersText.textContent =
-        "Select or create a project to manage your team invitations.";
+        "Select or create a project to manage your team.";
+
+      fixedTeamTitle.textContent = "No fixed team yet";
+
+      fixedTeamStatus.textContent =
+        "Select a project to check its confirmed members.";
+
+      fixedTeamMembers.innerHTML =
+        "<p>No confirmed team members yet.</p>";
+
+      updateDashboardTeam([], null);
       return;
     }
 
     try {
+      currentProject = projectList.find(
+        project => String(project.id) === select.value
+      ) || null;
+
       const members = await api(
         `/api/workspace/${Number(select.value)}/members`
       );
 
-      membersText.textContent = "Current Team: " +
+      const ownerID = Number(
+        currentProject?.student_id || 0
+      );
+
+      const hasConfirmedMembers = members.some(
+        member => Number(member.id) !== ownerID
+      );
+
+      membersText.textContent =
+        "Current Team: " +
         (members.length
           ? members.map(member => member.name).join(", ")
           : "No members listed yet.");
+
+      if (hasConfirmedMembers) {
+        fixedTeamTitle.textContent = "Fixed Team";
+
+        fixedTeamStatus.textContent =
+          "The invited student accepted. Team members are saved.";
+
+        fixedTeamMembers.innerHTML = members.map(member => `
+          <p class="fixed-team-member">
+            <strong>${esc(member.name)}</strong>
+            <span> — Confirmed member</span>
+          </p>
+        `).join("");
+      } else {
+        fixedTeamTitle.textContent =
+          "Waiting for Team Confirmation";
+
+        fixedTeamStatus.textContent =
+          "Your team will be marked Fixed Team after an invited student accepts.";
+
+        fixedTeamMembers.innerHTML = members.map(member => `
+          <p class="fixed-team-member">
+            <strong>${esc(member.name)}</strong>
+            <span> — Team owner</span>
+          </p>
+        `).join("");
+      }
+
+      updateDashboardTeam(members, currentProject);
+
     } catch (error) {
       membersText.textContent = error.message;
+
+      fixedTeamTitle.textContent = "Team unavailable";
+
+      fixedTeamStatus.textContent =
+        "Could not load team members. Please refresh the page.";
     }
   }
 
@@ -290,7 +408,7 @@
       await api("/api/me");
 
       const projects = await api("/api/collaboration-projects");
-
+             projectList = projects;
       select.replaceChildren();
 
       if (!Array.isArray(projects) || projects.length === 0) {
@@ -307,7 +425,19 @@
         membersText.textContent =
           "Select your project before inviting a student.";
       }
+           if (projects.length > 0) {
+        const requestedProject = new URLSearchParams(
+          window.location.search
+        ).get("project_created");
 
+        const selectedProject = projects.find(
+          project => String(project.id) === requestedProject
+        ) || projects[0];
+
+        select.value = String(selectedProject.id);
+      }
+
+      await loadMembers();
       // Show students immediately, without requiring a search.
       await searchStudents();
     } catch (error) {
@@ -391,7 +521,16 @@
   });
 
   window.addEventListener("team-members-changed", initialize);
-
+  // Refresh the team list periodically so the owner's
+  // dashboard can show newly accepted invitations.
+  setInterval(() => {
+    if (
+      document.visibilityState === "visible" &&
+      select.value
+    ) {
+      loadMembers();
+    }
+  }, 15000);
   window.addEventListener("hashchange", () => {
     if (location.hash === "#team") {
       loadMembers();

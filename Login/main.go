@@ -235,6 +235,8 @@ func (a *App) routes() http.Handler {
 		reply(w, 200, map[string]bool{"supabase": a.cfg.EmailMode == "supabase"})
 	})
 	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
+	m.HandleFunc("GET /api/profile-picture", a.getProfilePicture)
+m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)
 	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
 	m.HandleFunc("POST /api/forgot-password", a.forgotPassword)
@@ -325,7 +327,12 @@ func (a *App) routes() http.Handler {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		if strings.HasPrefix(r.URL.Path, "/api/") && r.Method == "POST" {
-			if r.Header.Get("Origin") != a.cfg.URL || r.Header.Get("X-Requested-With") != "ResearchBridge" || !(strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") || (strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;") && strings.HasSuffix(r.URL.Path, "/files"))) {
+if r.Header.Get("Origin") != a.cfg.URL ||
+    r.Header.Get("X-Requested-With") != "ResearchBridge" ||
+    !(strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") ||
+        (strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;") &&
+            (strings.HasSuffix(r.URL.Path, "/files") ||
+                r.URL.Path == "/api/profile-picture"))) {
 				fail(w, 403, "Invalid request origin. Open the app using APP_URL.")
 				return
 			}

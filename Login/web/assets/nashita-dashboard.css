@@ -2151,3 +2151,53 @@ box-shadow: 0 12px 30px rgba(104, 21, 43, 0.12);
     #dashboard .banner h2 { font-size: 24px; }
     #dashboard .banner .banner-content p { font-size: 15px; }
 }
+
+/* Profile Picture */
+.profile-picture-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+}
+
+.profile-picture {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #94445C;
+    background: #FFEAC9;
+}
+
+.profile-picture-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.profile-picture-actions h3 {
+    margin: 0;
+}
+
+#profile-picture-message {
+    margin: 0;
+    font-size: 14px;
+}
+
+#profile-picture-input {
+    max-width: 100%;
+}
+
+@media (max-width: 480px) {
+    .profile-picture-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-picture {
+        width: 110px;
+        height: 110px;
+    }
+}

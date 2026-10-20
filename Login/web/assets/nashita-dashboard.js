@@ -624,3 +624,124 @@ if (studentLogoutButton) {
 
     loadNotifications();
 })();
+
+/* Student Profile Picture */
+(() => {
+    const image = document.getElementById("student-profile-picture");
+    const input = document.getElementById("profile-picture-input");
+    const chooseButton = document.getElementById("choose-profile-picture");
+    const uploadButton = document.getElementById("upload-profile-picture");
+    const message = document.getElementById("profile-picture-message");
+
+    if (!image || !input || !chooseButton || !uploadButton || !message) {
+        return;
+    }
+
+    let selectedFile = null;
+    let previewURL = null;
+
+    image.addEventListener("error", () => {
+        image.style.visibility = "hidden";
+    });
+
+    image.addEventListener("load", () => {
+        image.style.visibility = "visible";
+    });
+
+    chooseButton.addEventListener("click", () => {
+        input.click();
+    });
+
+    input.addEventListener("change", () => {
+        const file = input.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (!allowedTypes.includes(file.type)) {
+            message.textContent = "Please choose a JPG, PNG or WEBP image.";
+            input.value = "";
+            selectedFile = null;
+            uploadButton.disabled = true;
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            message.textContent = "Image must be 5 MB or smaller.";
+            input.value = "";
+            selectedFile = null;
+            uploadButton.disabled = true;
+            return;
+        }
+
+        selectedFile = file;
+
+        if (previewURL) {
+            URL.revokeObjectURL(previewURL);
+        }
+
+        previewURL = URL.createObjectURL(file);
+        image.src = previewURL;
+        image.style.visibility = "visible";
+
+        uploadButton.disabled = false;
+        message.textContent = "Preview ready. Click Upload Picture to save.";
+    });
+
+    uploadButton.addEventListener("click", async () => {
+        if (!selectedFile) {
+            message.textContent = "Please choose a picture first.";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("picture", selectedFile);
+
+        uploadButton.disabled = true;
+        chooseButton.disabled = true;
+        message.textContent = "Uploading picture...";
+
+        try {
+const response = await fetch("/api/profile-picture", {
+    method: "POST",
+    body: formData,
+    credentials: "same-origin",
+    headers: {
+        "X-Requested-With": "ResearchBridge"
+    }
+});
+
+            if (!response.ok) {
+                let errorMessage = "Could not upload picture.";
+
+                try {
+                    const result = await response.json();
+                    errorMessage = result.message || result.error || errorMessage;
+                } catch (_) {
+                    // Keep the default error message.
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            message.textContent = "Profile picture saved successfully.";
+            selectedFile = null;
+            input.value = "";
+
+            image.src = "/api/profile-picture?t=" + Date.now();
+
+            if (previewURL) {
+                URL.revokeObjectURL(previewURL);
+                previewURL = null;
+            }
+        } catch (error) {
+            message.textContent = error.message || "Upload failed. Please try again.";
+        } finally {
+            chooseButton.disabled = false;
+            uploadButton.disabled = true;
+        }
+    });
+})();

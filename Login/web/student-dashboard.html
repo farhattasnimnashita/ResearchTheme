@@ -104,7 +104,7 @@
             <dl>
                 <div>
                     <dt>Team Members</dt>
-                    <dd>No members added yet</dd>
+                    <dd id="dashboard-team-members">No members added yet</dd>
                 </div>
 
                 <div>
@@ -114,7 +114,7 @@
 
                 <div>
                     <dt>Research Topic</dt>
-                    <dd>No topic selected yet</dd>
+                    <dd id="dashboard-team-topic">No topic selected yet</dd>
                 </div>
             </dl>
         </div>
@@ -125,7 +125,7 @@
             <div class="summary">
                 <article class="card">
                     <p class="label">MY TEAM</p>
-                    <h3>No team yet</h3>
+                    <h3 id="dashboard-team-summary">No team yet</h3>
                     <a href="#team" class="text-link">Find your team →</a>
                 </article>
 
@@ -239,6 +239,49 @@
         <section id="profile" class="page" hidden>
             <article class="card">
                 <h2>My Profile</h2>
+                
+<div class="profile-picture-section">
+    <img
+        id="student-profile-picture"
+        src="/api/profile-picture"
+        alt="Student profile picture"
+        class="profile-picture"
+    >
+
+    <div class="profile-picture-actions">
+        <h3>Profile Picture</h3>
+        <p class="description">
+            Upload a JPG, PNG or WEBP image. Maximum size: 5 MB.
+        </p>
+
+        <input
+            type="file"
+            id="profile-picture-input"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+        >
+
+        <button
+            type="button"
+            class="button"
+            id="choose-profile-picture"
+        >
+            Choose Picture
+        </button>
+
+        <button
+            type="button"
+            class="button secondary"
+            id="upload-profile-picture"
+            disabled
+        >
+            Upload Picture
+        </button>
+
+        <p id="profile-picture-message" role="status"></p>
+    </div>
+</div>
+
                 <p class="description">
                     Add your academic information, skills and interests.
                 </p>

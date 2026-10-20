@@ -192,9 +192,6 @@ func TestOptInTeamMembershipAndProtectedFiles(t *testing.T) {
 	if e != nil {
 		t.Fatal("could not create mate user:", e)
 	}
-	if e != nil {
-		t.Fatal("could not create mate user:", e)
-	}
 
 	e = a.db.QueryRow(
 		"SELECT id FROM users WHERE email=?",
