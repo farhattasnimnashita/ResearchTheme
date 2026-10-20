@@ -400,9 +400,27 @@ showProfile(updatedUser);
             }
         });
 
-        readProfile().then(showProfile).catch((error) => {
-            status.textContent = error.message;
+   readProfile()
+    .then(async (user) => {
+        // Load Skills, Research Interests and About Me
+        const extraResponse = await fetch("/api/researcher-profile", {
+            credentials: "same-origin",
+            cache: "no-store"
         });
+
+        if (!extraResponse.ok) {
+            throw new Error("Could not load research profile.");
+        }
+
+        // Attach saved research profile to the user
+        user.extra = await extraResponse.json();
+
+        // Display all profile details
+        showProfile(user);
+    })
+    .catch((error) => {
+        status.textContent = error.message;
+    });
     }
 
     if (document.readyState === "loading") {
