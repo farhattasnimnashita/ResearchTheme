@@ -424,21 +424,118 @@
     </article>
 </section>
 
-        <!-- Supervisor -->
-        <section id="supervisor" class="page" hidden>
-            <article class="card">
-                <h2>Supervisor</h2>
-                <div class="empty">
-                    <h3>No supervisor assigned</h3>
-                    <p>Explore research interests and available capacity.</p>
+<!-- Supervisor -->
+<section id="supervisor" class="page" hidden>
+    <div class="rb-supervisor-hero">
+        <div>
+            <p class="rb-supervisor-eyebrow">RESEARCH GUIDANCE</p>
+            <h2>Find Your Research Supervisor</h2>
+            <p>
+                Explore teacher profiles, compare research interests,
+                and choose the right supervisor for your research idea.
+            </p>
+        </div>
+        <div class="rb-supervisor-icon" aria-hidden="true">✦</div>
+    </div>
 
-                    <button class="button"
-                            data-feature="Supervisor browsing">
-                        Browse Supervisors
-                    </button>
-                </div>
-            </article>
-        </section>
+    <article class="rb-supervisor-directory">
+        <div class="rb-section-heading">
+            <div>
+                <h2>Teacher Directory</h2>
+                <p>Browse the available profiles and their research background.</p>
+            </div>
+            <span id="supervisor-teacher-count" class="rb-count">Loading...</span>
+        </div>
+
+        <label class="rb-search">
+            <span aria-hidden="true">⌕</span>
+            <input
+                id="supervisor-search"
+                type="search"
+                placeholder="Search teachers, department, expertise or institution..."
+                autocomplete="off">
+        </label>
+
+        <p id="supervisor-directory-message" class="rb-message" role="status">
+            Loading teacher profiles...
+        </p>
+
+        <div id="supervisor-teacher-cards" class="rb-supervisor-grid"></div>
+    </article>
+
+    <article class="rb-request-panel" id="supervisor-request-panel">
+        <div class="rb-section-heading">
+            <div>
+                <p class="rb-supervisor-eyebrow">SEND A REQUEST</p>
+                <h2>Research Supervision Request</h2>
+                <p>Choose a linked teacher account and describe your research.</p>
+            </div>
+        </div>
+
+        <form id="supervisor-request-form" class="rb-request-form">
+            <label>
+                Selected Teacher
+                <select id="supervisor-teacher" name="teacher_id" required>
+                    <option value="">Choose a registered teacher</option>
+                </select>
+            </label>
+
+            <label>
+                Research Topic
+                <input
+                    id="supervisor-title"
+                    name="title"
+                    type="text"
+                    minlength="5"
+                    maxlength="160"
+                    required
+                    placeholder="Enter your research topic">
+            </label>
+
+            <label>
+                Research Area
+                <input
+                    id="supervisor-area"
+                    name="area"
+                    type="text"
+                    minlength="2"
+                    maxlength="80"
+                    required
+                    placeholder="e.g. Artificial Intelligence">
+            </label>
+
+            <label>
+                Proposal / Research Summary
+                <textarea
+                    id="supervisor-abstract"
+                    name="abstract"
+                    minlength="20"
+                    maxlength="6000"
+                    rows="6"
+                    required
+                    placeholder="Explain the problem, objectives and proposed method."></textarea>
+            </label>
+
+            <button class="rb-send-button" type="submit" id="supervisor-send-button">
+                Send Supervision Request <span aria-hidden="true">→</span>
+            </button>
+
+            <p id="supervisor-request-message" class="rb-message" role="status"></p>
+        </form>
+    </article>
+
+    <article class="rb-supervisor-directory rb-my-requests">
+        <div class="rb-section-heading">
+            <div>
+                <h2>My Supervision Requests</h2>
+                <p>Track your proposals, teacher decisions and feedback.</p>
+            </div>
+        </div>
+        <div id="supervisor-request-list">Loading your requests...</div>
+    </article>
+</section>
+
+
 
         <!-- Proposal -->
         <section id="proposal" class="page" hidden>

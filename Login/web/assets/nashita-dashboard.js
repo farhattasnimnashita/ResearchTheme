@@ -779,3 +779,494 @@ const response = await fetch("/api/profile-picture", {
         }
     });
 })();
+
+
+/* ============================================
+   SUPERVISOR DIRECTORY + SUPERVISION REQUESTS
+   Uses GET /api/teacher-directory
+============================================ */
+
+(() => {
+    const form = document.getElementById("supervisor-request-form");
+    if (!form) return;
+
+    const teacherSelect = document.getElementById("supervisor-teacher");
+    const cardsBox = document.getElementById("supervisor-teacher-cards");
+    const searchBox = document.getElementById("supervisor-search");
+    const countBox = document.getElementById("supervisor-teacher-count");
+    const directoryMessage = document.getElementById("supervisor-directory-message");
+    const requestMessage = document.getElementById("supervisor-request-message");
+    const requestList = document.getElementById("supervisor-request-list");
+    const sendButton = document.getElementById("supervisor-send-button");
+
+    let teachers = [];
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function shown(value) {
+        const text = String(value ?? "").trim();
+        return text ? escapeHTML(text) : "Not added yet";
+    }
+
+    function initials(name) {
+        return String(name || "Teacher")
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map(part => Array.from(part)[0] || "")
+            .join("")
+            .toUpperCase();
+    }
+
+    function listValues(value) {
+        if (Array.isArray(value)) {
+            return value.map(item => String(item).trim()).filter(Boolean);
+        }
+
+        return String(value || "")
+            .split(/[,;\n|]+/)
+            .map(item => item.trim())
+            .filter(Boolean);
+    }
+
+    function tags(value) {
+        const items = listValues(value);
+
+        if (!items.length) {
+            return '<span class="rb-tag rb-tag-muted">Not added yet</span>';
+        }
+
+        return items.map(item =>
+            `<span class="rb-tag">${escapeHTML(item)}</span>`
+        ).join("");
+    }
+
+    function safeHTTPURL(value) {
+        try {
+            const url = new URL(String(value || ""));
+            if (url.protocol === "https:" || url.protocol === "http:") {
+                return url.href;
+            }
+        } catch {
+            // Empty, malformed, or unsafe link.
+        }
+
+        return "";
+    }
+
+    function externalLink(url, label) {
+        if (!url) return "";
+        return `<a href="${escapeHTML(url)}"
+                   target="_blank"
+                   rel="noopener noreferrer">${label} ↗</a>`;
+    }
+
+    function acceptingStatus(value) {
+        if (value === true) return "Accepting students";
+        if (value === false) return "Not accepting students";
+        return "Not specified";
+    }
+
+    function teacherCard(teacher) {
+        const appID = Number(teacher.account_id || 0);
+        const websiteURL = safeHTTPURL(teacher.website_url);
+        const photoURL = safeHTTPURL(teacher.photo_url);
+        const email = String(teacher.email || "").trim();
+        const phone = String(teacher.phone || "").trim();
+
+        const validEmail =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        return `
+            <article class="rb-teacher-card"
+                     data-directory-id="${escapeHTML(teacher.id)}"
+                     data-account-id="${appID || ""}">
+
+                <div class="rb-teacher-top">
+                    <div class="rb-teacher-avatar" aria-hidden="true">
+                        ${escapeHTML(initials(teacher.name))}
+                    </div>
+
+                    <div class="rb-teacher-identity">
+                        <span class="rb-teacher-role">
+                            ${teacher.verified
+                                ? "Verified directory entry"
+                                : "Directory entry"}
+                        </span>
+                        <h3>${shown(teacher.name)}</h3>
+                        <p class="rb-teacher-email">
+                            ${validEmail
+                                ? escapeHTML(email)
+                                : "Email not added"}
+                        </p>
+                    </div>
+                </div>
+
+                <dl class="rb-teacher-info">
+                    <div>
+                        <dt>Designation</dt>
+                        <dd>${shown(teacher.designation)}</dd>
+                    </div>
+                    <div>
+                        <dt>Institution</dt>
+                        <dd>${shown(teacher.institution)}</dd>
+                    </div>
+                    <div>
+                        <dt>Department</dt>
+                        <dd>${shown(teacher.department)}</dd>
+                    </div>
+                    <div>
+                        <dt>Phone</dt>
+                        <dd>${phone ? escapeHTML(phone) : "Not added yet"}</dd>
+                    </div>
+                    <div>
+                        <dt>Student Capacity</dt>
+                        <dd>${acceptingStatus(teacher.accepting_students)}</dd>
+                    </div>
+                    <div>
+                        <dt>Directory Source</dt>
+                        <dd>${shown(teacher.source)}</dd>
+                    </div>
+                </dl>
+
+                <div class="rb-tag-section">
+                    <span class="rb-tag-title">Research Interests</span>
+                    <div class="rb-tag-list">
+                        ${tags(teacher.research_interests)}
+                    </div>
+                </div>
+
+                <div class="rb-tag-section">
+                    <span class="rb-tag-title">Expertise</span>
+                    <div class="rb-tag-list">
+                        ${tags(teacher.expertise)}
+                    </div>
+                </div>
+
+                <div class="rb-teacher-actions">
+                    ${validEmail
+                        ? `<a href="mailto:${escapeHTML(email)}">Email Teacher ↗</a>`
+                        : ""}
+
+                    ${externalLink(websiteURL, "Website")}
+                    ${externalLink(photoURL, "View Photo")}
+                </div>
+
+                <div class="rb-teacher-select-row">
+                    ${appID
+                        ? `<button
+                               type="button"
+                               class="rb-select-teacher"
+                               data-select-account="${appID}">
+                               Select for Request →
+                           </button>`
+                        : `<button type="button"
+                                   class="rb-select-teacher"
+                                   disabled
+                                   title="This teacher has no matching verified ResearchBridge account">
+                               Account Not Linked
+                           </button>`
+                    }
+                </div>
+            </article>
+        `;
+    }
+
+    function markSelectedTeacher() {
+        const selectedID = String(teacherSelect.value || "");
+
+        cardsBox.querySelectorAll(".rb-teacher-card").forEach(card => {
+            const cardID = String(card.dataset.accountId || "");
+            card.classList.toggle(
+                "is-selected",
+                selectedID !== "" && cardID === selectedID
+            );
+        });
+    }
+
+    function renderTeachers(list) {
+        countBox.textContent =
+            list.length + (list.length === 1 ? " teacher" : " teachers");
+
+        if (!list.length) {
+            cardsBox.innerHTML = `
+                <div class="rb-empty-state">
+                    <strong>No teachers found</strong>
+                    <p>Try a different name, institution, department or research interest.</p>
+                </div>
+            `;
+            return;
+        }
+
+        cardsBox.innerHTML = list.map(teacherCard).join("");
+        markSelectedTeacher();
+    }
+
+    function filterTeachers() {
+        const query = searchBox.value.trim().toLowerCase();
+
+        const filtered = teachers.filter(teacher => {
+            const allFields = [
+                teacher.name,
+                teacher.designation,
+                teacher.institution,
+                teacher.department,
+                teacher.phone,
+                teacher.email,
+                teacher.website_url,
+                teacher.photo_url,
+                teacher.research_interests,
+                teacher.expertise,
+                teacher.source,
+                acceptingStatus(teacher.accepting_students),
+                teacher.verified ? "verified" : "not verified"
+            ].flat().join(" ").toLowerCase();
+
+            return allFields.includes(query);
+        });
+
+        renderTeachers(filtered);
+    }
+
+    async function api(path, data) {
+        const options = {
+            method: data === undefined ? "GET" : "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: {}
+        };
+
+        if (data !== undefined) {
+            options.headers["Content-Type"] = "application/json";
+            options.headers["X-Requested-With"] = "ResearchBridge";
+            options.body = JSON.stringify(data);
+        }
+
+        const response = await fetch(path, options);
+
+        if (response.status === 401) {
+            window.location.replace("/login/student");
+            throw new Error("Please log in again.");
+        }
+
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error("The server returned an invalid response.");
+        }
+
+        if (!response.ok) {
+            throw new Error(result.error || "Request failed.");
+        }
+
+        return result;
+    }
+
+    async function loadTeachers() {
+        cardsBox.innerHTML = "";
+        countBox.textContent = "Loading...";
+        directoryMessage.textContent = "Loading teacher profiles...";
+
+        try {
+            const result = await api("/api/teacher-directory");
+            teachers = Array.isArray(result) ? result : [];
+
+            teacherSelect.replaceChildren();
+
+            const firstOption = document.createElement("option");
+            firstOption.value = "";
+            firstOption.textContent = "Choose a registered teacher";
+            teacherSelect.appendChild(firstOption);
+
+            // Only verified ResearchBridge accounts can receive requests.
+            const linkedIDs = new Set();
+
+            teachers.forEach(teacher => {
+                const accountID = Number(teacher.account_id || 0);
+
+                if (!accountID || linkedIDs.has(String(accountID))) return;
+
+                linkedIDs.add(String(accountID));
+
+                const option = document.createElement("option");
+                option.value = String(accountID);
+                option.textContent =
+                    (teacher.name || "Unnamed teacher") +
+                    (teacher.designation
+                        ? " — " + teacher.designation
+                        : "");
+
+                teacherSelect.appendChild(option);
+            });
+
+            const linkedCount = linkedIDs.size;
+
+            directoryMessage.textContent = teachers.length
+                ? `${teachers.length} directory profile(s) loaded. ` +
+                  `${linkedCount} profile(s) match a verified ResearchBridge teacher account.`
+                : "No teacher directory records are available.";
+
+            filterTeachers();
+
+            if (teachers.length > 0 && linkedCount === 0) {
+                requestMessage.textContent =
+                    "Profiles are visible, but no matching verified ResearchBridge teacher accounts were found. Requests cannot be sent until accounts are linked by email.";
+            }
+        } catch (error) {
+            teachers = [];
+            countBox.textContent = "Unavailable";
+            directoryMessage.textContent = error.message;
+            cardsBox.innerHTML = `
+                <div class="rb-empty-state">
+                    <strong>Teacher directory unavailable</strong>
+                    <p>${escapeHTML(error.message)}</p>
+                    <p>Check the PostgreSQL connection and teacher_directory table.</p>
+                </div>
+            `;
+        }
+    }
+
+    async function loadMyRequests() {
+        requestList.textContent = "Loading your requests...";
+
+        try {
+            const projects = await api("/api/projects");
+
+            if (!Array.isArray(projects) || projects.length === 0) {
+                requestList.innerHTML = `
+                    <div class="rb-empty-state">
+                        <strong>No requests yet</strong>
+                        <p>Your submitted proposals and teacher decisions will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const statusLabels = {
+                draft: "Draft — not sent",
+                submitted: "Pending teacher decision",
+                approved: "Accepted — supervision approved",
+                changes_requested: "Changes requested",
+                rejected: "Rejected"
+            };
+
+            requestList.innerHTML = projects.map(project => {
+                const status = project.status || "draft";
+                const statusClass =
+                    status === "approved" ? "rb-status-approved" :
+                    status === "rejected" ? "rb-status-rejected" : "";
+
+                return `
+                    <article class="rb-request-card">
+                        <h3>${shown(project.title)}</h3>
+                        <p><strong>Research Area:</strong> ${shown(project.area)}</p>
+                        <p><strong>Teacher:</strong> ${shown(project.teacher)}</p>
+                        <span class="rb-request-status ${statusClass}">
+                            ${escapeHTML(statusLabels[status] || status)}
+                        </span>
+                        ${project.feedback
+                            ? `<p><strong>Teacher feedback:</strong>
+                               ${escapeHTML(project.feedback)}</p>`
+                            : ""}
+                    </article>
+                `;
+            }).join("");
+        } catch (error) {
+            requestList.textContent = error.message;
+        }
+    }
+
+    searchBox.addEventListener("input", filterTeachers);
+    teacherSelect.addEventListener("change", markSelectedTeacher);
+
+    cardsBox.addEventListener("click", event => {
+        const button = event.target.closest("[data-select-account]");
+        if (!button) return;
+
+        const accountID = String(button.dataset.selectAccount || "");
+        const teacher = teachers.find(
+            item => String(item.account_id || "") === accountID
+        );
+
+        if (!teacher) return;
+
+        teacherSelect.value = accountID;
+        markSelectedTeacher();
+
+        requestMessage.textContent =
+            "Selected " + (teacher.name || "teacher") +
+            ". Complete the form below to send your request.";
+
+        document.getElementById("supervisor-request-panel")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const teacherID = Number(teacherSelect.value);
+        const title = document.getElementById("supervisor-title").value.trim();
+        const area = document.getElementById("supervisor-area").value.trim();
+        const abstract = document.getElementById("supervisor-abstract").value.trim();
+
+        const matchedTeacher = teachers.some(
+            item => Number(item.account_id || 0) === teacherID && teacherID > 0
+        );
+
+        if (!matchedTeacher) {
+            requestMessage.textContent =
+                "Select a teacher with a linked, verified ResearchBridge account.";
+            return;
+        }
+
+        if (title.length < 5 || area.length < 2 || abstract.length < 20) {
+            requestMessage.textContent =
+                "Enter a valid topic, research area and summary of at least 20 characters.";
+            return;
+        }
+
+        sendButton.disabled = true;
+        requestMessage.textContent = "Sending your supervision request...";
+
+        try {
+            // Save a draft through the current application workflow.
+            const draft = await api("/api/projects", {
+                title,
+                area,
+                abstract,
+                teacher_id: teacherID
+            });
+
+            // Submit it to the selected teacher for review.
+            await api(`/api/projects/${draft.id}/submit`, {
+                teacher_id: teacherID,
+                abstract
+            });
+
+            requestMessage.textContent =
+                "Your request has been sent. Wait for the teacher's decision.";
+
+            form.reset();
+
+            await loadMyRequests();
+            markSelectedTeacher();
+        } catch (error) {
+            requestMessage.textContent = error.message;
+            await loadMyRequests();
+        } finally {
+            sendButton.disabled = false;
+        }
+    });
+
+    loadTeachers();
+    loadMyRequests();
+})();

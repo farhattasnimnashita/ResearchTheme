@@ -2201,3 +2201,512 @@ box-shadow: 0 12px 30px rgba(104, 21, 43, 0.12);
         height: 110px;
     }
 }
+
+/* ============================================
+   SUPERVISOR DIRECTORY — MAROON / CREAM THEME
+============================================ */
+
+.rb-supervisor-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 30px;
+    border-radius: 22px;
+    background: linear-gradient(120deg, #430d18, #68152b 65%, #94445c);
+    color: #fff8ee;
+    box-shadow: 0 14px 35px rgba(67, 13, 24, .16);
+}
+
+.rb-supervisor-hero h2 {
+    margin: 8px 0 10px;
+    color: #fff8ee;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.25;
+}
+
+.rb-supervisor-hero p:last-child {
+    max-width: 700px;
+    color: #f7dce0;
+    line-height: 1.8;
+}
+
+.rb-supervisor-eyebrow {
+    color: #f1c6bd;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+}
+
+.rb-supervisor-icon {
+    display: grid;
+    flex: 0 0 72px;
+    width: 72px;
+    height: 72px;
+    place-items: center;
+    border: 1px solid #ffeac955;
+    border-radius: 22px;
+    background: #ffeac91a;
+    color: #ffeac9;
+    font-size: 36px;
+}
+
+.rb-supervisor-directory,
+.rb-request-panel {
+    margin-bottom: 24px;
+    padding: 25px;
+    border: 1px solid #ead8de;
+    border-radius: 20px;
+    background: #fffdf9;
+    box-shadow: 0 8px 25px #430d1808;
+}
+
+.rb-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.rb-section-heading h2 {
+    margin-bottom: 6px;
+    color: #430d18;
+    font-size: 21px;
+}
+
+.rb-section-heading p:not(.rb-supervisor-eyebrow) {
+    color: #78636c;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.rb-count {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border: 1px solid #ead0d5;
+    border-radius: 999px;
+    background: #fff0e5;
+    color: #68152b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rb-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 15px;
+    border: 1px solid #e4cbd0;
+    border-radius: 13px;
+    background: #fff;
+    color: #68152b;
+}
+
+.rb-search > span {
+    font-size: 25px;
+}
+
+.rb-search input {
+    width: 100%;
+    min-width: 0;
+    padding: 14px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #35242b;
+    font: inherit;
+    font-size: 13px;
+}
+
+.rb-search:focus-within {
+    border-color: #94445c;
+    box-shadow: 0 0 0 3px #94445c18;
+}
+
+.rb-supervisor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+    align-items: stretch;
+    gap: 18px;
+}
+
+.rb-teacher-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 21px;
+    border: 1px solid #ecdee1;
+    border-radius: 18px;
+    background: #fff;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.rb-teacher-card:hover {
+    transform: translateY(-3px);
+    border-color: #c58a98;
+    box-shadow: 0 12px 26px #430d1812;
+}
+
+.rb-teacher-card.is-selected {
+    border: 2px solid #68152b;
+    background: #fff8f2;
+    box-shadow: 0 10px 28px #68152b1f;
+}
+
+.rb-teacher-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 18px;
+}
+
+.rb-teacher-avatar {
+    display: grid;
+    flex: 0 0 55px;
+    width: 55px;
+    height: 55px;
+    place-items: center;
+    border: 1px solid #e5c8ce;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #ffeac9, #f2d2d7);
+    color: #68152b;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.rb-teacher-identity {
+    flex: 1;
+    min-width: 0;
+}
+
+.rb-teacher-identity h3 {
+    margin: 7px 0 5px;
+    overflow-wrap: anywhere;
+    color: #430d18;
+    font-size: 17px;
+    line-height: 1.4;
+}
+
+.rb-teacher-role {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #f8e8e9;
+    color: #68152b;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.rb-teacher-email {
+    overflow-wrap: anywhere;
+    color: #68152b;
+    font-size: 12px;
+}
+
+.rb-teacher-info {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+.rb-teacher-info div {
+    min-width: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f2e8ea;
+}
+
+.rb-teacher-info dt {
+    margin-bottom: 4px;
+    color: #8a7379;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.rb-teacher-info dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: #392b30;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.rb-tag-section {
+    margin: 0 0 17px;
+}
+
+.rb-tag-title {
+    display: block;
+    margin-bottom: 9px;
+    color: #6e525a;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rb-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.rb-tag {
+    max-width: 100%;
+    padding: 6px 9px;
+    overflow-wrap: anywhere;
+    border: 1px solid #ead5d8;
+    border-radius: 999px;
+    background: #fff8f2;
+    color: #68152b;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.rb-tag-muted {
+    border-color: #eee6e7;
+    background: #faf7f7;
+    color: #8a7a7d;
+}
+
+.rb-teacher-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #f0e6e8;
+}
+
+.rb-teacher-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid #e6d2d6;
+    border-radius: 9px;
+    background: #fff;
+    color: #68152b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.rb-teacher-actions a:hover {
+    background: #fff0e5;
+}
+
+.rb-teacher-select-row {
+    margin-top: 13px;
+}
+
+.rb-select-teacher,
+.rb-send-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 11px 14px;
+    border: 1px solid #68152b;
+    border-radius: 11px;
+    background: #68152b;
+    color: #fff8ee;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: background .18s ease;
+}
+
+.rb-select-teacher {
+    width: 100%;
+}
+
+.rb-select-teacher:hover,
+.rb-send-button:hover {
+    background: #430d18;
+}
+
+.rb-select-teacher:disabled,
+.rb-send-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.rb-request-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.rb-request-form label {
+    display: block;
+    color: #563a42;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rb-request-form label:first-child,
+.rb-request-form label:last-of-type,
+.rb-request-form .rb-send-button,
+.rb-request-form .rb-message {
+    grid-column: 1 / -1;
+}
+
+.rb-request-form input,
+.rb-request-form select,
+.rb-request-form textarea {
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    padding: 12px 13px;
+    border: 1px solid #e4cbd0;
+    border-radius: 11px;
+    outline: none;
+    background: #fff;
+    color: #35242b;
+    font: inherit;
+    font-size: 13px;
+}
+
+.rb-request-form textarea {
+    resize: vertical;
+}
+
+.rb-request-form input:focus,
+.rb-request-form select:focus,
+.rb-request-form textarea:focus {
+    border-color: #94445c;
+    box-shadow: 0 0 0 3px #94445c18;
+}
+
+.rb-send-button {
+    justify-self: start;
+    min-width: 230px;
+    min-height: 46px;
+    font-size: 13px;
+}
+
+.rb-message {
+    margin: 10px 0;
+    color: #68152b;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.rb-empty-state {
+    grid-column: 1 / -1;
+    padding: 28px 18px;
+    border: 1px dashed #d9b9c0;
+    border-radius: 16px;
+    background: #fff8f2;
+    color: #78636c;
+    font-size: 13px;
+    line-height: 1.8;
+    text-align: center;
+}
+
+.rb-request-card {
+    margin-top: 12px;
+    padding: 19px;
+    border: 1px solid #ecdee1;
+    border-radius: 15px;
+    background: #fff;
+}
+
+.rb-request-card h3 {
+    margin-bottom: 8px;
+    color: #430d18;
+    font-size: 16px;
+}
+
+.rb-request-card p {
+    margin-top: 7px;
+    overflow-wrap: anywhere;
+    color: #78636c;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.rb-request-status {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #fff0e5;
+    color: #68152b;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rb-status-approved {
+    background: #e5f5e9;
+    color: #22663a;
+}
+
+.rb-status-rejected {
+    background: #fbe7e7;
+    color: #9a2931;
+}
+
+.rb-teacher-card:focus-within,
+.rb-select-teacher:focus-visible,
+.rb-send-button:focus-visible {
+    outline: 3px solid #c58a98;
+    outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+    .rb-supervisor-hero {
+        padding: 22px;
+    }
+
+    .rb-supervisor-icon {
+        flex-basis: 50px;
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        font-size: 25px;
+    }
+
+    .rb-supervisor-directory,
+    .rb-request-panel {
+        padding: 17px;
+    }
+
+    .rb-section-heading {
+        flex-wrap: wrap;
+    }
+
+    .rb-request-form {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-request-form label,
+    .rb-request-form .rb-send-button,
+    .rb-request-form .rb-message {
+        grid-column: 1;
+    }
+
+    .rb-send-button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rb-teacher-card,
+    .rb-select-teacher,
+    .rb-send-button {
+        transition: none;
+    }
+
+    .rb-teacher-card:hover {
+        transform: none;
+    }
+}
