@@ -28,6 +28,24 @@
             <a href="#milestones">Milestones</a>
             <a href="#files">Files & Feedback</a>
             <a href="#meetings">Meetings</a>
+            <p class="menu-title">RESEARCH TOOLS</p>
+
+<a href="#literature-review">Literature Review Matrix</a>
+<a href="#research-ethics">Research Ethics & Approval</a>
+<a href="#experiment-reproducibility">Experiment Reproducibility</a>
+<a href="#feedback-resolution">Feedback Resolution Tracker</a>
+<a href="#citation-manager">Citation & Reference Manager</a>
+<a href="#risk-decision-log">Risk Register & Decision Log</a>
+<a href="#research-gap-tracker">Research Gap Tracker</a>
+<a href="#research-question-map">Research Question Map</a>
+<a href="#dataset-registry">Dataset Registry</a>
+<a href="#task-dependencies">Task Dependency Map</a>
+<a href="#team-workload">Team Workload Insights</a>
+<a href="#authorship-agreement">Authorship & Contribution Agreement</a>
+<a href="#research-budget">Research Budget Tracker</a>
+<a href="#project-export">Project Export & Handover</a>
+<a href="#data-access-settings">Data Access & Embargo Settings</a>
+<a href="#research-impact">Research Impact Tracker</a>
         </nav>
 
         <div class="sidebar-note">
@@ -492,6 +510,429 @@
         </div>
     </article>
 </section>
+<!-- 1. Literature Review Matrix -->
+<section id="literature-review" class="page" hidden>
+
+  <article class="research-feature-card"
+           data-feature-card="literature-review">
+
+    <!-- Page heading -->
+    <header class="research-feature-header">
+      <p class="research-eyebrow">STUDENT RESEARCH TOOLS</p>
+
+      <h2>Literature Review Matrix</h2>
+
+      <p>
+        Compare research papers, methodologies, findings,
+        limitations and research gaps.
+      </p>
+    </header>
+
+    <!-- Instructions -->
+    <details class="research-guidance">
+      <summary>How to use this page?</summary>
+
+      <p>
+        Read a research paper and record its objective,
+        methodology, dataset, findings and limitations.
+        Use verified information from the original paper.
+      </p>
+    </details>
+
+    <!-- Add paper form -->
+    <form class="research-feature-form"
+          data-feature-form="literature-review">
+
+      <h3>Add Research Paper</h3>
+
+      <div class="research-fields-grid">
+
+        <!-- 1. Paper Title -->
+        <div class="research-field">
+          <label for="literature-review-title">
+            Paper Title *
+          </label>
+
+          <input
+            id="literature-review-title"
+            name="title"
+            type="text"
+            placeholder="Enter complete paper title"
+            required
+          >
+        </div>
+
+        <!-- 2. Authors -->
+        <div class="research-field">
+          <label for="literature-review-authors">
+            Authors *
+          </label>
+
+          <input
+            id="literature-review-authors"
+            name="authors"
+            type="text"
+            placeholder="Enter author names"
+            required
+          >
+        </div>
+
+        <!-- 3. Publication Year -->
+        <div class="research-field">
+          <label for="literature-review-year">
+            Publication Year
+          </label>
+
+          <input
+            id="literature-review-year"
+            name="year"
+            type="number"
+            min="1900"
+            max="2100"
+            step="1"
+            placeholder="e.g. 2024"
+          >
+        </div>
+
+        <!-- 4. Journal / Conference -->
+        <div class="research-field">
+          <label for="literature-review-venue">
+            Journal / Conference
+          </label>
+
+          <input
+            id="literature-review-venue"
+            name="venue"
+            type="text"
+            placeholder="Journal or conference name"
+          >
+        </div>
+
+        <!-- 5. DOI -->
+        <div class="research-field">
+          <label for="literature-review-doi">
+            DOI
+          </label>
+
+          <input
+            id="literature-review-doi"
+            name="doi"
+            type="text"
+            placeholder="e.g. 10.xxxx/example"
+          >
+        </div>
+
+        <!-- 6. Paper URL -->
+        <div class="research-field">
+          <label for="literature-review-paper_url">
+            Paper URL / PDF Link
+          </label>
+
+          <input
+            id="literature-review-paper_url"
+            name="paper_url"
+            type="url"
+            placeholder="https://example.com/paper"
+          >
+        </div>
+
+        <!-- 7. Research Objective -->
+        <div class="research-field">
+          <label for="literature-review-objective">
+            Research Objective *
+          </label>
+
+          <textarea
+            id="literature-review-objective"
+            name="objective"
+            rows="4"
+            placeholder="What problem does this paper investigate?"
+            required
+          ></textarea>
+        </div>
+
+        <!-- 8. Methodology -->
+        <div class="research-field">
+          <label for="literature-review-methodology">
+            Methodology / Algorithm *
+          </label>
+
+          <textarea
+            id="literature-review-methodology"
+            name="methodology"
+            rows="4"
+            placeholder="Which methods, algorithms or experiments were used?"
+            required
+          ></textarea>
+        </div>
+
+        <!-- 9. Dataset -->
+        <div class="research-field">
+          <label for="literature-review-dataset">
+            Dataset / Sample
+          </label>
+
+          <textarea
+            id="literature-review-dataset"
+            name="dataset"
+            rows="3"
+            placeholder="Dataset name, size or sample information"
+          ></textarea>
+        </div>
+
+        <!-- 10. Key Findings -->
+        <div class="research-field">
+          <label for="literature-review-key_findings">
+            Key Findings *
+          </label>
+
+          <textarea
+            id="literature-review-key_findings"
+            name="key_findings"
+            rows="4"
+            placeholder="What results did the researchers report?"
+            required
+          ></textarea>
+        </div>
+
+        <!-- 11. Limitations -->
+        <div class="research-field">
+          <label for="literature-review-limitations">
+            Limitations
+          </label>
+
+          <textarea
+            id="literature-review-limitations"
+            name="limitations"
+            rows="3"
+            placeholder="What limitations did the authors identify?"
+          ></textarea>
+        </div>
+
+        <!-- 12. Research Gap -->
+        <div class="research-field">
+          <label for="literature-review-research_gap">
+            Research Gap
+          </label>
+
+          <textarea
+            id="literature-review-research_gap"
+            name="research_gap"
+            rows="3"
+            placeholder="What remains unanswered?"
+          ></textarea>
+        </div>
+
+        <!-- 13. Relevance -->
+        <div class="research-field">
+          <label for="literature-review-relevance">
+            Relevance to Our Project
+          </label>
+
+          <textarea
+            id="literature-review-relevance"
+            name="relevance"
+            rows="3"
+            placeholder="Why is this paper useful for our research?"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <!-- Buttons -->
+      <div class="research-form-actions">
+
+        <button type="submit" class="button">
+          Add Paper
+        </button>
+
+        <button type="reset" class="button secondary">
+          Clear Form
+        </button>
+
+      </div>
+
+      <p class="research-feature-status"
+         role="status"
+         aria-live="polite"></p>
+
+    </form>
+
+    <!-- Comparison Table -->
+    <section class="research-record-list"
+             aria-label="Research papers">
+
+      <h3>Research Papers Comparison</h3>
+
+      <p class="research-empty">
+        No papers added yet. Add your first paper using the form above.
+      </p>
+
+      <div class="research-table-wrap">
+
+        <table
+          class="research-data-table"
+          data-columns="title,authors,year,methodology,key_findings,research_gap"
+        >
+
+          <thead>
+            <tr>
+              <th>Paper Title</th>
+              <th>Authors</th>
+              <th>Year</th>
+              <th>Methodology</th>
+              <th>Key Findings</th>
+              <th>Research Gap</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </article>
+
+</section>
+
+<!-- 2. Research Ethics & Approval -->
+<section id="research-ethics" class="page" hidden>
+    <article class="card">
+        <h2>Research Ethics & Approval</h2>
+        <div data-feature-root="research-ethics"></div>
+        <p id="research-ethics-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 3. Experiment Reproducibility -->
+<section id="experiment-reproducibility" class="page" hidden>
+    <article class="card">
+        <h2>Experiment Reproducibility</h2>
+        <div data-feature-root="experiment-reproducibility"></div>
+        <p id="experiment-reproducibility-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 4. Reviewer Feedback Resolution -->
+<section id="feedback-resolution" class="page" hidden>
+    <article class="card">
+        <h2>Reviewer Feedback Resolution Tracker</h2>
+        <div data-feature-root="feedback-resolution"></div>
+        <p id="feedback-resolution-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 5. Citation Manager -->
+<section id="citation-manager" class="page" hidden>
+    <article class="card">
+        <h2>Citation & Reference Manager</h2>
+        <div data-feature-root="citation-manager"></div>
+        <p id="citation-manager-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 6. Risk Register -->
+<section id="risk-decision-log" class="page" hidden>
+    <article class="card">
+        <h2>Risk Register & Decision Log</h2>
+        <div data-feature-root="risk-decision-log"></div>
+        <p id="risk-decision-log-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 7. Research Gap Tracker -->
+<section id="research-gap-tracker" class="page" hidden>
+    <article class="card">
+        <h2>Research Gap Tracker</h2>
+        <div data-feature-root="research-gap-tracker"></div>
+        <p id="research-gap-tracker-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 8. Research Question Map -->
+<section id="research-question-map" class="page" hidden>
+    <article class="card">
+        <h2>Research Question Map</h2>
+        <div data-feature-root="research-question-map"></div>
+        <p id="research-question-map-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 9. Dataset Registry -->
+<section id="dataset-registry" class="page" hidden>
+    <article class="card">
+        <h2>Dataset Registry</h2>
+        <div data-feature-root="dataset-registry"></div>
+        <p id="dataset-registry-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 10. Task Dependency Map -->
+<section id="task-dependencies" class="page" hidden>
+    <article class="card">
+        <h2>Task Dependency Map</h2>
+        <div data-feature-root="task-dependencies"></div>
+        <p id="task-dependencies-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 11. Team Workload -->
+<section id="team-workload" class="page" hidden>
+    <article class="card">
+        <h2>Team Workload Insights</h2>
+        <div data-feature-root="team-workload"></div>
+        <p id="team-workload-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 12. Authorship Agreement -->
+<section id="authorship-agreement" class="page" hidden>
+    <article class="card">
+        <h2>Authorship & Contribution Agreement</h2>
+        <div data-feature-root="authorship-agreement"></div>
+        <p id="authorship-agreement-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 13. Research Budget -->
+<section id="research-budget" class="page" hidden>
+    <article class="card">
+        <h2>Research Budget Tracker</h2>
+        <div data-feature-root="research-budget"></div>
+        <p id="research-budget-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 14. Project Export -->
+<section id="project-export" class="page" hidden>
+    <article class="card">
+        <h2>Project Export & Handover</h2>
+        <div data-feature-root="project-export"></div>
+        <p id="project-export-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 15. Data Access -->
+<section id="data-access-settings" class="page" hidden>
+    <article class="card">
+        <h2>Data Access & Embargo Settings</h2>
+        <div data-feature-root="data-access-settings"></div>
+        <p id="data-access-settings-status" role="status"></p>
+    </article>
+</section>
+
+<!-- 16. Research Impact -->
+<section id="research-impact" class="page" hidden>
+    <article class="card">
+        <h2>Research Impact Tracker</h2>
+        <div data-feature-root="research-impact"></div>
+        <p id="research-impact-status" role="status"></p>
+    </article>
+</section>
 <footer>
     ResearchBridge · Student workspace
     <p>Search students, send invitations and build your research team.</p>
@@ -506,9 +947,11 @@
             <button class="button">Close</button>
         </form>
     </dialog>
-
+<div id="research-feature-sections"></div>
        <script src="/assets/nashita-dashboard.js" defer></script>
        <script src="/assets/team-search.js" defer></script>
        <script src="/assets/project-ideas.js" defer></script>
+       <link rel="stylesheet" href="/assets/student-research-features.css">
+   <script src="/assets/student-research-features.js" defer></script>
 </body>
 </html>

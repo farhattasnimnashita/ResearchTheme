@@ -1,0 +1,27 @@
+/* Styles for the 16 separate Student Research Tools pages */
+.research-feature-card { display: grid; gap: 1.25rem; }
+.research-feature-header { padding: 1.25rem; border-radius: 18px; background: linear-gradient(135deg, #fff7ed, #f7e9e9); border: 1px solid #ead6d8; }
+.research-feature-header h2 { margin: .25rem 0 .5rem; color: #430d18; }
+.research-feature-header p { margin: .25rem 0; line-height: 1.55; }
+.research-eyebrow { font-size: .75rem; font-weight: 800; letter-spacing: .12em; color: #94445c; }
+.research-guidance, .research-feature-form, .research-record-list { padding: 1rem; border: 1px solid #eadfe0; border-radius: 16px; background: #fffdfb; }
+.research-guidance summary { cursor: pointer; font-weight: 700; color: #68152b; }
+.research-feature-form h3, .research-record-list h3 { margin-top: 0; color: #430d18; }
+.research-fields-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.research-field { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.research-field label { font-weight: 650; font-size: .92rem; color: #38151b; }
+.research-field label span { color: #a21d36; }
+.research-field input, .research-field select, .research-field textarea { width: 100%; box-sizing: border-box; font: inherit; color: #271a1c; border: 1px solid #d8c7ca; border-radius: 9px; padding: .7rem .75rem; background: #fff; }
+.research-field input:focus, .research-field select:focus, .research-field textarea:focus { outline: 2px solid #94445c; outline-offset: 1px; }
+.research-field textarea { resize: vertical; }
+.research-form-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.research-feature-status { margin-bottom: 0; font-size: .9rem; }
+.research-table-wrap { overflow-x: auto; width: 100%; }
+.research-data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.research-data-table th, .research-data-table td { border-bottom: 1px solid #eadfe0; padding: .7rem; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.research-data-table th { background: #f8eeee; color: #430d18; font-size: .83rem; }
+.research-data-table td { font-size: .9rem; }
+.research-data-table details summary { cursor: pointer; color: #68152b; }
+.research-record-delete { margin-top: .4rem; }
+.research-empty { color: #6f6265; font-size: .9rem; }
+@media (max-width: 720px) { .research-fields-grid { grid-template-columns: 1fr; } .research-feature-header { padding: 1rem; } }

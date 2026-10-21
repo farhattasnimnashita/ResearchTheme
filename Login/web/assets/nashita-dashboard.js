@@ -11,7 +11,23 @@
             proposal: "My Proposal",
             milestones: "Milestones",
             files: "Files & Feedback",
-            meetings: "Meetings"
+            meetings: "Meetings",
+            "literature-review": "Literature Review Matrix",
+            "research-ethics": "Research Ethics & Approval",
+            "experiment-reproducibility": "Experiment Reproducibility",
+            "feedback-resolution": "Reviewer Feedback Resolution Tracker",
+            "citation-manager": "Citation & Reference Manager",
+            "risk-decision-log": "Risk Register & Decision Log",
+"research-gap-tracker": "Research Gap Tracker",
+"research-question-map": "Research Question Map",
+"dataset-registry": "Dataset Registry",
+"task-dependencies": "Task Dependency Map",
+"team-workload": "Team Workload Insights",
+"authorship-agreement": "Authorship & Contribution Agreement",
+"research-budget": "Research Budget Tracker",
+"project-export": "Project Export & Handover",
+"data-access-settings": "Data Access & Embargo Settings",
+"research-impact": "Research Impact Tracker"
         };
 
         function showPage() {
