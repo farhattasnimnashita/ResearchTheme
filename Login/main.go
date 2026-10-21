@@ -297,6 +297,7 @@ func (a *App) routes() http.Handler {
 		reply(w, 200, u)
 	})
 	m.HandleFunc("GET /api/teachers", a.teachers)
+	m.HandleFunc("GET /api/teacher-directory", a.teacherDirectory)
 	m.HandleFunc("GET /api/projects", a.listProjects)
 	m.HandleFunc("POST /api/projects", a.createProject)
 	m.HandleFunc("POST /api/projects/{id}/submit", a.submitProject)
