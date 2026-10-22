@@ -401,11 +401,22 @@
           window.location.search
         ).get("project_created");
 
-        const selectedProject = projects.find(
-          project => String(project.id) === requestedProject
-        ) || projects[0];
 
-        select.value = String(selectedProject.id);
+const approvedProject = projects.find(
+    project => project.status === "approved"
+);
+
+const selectedProject = approvedProject ||
+    projects.find(
+        project => String(project.id) === requestedProject
+    ) ||
+    projects[0];
+
+if (selectedProject) {
+    select.value = String(selectedProject.id);
+    select.disabled = Boolean(approvedProject);
+}
+
 
         await loadMembers();
       }

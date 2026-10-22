@@ -211,7 +211,43 @@ func (a *App) invitations(w http.ResponseWriter, r *http.Request) {
 		message := u.Name + " rejected your invitation for " +
 			projectTitle + ". Find another team member."
 
-		if in.Accept {
+			if in.Accept {
+	// Check whether this student already belongs to another
+	// approved project.
+	var otherApproved int
+
+	err = tx.QueryRow(`
+		SELECT COUNT(*)
+		FROM projects p
+		WHERE p.id <> ?
+		  AND p.status = 'approved'
+		  AND (
+		    p.student_id = ?
+		    OR EXISTS (
+		      SELECT 1
+		      FROM team_members tm
+		      WHERE tm.project_id = p.id
+		        AND tm.user_id = ?
+		    )
+		  )
+	`, projectID, u.ID, u.ID).Scan(&otherApproved)
+
+	if err != nil {
+		fail(w, 500, "Could not check your existing approved project.")
+		return
+	}
+
+	if otherApproved > 0 {
+		fail(
+			w,
+			409,
+			"You are already part of another approved project and cannot switch teams.",
+		)
+		return
+	}
+
+	// তোমার আগের code এখান থেকে শুরু হবে।
+
 			var memberCount int
 
 			err = tx.QueryRow(`
@@ -671,12 +707,28 @@ func (a *App) collaborationProjects(w http.ResponseWriter, r *http.Request) {
 		fail(w, 401, "Please log in.")
 		return
 	}
-	filter := "(p.student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=p.id AND user_id=?))"
-	args := []any{u.ID, u.ID}
-	if u.Role == "teacher" {
-		filter = "p.teacher_id=? AND p.status!='draft'"
-		args = []any{u.ID}
+filter := `(p.student_id=? OR EXISTS(
+	SELECT 1
+	FROM team_members tm
+	WHERE tm.project_id=p.id AND tm.user_id=?
+))`
+args := []any{u.ID, u.ID}
+
+if u.Role == "teacher" {
+	filter = "p.teacher_id=? AND p.status!='draft'"
+	args = []any{u.ID}
+} else {
+	fixedID, err := a.fixedApprovedProjectID(u.ID)
+	if err != nil {
+		fail(w, 500, "Could not check your approved project.")
+		return
 	}
+
+	if fixedID > 0 {
+		filter = "p.id=?"
+		args = []any{fixedID}
+	}
+}
 	rows, e := a.db.Query(`SELECT p.id,p.title,p.status,p.student_id,u.name,COALESCE(p.teacher_id,0) FROM projects p JOIN users u ON u.id=p.student_id WHERE `+filter+` ORDER BY p.updated_at DESC`, args...)
 	if e != nil {
 		fail(w, 500, "Could not load project list.")

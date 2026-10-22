@@ -40,7 +40,90 @@ async function api(path,data,method){const options={credentials:'same-origin'};i
 function blank(title,description){return `<div class="empty"><span class="empty-icon" aria-hidden="true">♧</span><h3>${h(title)}</h3><p>${h(description)}</p></div>`}
 function heading(title,description){document.getElementById('page-title').textContent=title;return `<div class="heading"><p>${h(description)}</p></div>`}
 function badge(status){return `<span class="badge ${h(status)}">${h(words(status))}</span>`}
-function projectCard(project,review=false){return `<article class="project-card"><div class="card-top"><div><p class="eyebrow">${h(project.area||'Research proposal')}</p><h3>${h(project.title)}</h3></div>${badge(project.status)}</div><p class="mini">${teacher()?'Student: '+h(project.student):'Research team project'}</p>${project.abstract?`<p class="record-body">${h(project.abstract)}</p>`:''}${project.feedback?`<div class="feedback-box"><strong>Supervisor feedback</strong><br>${h(project.feedback)}</div>`:''}<div class="actions">${teacher()&&project.status==='submitted'?`<button class="button" data-review-project="${project.id}">Review proposal →</button>`:''}<a class="button secondary" href="#projects/${project.id}/team">Open research workspace →</a></div></article>`}
+function proposalDetails(project) {
+    if (
+        project.proposal_started !== true &&
+        project.proposal_started !== 1
+    ) {
+        return "";
+    }
+
+    const items = [
+        ["Problem Statement", project.problem_statement],
+        ["Aim and Objectives", project.objectives],
+        ["Proposed Methodology", project.methodology],
+        ["Expected Outcomes and Contribution", project.expected_outcomes],
+        ["Scope and Limitations", project.scope_limitations]
+    ].filter(([, value]) => String(value || "").trim());
+
+    if (!items.length) {
+        return "";
+    }
+
+    return `
+        <details class="proposal-detail-panel">
+            <summary>Read full research plan</summary>
+            <dl>
+                ${items.map(([label, value]) => `
+                    <div>
+                        <dt>${h(label)}</dt>
+                        <dd>${h(value)}</dd>
+                    </div>
+                `).join("")}
+            </dl>
+        </details>
+    `;
+}
+
+function projectCard(project, review = false) {
+    return `
+        <article class="project-card">
+            <div class="card-top">
+                <div>
+                    <p class="eyebrow">
+                        ${h(project.area || "Research proposal")}
+                    </p>
+                    <h3>${h(project.title)}</h3>
+                </div>
+
+                ${badge(project.status)}
+            </div>
+
+            <p class="mini">
+                ${teacher()
+                    ? "Student: " + h(project.student)
+                    : "Research team project"}
+            </p>
+
+            ${project.abstract
+                ? `<p class="record-body">${h(project.abstract)}</p>`
+                : ""}
+
+            ${proposalDetails(project)}
+
+            ${project.feedback
+                ? `<div class="feedback-box">
+                    <strong>Supervisor feedback</strong><br>
+                    ${h(project.feedback)}
+                   </div>`
+                : ""}
+
+            <div class="actions">
+                ${teacher() && project.status === "submitted"
+                    ? `<button
+                        class="button"
+                        data-review-project="${project.id}"
+                       >Review proposal →</button>`
+                    : ""}
+
+                <a
+                    class="button secondary"
+                    href="#projects/${project.id}/team"
+                >Open research workspace →</a>
+            </div>
+        </article>
+    `;
+}
 function featureNavigation(){
  const primary=['team','milestone','files','meeting'];
  document.getElementById('tools-nav').innerHTML=Object.entries(modules).filter(([k])=>!primary.includes(k)).map(([k,v])=>`<a href="#tools/${k}" data-tool="${k}"><span class="menu-emoji" aria-hidden="true">${toolIcons[k]||"🔹"}</span> ${h(v[0])}</a>`).join('')+'<a href="#review" data-page="review">🔔 Notifications</a><a href="#profile" data-page="profile">⚙️ Profile settings</a>';

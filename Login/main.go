@@ -189,6 +189,10 @@ func openSQLite(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, e
 	}
+	if e = migrateProjectProposalColumns(db); e != nil {
+		db.Close()
+		return nil, e
+	}
 	if e = migrateUserProfile(db); e != nil {
 		db.Close()
 		return nil, e
@@ -238,6 +242,7 @@ func email(s string) (string, bool) {
 	a, e := mail.ParseAddress(s)
 	return s, e == nil && a.Address == s && len(s) <= 254
 }
+
 func role(s string) bool { return s == "student" || s == "teacher" }
 func (a *App) routes() http.Handler {
 	m := http.NewServeMux()
@@ -249,6 +254,7 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)
 	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
+	
 	m.HandleFunc("POST /api/forgot-password", func(w http.ResponseWriter, r *http.Request) {
 		if a.cfg.EmailMode == "supabase" {
 			a.sbForgot(w, r)
@@ -300,8 +306,21 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("GET /api/teacher-directory", a.teacherDirectory)
 	m.HandleFunc("GET /api/projects", a.listProjects)
 	m.HandleFunc("POST /api/projects", a.createProject)
+	m.HandleFunc(
+	"POST /api/projects/{id}/supervisor",
+	a.selectProjectSupervisor,
+)
 	m.HandleFunc("POST /api/projects/{id}/submit", a.submitProject)
 	m.HandleFunc("POST /api/projects/{id}/review", a.reviewProject)
+	m.HandleFunc(
+		"POST /api/projects/{id}/proposal",
+		a.saveProjectProposal,
+	)
+
+	m.HandleFunc(
+		"POST /api/projects/{id}/proposal/submit",
+		a.submitDetailedProjectProposal,
+	)
 	assets, _ := fs.Sub(frontend, "web/assets")
 	m.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assets))))
 	m.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {

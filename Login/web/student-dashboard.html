@@ -472,56 +472,38 @@
             </div>
         </div>
 
-        <form id="supervisor-request-form" class="rb-request-form">
-            <label>
-                Selected Teacher
-                <select id="supervisor-teacher" name="teacher_id" required>
-                    <option value="">Choose a registered teacher</option>
-                </select>
-            </label>
+        <form id="supervisor-request-form" class="rb-request-form"><label>
+    Select Project
+    <select id="supervisor-project" required>
+        <option value="">Loading projects...</option>
+    </select>
+</label>
 
-            <label>
-                Research Topic
-                <input
-                    id="supervisor-title"
-                    name="title"
-                    type="text"
-                    minlength="5"
-                    maxlength="160"
-                    required
-                    placeholder="Enter your research topic">
-            </label>
+<label>
+    Select Supervisor
+    <select id="supervisor-teacher" name="teacher_id" required>
+        <option value="">Choose a registered teacher</option>
+    </select>
+</label>
 
-            <label>
-                Research Area
-                <input
-                    id="supervisor-area"
-                    name="area"
-                    type="text"
-                    minlength="2"
-                    maxlength="80"
-                    required
-                    placeholder="e.g. Artificial Intelligence">
-            </label>
+<p class="description">
+    The supervisor belongs to the shared project. Once selected,
+    the same supervisor will be used by every confirmed team member.
+</p>
 
-            <label>
-                Proposal / Research Summary
-                <textarea
-                    id="supervisor-abstract"
-                    name="abstract"
-                    minlength="20"
-                    maxlength="6000"
-                    rows="6"
-                    required
-                    placeholder="Explain the problem, objectives and proposed method."></textarea>
-            </label>
+<button
+    class="rb-send-button"
+    type="submit"
+    id="supervisor-send-button"
+>
+    Save Supervisor Selection
+</button>
 
-            <button class="rb-send-button" type="submit" id="supervisor-send-button">
-                Send Supervision Request <span aria-hidden="true">→</span>
-            </button>
-
-            <p id="supervisor-request-message" class="rb-message" role="status"></p>
-        </form>
+<p
+    id="supervisor-request-message"
+    class="rb-message"
+    role="status"
+></p></form>
     </article>
 
     <article class="rb-supervisor-directory rb-my-requests">
@@ -537,20 +519,140 @@
 
 
 
-        <!-- Proposal -->
-        <section id="proposal" class="page" hidden>
-            <article class="card">
-                <h2>My Proposal</h2>
-                <div class="empty">
-                    <h3>No proposal submitted</h3>
-                    <p>Describe your problem, objectives, method and timeline.</p>
+<!-- Proposal -->
+<section id="proposal" class="page" hidden>
+    <article class="card proposal-card">
+        <h2>My Research Proposal</h2>
 
-                    <button class="button" data-feature="Proposal drafting">
-                        Start a Proposal
-                    </button>
-                </div>
-            </article>
-        </section>
+        <p class="proposal-intro">
+            Prepare your research plan, save a draft, and submit it
+            to your supervisor for feedback.
+        </p>
+
+        <p id="proposal-message" role="status" aria-live="polite"></p>
+
+        <form id="proposal-form" novalidate>
+            <div class="proposal-context">
+                <label class="proposal-field">
+                    Choose Existing Project
+                    <select id="proposal-project">
+                        <option value="">Loading projects...</option>
+                    </select>
+                </label>
+
+             <div class="proposal-field">
+    <span class="proposal-label">Project Supervisor</span>
+    <p
+        id="proposal-supervisor-summary"
+        class="proposal-summary"
+    >
+        Select a project to see its supervisor.
+    </p>
+</div>
+            </div>
+
+            <p id="proposal-project-summary" class="proposal-summary">
+                Select a project to begin.
+            </p>
+
+            <div class="proposal-form-grid">
+                <label class="proposal-field">
+                    Problem Statement
+                    <span class="proposal-hint">
+                        What problem will your research address, and why is it important?
+                    </span>
+                    <textarea
+                        id="proposal-problem"
+                        rows="5"
+                        maxlength="6000"
+                        placeholder="Explain the problem you want to investigate..."
+                    ></textarea>
+                </label>
+
+                <label class="proposal-field">
+                    Aim and Objectives
+                    <span class="proposal-hint">
+                        What do you want to achieve through this research?
+                    </span>
+                    <textarea
+                        id="proposal-objectives"
+                        rows="5"
+                        maxlength="4000"
+                        placeholder="Write your main aim and specific objectives..."
+                    ></textarea>
+                </label>
+
+                <label class="proposal-field">
+                    Proposed Methodology
+                    <span class="proposal-hint">
+                        How do you plan to conduct the research?
+                    </span>
+                    <textarea
+                        id="proposal-methodology"
+                        rows="5"
+                        maxlength="6000"
+                        placeholder="Describe the planned research method..."
+                    ></textarea>
+                </label>
+
+                <label class="proposal-field">
+                    Expected Outcomes and Contribution
+                    <span class="proposal-hint">
+                        What results or contributions do you expect?
+                    </span>
+                    <textarea
+                        id="proposal-outcomes"
+                        rows="5"
+                        maxlength="4000"
+                        placeholder="Explain the expected results..."
+                    ></textarea>
+                </label>
+
+                <label class="proposal-field proposal-field-full">
+                    Scope and Limitations
+                    <span class="proposal-hint">
+                        What will the research cover, and what are its limitations?
+                    </span>
+                    <textarea
+                        id="proposal-scope"
+                        rows="4"
+                        maxlength="3000"
+                        placeholder="Describe the scope and limitations..."
+                    ></textarea>
+                </label>
+            </div>
+
+            <div class="proposal-actions">
+                <button
+                    type="button"
+                    class="button secondary"
+                    id="proposal-save-button"
+                >
+                    Save Draft
+                </button>
+
+                <button
+                    type="submit"
+                    class="button"
+                    id="proposal-submit-button"
+                >
+                    Submit for Review →
+                </button>
+            </div>
+        </form>
+    </article>
+
+    <article class="card proposal-list-card">
+        <h2>My Saved Proposals</h2>
+        <p class="proposal-intro">
+            Track your submission status and supervisor feedback.
+        </p>
+
+        <div id="proposal-list">
+            Loading proposals...
+        </div>
+    </article>
+</section>
 
         <!-- Milestones -->
         <section id="milestones" class="page" hidden>
@@ -1048,6 +1150,7 @@
        <script src="/assets/nashita-dashboard.js" defer></script>
        <script src="/assets/team-search.js" defer></script>
        <script src="/assets/project-ideas.js" defer></script>
+       <script src="/assets/proposal.js" defer></script>
        <link rel="stylesheet" href="/assets/student-research-features.css">
    <script src="/assets/student-research-features.js" defer></script>
 </body>

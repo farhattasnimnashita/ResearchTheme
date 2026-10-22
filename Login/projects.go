@@ -5,19 +5,52 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"database/sql"
 )
 
 type Project struct {
-	TeacherID int64  `json:"teacher_id"`
-	ID        int64  `json:"id"`
-	Title     string `json:"title"`
-	Area      string `json:"area"`
-	Abstract  string `json:"abstract"`
-	Status    string `json:"status"`
-	Feedback  string `json:"feedback"`
-	Student   string `json:"student"`
-	Teacher   string `json:"teacher"`
-	Updated   int64  `json:"updated"`
+	TeacherID        int64  `json:"teacher_id"`
+	ID               int64  `json:"id"`
+	Title            string `json:"title"`
+	Area             string `json:"area"`
+	Abstract         string `json:"abstract"`
+	Status           string `json:"status"`
+	Feedback         string `json:"feedback"`
+	Student          string `json:"student"`
+	Teacher          string `json:"teacher"`
+	Updated          int64  `json:"updated"`
+	ProblemStatement string `json:"problem_statement"`
+	Objectives       string `json:"objectives"`
+	Methodology      string `json:"methodology"`
+	ExpectedOutcomes string `json:"expected_outcomes"`
+	ScopeLimitations string `json:"scope_limitations"`
+	ProposalStarted  bool   `json:"proposal_started"`
+}
+func (a *App) fixedApprovedProjectID(userID int64) (int64, error) {
+	var id int64
+
+	err := a.db.QueryRow(`
+		SELECT p.id
+		FROM projects p
+		WHERE p.status = 'approved'
+		  AND (
+		    p.student_id = ?
+		    OR EXISTS (
+		      SELECT 1
+		      FROM team_members tm
+		      WHERE tm.project_id = p.id
+		        AND tm.user_id = ?
+		    )
+		  )
+		ORDER BY p.updated_at DESC, p.id DESC
+		LIMIT 1
+	`, userID, userID).Scan(&id)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+
+	return id, err
 }
 
 func (a *App) teachers(w http.ResponseWriter, r *http.Request) {
@@ -53,20 +86,88 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 		fail(w, 401, "Please log in.")
 		return
 	}
-	filter := "p.student_id=?"
-	if u.Role == "teacher" {
-		filter = "p.teacher_id=? AND p.status!='draft'"
-	}
-	rows, e := a.db.Query(`SELECT p.id,p.title,p.area,p.abstract,p.status,p.feedback,s.name,COALESCE(t.name,'Not assigned'),COALESCE(t.id,0),p.updated_at FROM projects p JOIN users s ON p.student_id=s.id LEFT JOIN users t ON p.teacher_id=t.id WHERE `+filter+` ORDER BY p.updated_at DESC,p.id DESC`, u.ID)
-	if e != nil {
-		fail(w, 500, "Could not load projects.")
+var filter string
+var args []any
+
+if u.Role == "teacher" {
+	filter = "p.teacher_id=? AND p.status!='draft'"
+	args = []any{u.ID}
+} else {
+	fixedID, err := a.fixedApprovedProjectID(u.ID)
+	if err != nil {
+		fail(w, 500, "Could not check your approved project.")
 		return
 	}
+
+	if fixedID > 0 {
+		// Approved project: all team members see the same project.
+		filter = "p.id=?"
+		args = []any{fixedID}
+	} else {
+		// Before approval, show projects owned by or shared with this student.
+		filter = `(
+			p.student_id=?
+			OR EXISTS (
+				SELECT 1
+				FROM team_members tm
+				WHERE tm.project_id=p.id
+				  AND tm.user_id=?
+			)
+		)`
+		args = []any{u.ID, u.ID}
+	}
+}
+	rows, e := a.db.Query(`
+	SELECT
+		p.id,
+		p.title,
+		p.area,
+		p.abstract,
+		p.status,
+		p.feedback,
+		s.name,
+		COALESCE(t.name,'Not assigned'),
+		COALESCE(t.id,0),
+		p.updated_at,
+		p.problem_statement,
+		p.objectives,
+		p.methodology,
+		p.expected_outcomes,
+		p.scope_limitations,
+		p.proposal_started
+	FROM projects p
+	JOIN users s ON p.student_id=s.id
+	LEFT JOIN users t ON p.teacher_id=t.id
+	WHERE `+filter+`
+	ORDER BY p.updated_at DESC,p.id DESC
+`, args...)
+
+if e != nil {
+	fail(w, 500, "Could not load projects.")
+	return
+}
 	defer rows.Close()
 	out := []Project{}
 	for rows.Next() {
 		var p Project
-		if rows.Scan(&p.ID, &p.Title, &p.Area, &p.Abstract, &p.Status, &p.Feedback, &p.Student, &p.Teacher, &p.TeacherID, &p.Updated) != nil {
+		if rows.Scan(
+			&p.ID,
+			&p.Title,
+			&p.Area,
+			&p.Abstract,
+			&p.Status,
+			&p.Feedback,
+			&p.Student,
+			&p.Teacher,
+			&p.TeacherID,
+			&p.Updated,
+			&p.ProblemStatement,
+			&p.Objectives,
+			&p.Methodology,
+			&p.ExpectedOutcomes,
+			&p.ScopeLimitations,
+			&p.ProposalStarted,
+		) != nil {
 			fail(w, 500, "Could not read projects.")
 			return
 		}
@@ -86,6 +187,20 @@ func (a *App) createProject(w http.ResponseWriter, r *http.Request) {
 	}
 	if u.Role != "student" {
 		fail(w, 403, "Only students can create research proposals.")
+		return
+	}
+		fixedID, err := a.fixedApprovedProjectID(u.ID)
+	if err != nil {
+		fail(w, 500, "Could not check your approved project.")
+		return
+	}
+
+	if fixedID > 0 {
+		fail(
+			w,
+			409,
+			"Your team already has an approved project. It is fixed and cannot be replaced.",
+		)
 		return
 	}
 	var p struct {

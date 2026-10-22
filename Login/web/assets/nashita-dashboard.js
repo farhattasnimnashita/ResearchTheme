@@ -1140,6 +1140,9 @@ const response = await fetch("/api/profile-picture", {
 
         try {
             const projects = await api("/api/projects");
+            if (Array.isArray(projects)) {
+    populateSupervisorProjects(projects, teachers);
+}
 
             if (!Array.isArray(projects) || projects.length === 0) {
                 requestList.innerHTML = `
@@ -1184,6 +1187,49 @@ const response = await fetch("/api/profile-picture", {
             requestList.textContent = error.message;
         }
     }
+    function populateSupervisorProjects(projects, teachers) {
+    const projectSelect = document.getElementById("supervisor-project");
+    const teacherSelect = document.getElementById("supervisor-teacher");
+
+    if (!projectSelect || !teacherSelect) return;
+
+    projectSelect.innerHTML = "";
+    teacherSelect.innerHTML = "";
+
+    const approvedProject = projects.find(
+        project => project.status === "approved"
+    );
+
+    const selectedProject = approvedProject || projects[0];
+
+    if (!selectedProject) {
+        projectSelect.add(new Option("No project available", ""));
+        teacherSelect.add(new Option("Choose a supervisor", ""));
+        return;
+    }
+
+    projects.forEach(project => {
+        projectSelect.add(
+            new Option(project.title, String(project.id))
+        );
+    });
+
+    projectSelect.value = String(selectedProject.id);
+    projectSelect.disabled = Boolean(approvedProject);
+
+    teachers.forEach(teacher => {
+        teacherSelect.add(
+            new Option(teacher.name, String(teacher.id))
+        );
+    });
+
+    if (selectedProject.teacher_id) {
+        teacherSelect.value = String(selectedProject.teacher_id);
+        teacherSelect.disabled = true;
+    } else {
+        teacherSelect.disabled = false;
+    }
+}
 
     searchBox.addEventListener("input", filterTeachers);
     teacherSelect.addEventListener("change", markSelectedTeacher);
@@ -1239,12 +1285,28 @@ const response = await fetch("/api/profile-picture", {
 
         try {
             // Save a draft through the current application workflow.
-            const draft = await api("/api/projects", {
-                title,
-                area,
-                abstract,
-                teacher_id: teacherID
-            });
+const projectID = Number(
+    document.getElementById("supervisor-project").value
+);
+
+const teacherID = Number(
+    document.getElementById("supervisor-teacher").value
+);
+
+if (!projectID || !teacherID) {
+    requestMessage.textContent =
+        "Choose a project and a supervisor first.";
+    return;
+}
+
+await api(`/api/projects/${projectID}/supervisor`, {
+    teacher_id: teacherID
+});
+
+requestMessage.textContent =
+    "Supervisor saved for this project. All team members share this selection. Complete your Proposal to submit it for review.";
+
+await loadMyRequests();
 
             // Submit it to the selected teacher for review.
             await api(`/api/projects/${draft.id}/submit`, {

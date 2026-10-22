@@ -2710,3 +2710,175 @@ box-shadow: 0 12px 30px rgba(104, 21, 43, 0.12);
         transform: none;
     }
 }
+/* Research Proposal */
+.proposal-card,
+.proposal-list-card {
+    margin-bottom: 24px;
+}
+
+.proposal-intro {
+    color: #6f5960;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.proposal-context,
+.proposal-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.proposal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 600;
+    color: #430d18;
+}
+
+.proposal-field input,
+.proposal-field select,
+.proposal-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #ddc7ce;
+    border-radius: 10px;
+    background: #fffdfb;
+    color: #30252a;
+    font: inherit;
+}
+
+.proposal-field textarea {
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.proposal-field input:focus,
+.proposal-field select:focus,
+.proposal-field textarea:focus {
+    outline: 2px solid #94445c;
+    outline-offset: 2px;
+    border-color: #94445c;
+}
+
+.proposal-hint {
+    color: #79686e;
+    font-size: 0.88rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.proposal-field-full {
+    grid-column: 1 / -1;
+}
+
+.proposal-summary {
+    padding: 12px 14px;
+    border-left: 4px solid #94445c;
+    background: #fff5f0;
+    border-radius: 6px;
+    line-height: 1.6;
+}
+
+.proposal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.proposal-error {
+    color: #a11b35;
+}
+
+.proposal-record {
+    border: 1px solid #eadce1;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 16px 0;
+    background: #fffdfc;
+}
+
+.proposal-record-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.proposal-record-heading h3 {
+    margin: 0 0 6px;
+}
+
+.proposal-record-heading p,
+.proposal-meta {
+    color: #79686e;
+    line-height: 1.5;
+}
+
+.proposal-status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #f4e7eb;
+    color: #68152b;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+.proposal-record-details {
+    margin: 14px 0;
+}
+
+.proposal-record-details summary {
+    cursor: pointer;
+    color: #68152b;
+    font-weight: 600;
+}
+
+.proposal-detail {
+    margin-top: 14px;
+}
+
+.proposal-detail dt {
+    font-weight: 700;
+    color: #430d18;
+    margin-bottom: 5px;
+}
+
+.proposal-detail dd {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.7;
+}
+
+.proposal-feedback {
+    padding: 13px;
+    margin-top: 14px;
+    background: #fff5f0;
+    border-radius: 9px;
+    line-height: 1.6;
+}
+
+.proposal-empty {
+    padding: 18px 0;
+    color: #79686e;
+}
+
+@media (max-width: 700px) {
+    .proposal-context,
+    .proposal-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proposal-field-full {
+        grid-column: auto;
+    }
+
+    .proposal-record-heading {
+        flex-direction: column;
+    }
+}
