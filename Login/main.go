@@ -254,7 +254,7 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)
 	m.HandleFunc("POST /api/team/invite", a.inviteDirectoryStudent)
-	
+
 	m.HandleFunc("POST /api/forgot-password", func(w http.ResponseWriter, r *http.Request) {
 		if a.cfg.EmailMode == "supabase" {
 			a.sbForgot(w, r)
@@ -307,9 +307,9 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("GET /api/projects", a.listProjects)
 	m.HandleFunc("POST /api/projects", a.createProject)
 	m.HandleFunc(
-	"POST /api/projects/{id}/supervisor",
-	a.selectProjectSupervisor,
-)
+		"POST /api/projects/{id}/supervisor",
+		a.selectProjectSupervisor,
+	)
 	m.HandleFunc("POST /api/projects/{id}/submit", a.submitProject)
 	m.HandleFunc("POST /api/projects/{id}/review", a.reviewProject)
 	m.HandleFunc(
@@ -345,9 +345,13 @@ func (a *App) routes() http.Handler {
 			}
 		}
 		page := "web/index.html"
+		if p == "/" {
+			page = "web/landing.html"
+		}
 		if p == "/dashboard/student" {
 			page = "web/student-dashboard.html"
 		}
+
 		if p == "/dashboard/teacher" || p == "/research" {
 			page = "web/teacher-dashboard.html"
 		}

@@ -1,0 +1,9 @@
+.rb-live-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-12px 0 20px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:11px;color:var(--muted)}
+.rb-live-bar button{font:inherit;font-weight:650;border:1px solid var(--line);border-radius:7px;padding:8px 12px;background:var(--soft);color:var(--deep);cursor:pointer;flex-shrink:0}
+.rb-live-bar button[aria-pressed=true]{background:#075c83;color:white;border-color:#075c83}
+.rb-live-feed{position:fixed;right:22px;bottom:80px;width:min(365px,calc(100vw - 32px));z-index:50}
+.rb-live-notice{position:relative;background:var(--surface,#fff);color:var(--ink,#173e55);border:1px solid var(--line,#cce0eb);border-left:4px solid #218bbd;border-radius:14px;padding:20px 42px 20px 20px;box-shadow:0 10px 35px #063b6533;overflow-wrap:anywhere}
+.rb-live-notice strong{font-size:14px}.rb-live-notice p{font-size:13px;line-height:1.6;margin:10px 0}.rb-live-notice a{font-size:12px;font-weight:700;color:var(--deep,#075c83)}
+.rb-live-notice button{position:absolute;top:8px;right:8px;background:transparent;border:0;font-size:24px;color:inherit;cursor:pointer;padding:4px 8px}
+.rb-live-notice a:focus-visible,.rb-live-notice button:focus-visible,.rb-live-bar button:focus-visible{outline:2px solid #218bbd;outline-offset:3px}
+@media(max-width:650px){.rb-live-bar{align-items:flex-start;font-size:10px}.rb-live-feed{right:16px;bottom:78px}}

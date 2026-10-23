@@ -1,0 +1,82 @@
+@charset "UTF-8";
+:root{color-scheme:light;--ink:#143e51;--muted:#60747b;--blue:#075c83;--cream:#f8f7f2;--line:#dce4e4;--gold:#af8a50}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:25px}body{margin:0;background:var(--cream);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}a:focus-visible{outline:3px solid #c79344;outline-offset:5px}p{line-height:1.7}h1,h2,h3,p{margin-top:0}.wrap{width:min(1280px,90%);margin-inline:auto}.header{display:flex;align-items:center;justify-content:space-between;min-height:104px;gap:24px}.brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:750;letter-spacing:-.7px}.mark{display:grid;place-items:center;width:36px;height:39px;border-radius:11px 11px 3px 11px;background:var(--blue);color:white;font-family:Georgia,serif;font-size:26px}.brand-dot{color:var(--gold);margin-left:-9px}.header nav{display:flex;align-items:center;gap:35px;font-size:13px;font-weight:600}.nav-start{border:1px solid #c4d4d9;padding:12px 20px;border-radius:7px;display:flex;gap:25px}.nav-start:hover{background:#e4eff2}.hero{display:grid;grid-template-columns:1.07fr 1fr;gap:28px;align-items:center;padding:30px 0 55px;min-height:660px}.hero-copy{padding:10px 0 0}.eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;line-height:1.7;margin-bottom:26px}.hero .eyebrow{display:flex;align-items:center;gap:10px}.eyebrow>span{height:7px;width:7px;border-radius:50%;background:#ad8b50}h1{font:400 clamp(44px,4.6vw,68px)/1.07 Georgia,"Times New Roman",serif;letter-spacing:-2.7px;margin-bottom:26px}em{font-weight:400;color:var(--blue)}.intro{max-width:465px;font-size:15px;color:var(--muted);margin-bottom:28px}.hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:25px}.button{display:inline-flex;align-items:center;justify-content:space-between;gap:45px;background:var(--blue);color:#fff;padding:17px 25px;border-radius:7px;font-size:14px;font-weight:650;box-shadow:0 7px 18px #075c8318}.button:hover{background:#064365}.text-link{font-size:13px;font-weight:600;display:flex;gap:16px}.text-link:hover{text-decoration:underline}.entry-note{font-size:11px;color:var(--muted);margin:13px 0 30px}.hero-foot{display:flex;align-items:center;gap:15px;font-size:10px;letter-spacing:.5px;color:#6e7d80}.hero-foot i{height:3px;width:3px;border-radius:50%;background:var(--gold)}.hero-art{height:550px;position:relative;border-radius:180px 180px 18px 18px;overflow:hidden;background:#dfe7e6;isolation:isolate}.hero-art>img{width:100%;height:100%;object-fit:cover;object-position:28% center}.art-shade{position:absolute;inset:0;background:linear-gradient(180deg,#113b4520,transparent 40%,#123f4c88)}.art-label{position:absolute;top:130px;left:28px;right:28px;text-align:center;font:italic 18px/1.5 Georgia,serif;color:#123b49;text-shadow:0 1px 8px #ffffffcf}.spark{display:block;font-size:35px;margin-bottom:12px;color:#98794b}.research-note{position:absolute;left:25px;right:25px;bottom:30px;padding:22px;background:#fffefaed;border:1px solid #fff9;border-radius:12px;display:flex;gap:15px;align-items:center;box-shadow:0 10px 40px #123f4c20}.note-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e3edf1;font-size:23px;flex-shrink:0}.research-note small{display:block;font-size:8px;letter-spacing:1.7px;color:#6b7e83;margin-bottom:8px}.research-note strong{display:block;font:20px/1.3 Georgia,serif}.research-note p{font-size:10px;color:var(--muted);margin:7px 0 0}.vertical-label{position:absolute;right:12px;top:45%;writing-mode:vertical-rl;font-size:8px;letter-spacing:2px;color:#fff}.principles{display:flex;align-items:center;justify-content:space-between;gap:15px;border-block:1px solid var(--line);padding-block:23px;font-size:12px;color:#57717b}.principles b{font-size:14px;color:var(--gold);font-weight:400}.about,.journey{padding-top:85px}.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:35px;margin-bottom:35px}.section-heading .eyebrow{margin-bottom:15px;color:#7b8785}h2{font:400 clamp(30px,3vw,43px)/1.15 Georgia,serif;letter-spacing:-1px;margin-bottom:0}.section-heading>p{max-width:360px;font-size:13px;color:var(--muted);margin-bottom:3px}.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.role-card{padding:36px;border:1px solid #d4e2e5;border-radius:14px;background:#edf4f5}.teacher{background:#f0eee5;border-color:#e1ddcf}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}.role-icon{font-size:30px;display:grid;place-items:center;width:49px;height:49px;border:1px solid #bfd3da;border-radius:13px}.teacher .role-icon{border-color:#cfc6ad;color:#8c7345}.role-tag{font-size:9px;letter-spacing:1.8px;font-weight:650}h3{font:400 28px/1.2 Georgia,serif;letter-spacing:-.5px;margin-bottom:16px}.role-card>p{font-size:13px;color:var(--muted);max-width:420px}.role-card ul{list-style:none;padding:0;margin:23px 0 30px;font-size:12px;line-height:2.3}.role-card li::before{content:'✓';margin-right:12px;color:#447c8b}.role-card>a{display:flex;justify-content:space-between;padding-top:20px;border-top:1px solid #cbdcdf;font-size:12px;font-weight:700}.role-card>a:hover{text-decoration:underline}.steps{padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin:40px 0 80px}.steps li{border-top:1px solid #cbd6d8;padding-top:21px}.steps span{display:inline-block;font-size:11px;letter-spacing:1px;color:var(--gold);margin-bottom:25px}.steps h3{font-size:24px}.steps p{font-size:12px;color:var(--muted)}.closing{display:flex;justify-content:space-between;align-items:center;gap:30px;padding:50px 60px;border-radius:16px;background:#10465f;color:#fff;position:relative;overflow:hidden}.closing .eyebrow{color:#b9d2dc;margin-bottom:20px}.closing h2{font-size:46px}.closing em{color:#d4c198}.closing>div:last-child{min-width:230px}.closing p{font-size:13px;color:#d2e2e7}.light{background:#f6f4eb;color:#16445a;box-shadow:none}.light:hover{background:#e1e9e8}.footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-block:40px}.footer .brand{font-size:16px}.footer .mark{width:29px;height:32px;font-size:21px}.footer p,.footer>a:last-child{font-size:10px;color:var(--muted);margin:0}.skip{position:absolute;top:-100px;left:20px;padding:12px;background:white;z-index:5}.skip:focus{top:10px}
+@media(min-width:1500px){.hero{min-height:730px}.hero-art{height:610px}}
+@media(max-width:900px){.hero{gap:20px;min-height:0}.hero-art{height:490px;border-radius:130px 130px 16px 16px}h1{font-size:49px}.hero-actions{gap:17px}.section-heading{align-items:flex-start}.section-heading>p{max-width:270px}.role-card{padding:26px}.steps{gap:20px}.closing{padding:40px}.closing h2{font-size:38px}.research-note{padding:16px;left:15px;right:15px}.research-note strong{font-size:17px}}
+@media(max-width:650px){.wrap{width:90%}.header{min-height:85px;gap:12px}.brand{font-size:17px}.header nav{gap:0}.header nav>a:not(.nav-start){display:none}.nav-start{padding:10px 13px;gap:12px;font-size:11px}.hero{grid-template-columns:1fr;padding-top:25px;padding-bottom:35px;gap:30px}h1{font-size:clamp(41px,10.8vw,62px);letter-spacing:-1.9px}.intro{font-size:14px}.hero-art{height:390px;border-radius:100px 100px 16px 16px}.art-label{top:68px}.hero-foot{font-size:9px;gap:12px}.principles{display:grid;grid-template-columns:1fr 1fr;font-size:10px;gap:18px}.principles b{display:none}.about,.journey{padding-top:55px}.section-heading{display:block}.section-heading>p{max-width:none;margin-top:18px}.role-grid{grid-template-columns:1fr;gap:18px}.steps{grid-template-columns:1fr 1fr;gap:22px;margin-bottom:45px}.steps span{margin-bottom:17px}.closing{display:block;padding:30px 25px}.closing h2{font-size:36px}.closing>div:last-child{margin-top:25px}.footer{flex-wrap:wrap;padding-block:28px}.footer p{width:100%;order:3}.eyebrow{font-size:9px;letter-spacing:1.6px}.research-note strong{font-size:19px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Full-screen login artwork and matching globe orbits. */
+.orbit-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.orbit-artwork {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, 177.6833156vh);
+  height: max(100vh, 56.2799043vw);
+  transform: translate(-50%, -50%);
+  overflow: visible;
+}
+.auth-header,
+.auth-layout,
+.auth-footer {
+  position: relative;
+  z-index: 1;
+}
+.orbit-track {
+  fill: none;
+  stroke: #e5ba65;
+  stroke-width: 1.1;
+  stroke-opacity: 0.64;
+  stroke-dasharray: 55 16 3 14;
+  animation: orbit-dashes 25s linear infinite;
+}
+.orbit-track-fine {
+  stroke-width: 0.8;
+  stroke-opacity: 0.5;
+  stroke-dasharray: 24 9;
+  animation-duration: 34s;
+  animation-direction: reverse;
+}
+.orbit-track-dotted {
+  stroke-width: 1;
+  stroke-opacity: 0.54;
+  stroke-dasharray: 2 11;
+  animation-duration: 42s;
+}
+.orbit-spark {
+  fill: #ffdf9c;
+  stroke: #f9cf7c;
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 4px #f4bd55) drop-shadow(0 0 9px #eeb049);
+}
+.orbit-spark-small {
+  opacity: 0.8;
+}
+@keyframes orbit-dashes {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -528;
+  }
+}
+
+body{background:#edf1ed;isolation:isolate;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:url('/assets/landing-campus.png') center/cover no-repeat;pointer-events:none}
+.header,main,.footer{position:relative;z-index:1}
+.header{min-height:90px;border-bottom:1px solid #ffffff80}
+.hero{grid-template-columns:1fr;min-height:calc(100svh - 90px);padding:50px 0;justify-items:end}
+.hero-copy{width:min(560px,49%);padding:38px;border:1px solid #ffffffcc;border-radius:24px;background:#fffffff0;box-shadow:0 20px 70px #16445a14}
+h1{font-size:clamp(40px,4.1vw,60px)}
+.principles,.about,.journey,.footer{background:#fffffff2;border-radius:18px;padding:30px;margin-bottom:26px}
+.about,.journey{padding:40px}.closing{margin-bottom:26px}
+@media(max-width:900px){.hero-copy{width:56%;padding:28px}h1{font-size:43px}.header{background:#ffffffc9;padding-inline:18px;border-radius:0 0 16px 16px}}
+@media(max-width:650px){.hero{padding:180px 0 32px;min-height:calc(100svh - 85px)}.hero-copy{width:100%;padding:26px}.hero h1{font-size:42px}.about,.journey,.principles,.footer{padding:24px}.header{min-height:85px}.orbit-track{stroke-opacity:.45}}
+@media(prefers-reduced-motion:reduce){.orbit-layer{display:none}.orbit-track{animation:none}}

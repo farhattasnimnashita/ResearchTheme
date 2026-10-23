@@ -1,0 +1,45 @@
+/* Profile-only visual update. Keep existing form names and handlers. */
+body.teacher-design .grid-two:has(#profile-form){display:grid;grid-template-columns:290px minmax(0,1fr);align-items:start;gap:24px;max-width:1280px;margin:0 auto 42px}
+body.teacher-design #research-content:has(#profile-form)>.heading{max-width:1280px;margin:8px auto 22px;font-size:13px}
+body.teacher-design .profile-summary{position:sticky;top:24px;isolation:isolate;overflow:hidden;padding:38px 24px 26px!important;border:1px solid #d5e8f3;border-radius:20px;background:var(--surface);box-shadow:0 12px 34px #174f7110;text-align:center}
+body.teacher-design .profile-summary::before{content:'';position:absolute;inset:0 0 auto;height:112px;z-index:-1;background:radial-gradient(circle at 85% 0,#ffffffb8,transparent 55%),linear-gradient(120deg,#bbdff2,#e2f5fc);border-bottom:1px solid #d5eaf5}
+body.teacher-design .profile-summary #profile-avatar-wrap{margin:8px auto 20px;display:flex;justify-content:center}
+body.teacher-design .profile-summary .profile-avatar{width:112px;height:112px;object-fit:cover;border:6px solid var(--surface);background:#dff2fc;box-shadow:0 5px 20px #145c7d20;color:#0b628e;font-size:42px;border-radius:50%}
+body.teacher-design .profile-summary h2{font-size:22px;line-height:1.25;margin:0 0 10px;color:var(--ink);letter-spacing:-.6px}
+body.teacher-design .profile-summary>p{font-size:12px;color:var(--muted);line-height:1.7;margin:12px 0;overflow-wrap:anywhere}
+body.teacher-design .profile-summary>p.mini{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:6px 11px;color:var(--deep);font-size:10px}
+body.teacher-design .profile-summary h3{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;text-align:left;border-top:1px solid var(--line);padding-top:20px;margin:18px 0 8px;color:var(--muted)}
+body.teacher-design .profile-summary .record-body{font-size:12px;text-align:left}
+body.teacher-design .profile-summary .record-link{display:block;border-top:1px solid var(--line);margin-top:22px;padding-top:18px;font-size:12px;color:var(--deep)}
+body.teacher-design .panel:has(>#profile-form){padding:30px!important;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 34px #174f7110;min-width:0}
+body.teacher-design #profile-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 20px;min-width:0}
+body.teacher-design #profile-form::before{content:'Edit your profile';grid-column:1/-1;font-size:23px;font-weight:750;letter-spacing:-.6px;color:var(--ink);padding-bottom:17px;border-bottom:1px solid var(--line)}
+body.teacher-design #profile-form>.field{margin:0;display:flex;flex-direction:column;gap:9px;font-size:12px;font-weight:650;color:var(--ink);min-width:0}
+body.teacher-design #profile-form>.field:has(#profile-photo){grid-column:1/-1;padding:18px;background:var(--soft);border:1px dashed #a8cfe3;border-radius:13px;margin-bottom:0}
+body.teacher-design #profile-photo{font-size:11px;line-height:1.5;border:0!important;background:transparent!important;padding:0!important;color:var(--muted);min-height:34px;max-width:100%}
+body.teacher-design #profile-photo::file-selector-button{font:650 11px 'Segoe UI',sans-serif;border:1px solid #b3d7eb;border-radius:8px;padding:9px 13px;background:var(--surface);color:var(--deep);margin-right:12px;cursor:pointer}
+body.teacher-design #profile-photo::file-selector-button:hover{background:#d4ecfa}
+body.teacher-design #remove-profile-photo{grid-column:1/-1;justify-self:start;padding:0;min-height:0;margin-top:-10px;font-size:11px;border:0;background:transparent;color:var(--muted);box-shadow:none}
+body.teacher-design #remove-profile-photo:hover{color:#b44452;text-decoration:underline;background:transparent}
+body.teacher-design #profile-form>.field:has([name=qualification]),body.teacher-design #profile-form>.field:has([name=bio]){grid-column:1/-1}
+body.teacher-design #profile-form textarea{width:100%;min-height:104px;padding:13px 14px;font-size:13px;font-weight:400;line-height:1.7;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);box-shadow:inset 0 1px 3px #193a4c03;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s}
+body.teacher-design #profile-form textarea[name=qualification]{min-height:85px}
+body.teacher-design #profile-form textarea[name=bio]{min-height:110px}
+body.teacher-design #profile-form textarea::placeholder{color:#8a9fac;font-size:12px}
+body.teacher-design #profile-form textarea:focus{border-color:#47a3cf;box-shadow:0 0 0 3px #48a9d51c}
+body.teacher-design #profile-form>h3{grid-column:1/-1;font-size:15px;color:var(--ink);margin:4px 0 -5px;padding-top:22px;border-top:1px solid var(--line)}
+body.teacher-design #profile-form>.check{grid-column:1/-1;display:flex;align-items:center;gap:12px;min-height:48px;margin:0;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:12px;cursor:pointer}
+body.teacher-design #profile-form>.check+.check{margin-top:-10px}
+body.teacher-design #profile-form>.check:has(input:checked){background:var(--soft);border-color:#badcec}
+body.teacher-design #profile-form>.check input{width:17px;height:17px;min-width:17px;margin:0;accent-color:#1687b8}
+body.teacher-design #profile-form>.mini{grid-column:1/-1;margin:0;padding-top:15px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+body.teacher-design #profile-form>button:not([type=button]){grid-column:1/-1;justify-self:end;min-height:45px;padding:12px 24px;border:1px solid #087caf;border-radius:10px;background:linear-gradient(110deg,#0879ad,#1397c1);color:white;font-size:12px;font-weight:700;box-shadow:0 5px 14px #0786b526;margin-top:-8px}
+body.teacher-design #profile-form>button:not([type=button]):hover{background:#086d9a;transform:none}
+body.teacher-design #profile-form>button:disabled{opacity:.6;cursor:wait}
+html[data-theme=dark] body.teacher-design .profile-summary::before{background:linear-gradient(120deg,#164c65,#223d57);border-color:#2b536b}
+html[data-theme=dark] body.teacher-design .profile-summary .profile-avatar{background:#21485e;color:#b8e7ff}
+html[data-theme=dark] body.teacher-design #profile-form>.field:has(#profile-photo){border-color:#35607a}
+html[data-theme=dark] body.teacher-design #profile-form>.check:has(input:checked){border-color:#35607a}
+@media(max-width:1180px){body.teacher-design .grid-two:has(#profile-form){grid-template-columns:250px minmax(0,1fr);gap:18px}body.teacher-design .panel:has(>#profile-form){padding:24px!important}}
+@media(max-width:760px){body.teacher-design .grid-two:has(#profile-form){grid-template-columns:1fr}body.teacher-design .profile-summary{position:relative;top:auto;padding:26px 22px!important}body.teacher-design .profile-summary #profile-avatar-wrap{margin-bottom:12px}body.teacher-design .profile-summary .profile-avatar{width:96px;height:96px}body.teacher-design #profile-form{grid-template-columns:1fr;gap:18px}body.teacher-design #profile-form>.field{grid-column:1}body.teacher-design .panel:has(>#profile-form){padding:22px 18px!important}body.teacher-design #profile-form>button:not([type=button]){width:100%;justify-self:stretch}body.teacher-design #profile-form>.check{font-size:11px}}
+@media(prefers-reduced-motion:reduce){body.teacher-design #profile-form *{transition:none!important}}

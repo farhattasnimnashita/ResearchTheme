@@ -165,29 +165,11 @@ func (a *App) saveProjectProposal(
 		return
 	}
 
-	// Draft save করার সময় supervisor নির্বাচন ঐচ্ছিক।
-	var teacher any
-
-	if in.TeacherID > 0 {
-		var teacherID int64
-
-		err = a.db.QueryRow(
-			"SELECT id FROM users WHERE id=? AND role='teacher' AND verified=1",
-			in.TeacherID,
-		).Scan(&teacherID)
-
-		if err != nil {
-			fail(w, 400, "Choose a verified supervisor.")
-			return
-		}
-
-		teacher = teacherID
-	}
-
+	// Supervisor selection is managed by selectProjectSupervisor.
+	// Saving proposal text must preserve the existing assignment.
 	result, err := a.db.Exec(`
 		UPDATE projects
-		SET teacher_id=?,
-		    problem_statement=?,
+		SET problem_statement=?,
 		    objectives=?,
 		    methodology=?,
 		    expected_outcomes=?,
@@ -198,7 +180,6 @@ func (a *App) saveProjectProposal(
 		  AND student_id=?
 		  AND status IN ('draft','changes_requested')
 	`,
-		teacher,
 		in.ProblemStatement,
 		in.Objectives,
 		in.Methodology,

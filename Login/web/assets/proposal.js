@@ -7,7 +7,6 @@
 
     const form = document.getElementById("proposal-form");
     const projectSelect = document.getElementById("proposal-project");
-    const teacherSelect = document.getElementById("proposal-teacher");
     const message = document.getElementById("proposal-message");
     const projectSummary = document.getElementById("proposal-project-summary");
     const proposalList = document.getElementById("proposal-list");
@@ -24,7 +23,6 @@
     };
 
     let projects = [];
-    let teachers = [];
 
     function escapeHTML(value) {
         return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -107,6 +105,7 @@
             projectSummary.textContent =
                 "Go to Choose Project and save a research project first.";
 
+            fillSelectedProject();
             return;
         }
 
@@ -131,20 +130,6 @@
         fillSelectedProject();
     }
 
-    function renderTeacherOptions() {
-        teacherSelect.innerHTML =
-            '<option value="">Choose a verified supervisor</option>';
-
-        teachers.forEach(teacher => {
-            const option = document.createElement("option");
-
-            option.value = String(teacher.id);
-            option.textContent = teacher.name;
-
-            teacherSelect.appendChild(option);
-        });
-    }
-
     function fillSelectedProject() {
         const project = currentProject();
 
@@ -153,7 +138,8 @@
                 field.value = "";
             });
 
-            teacherSelect.value = "";
+            saveButton.disabled = true;
+            submitButton.disabled = true;
             return;
         }
 
@@ -186,9 +172,6 @@ if (supervisorSummary) {
         fields.scope_limitations.value =
             project.scope_limitations || "";
 
-        teacherSelect.value = project.teacher_id
-            ? String(project.teacher_id)
-            : "";
 const isLocked =
     project.status === "submitted" ||
     project.status === "approved";
@@ -202,16 +185,6 @@ Object.values(fields).forEach(field => {
 saveButton.disabled = isLocked;
 submitButton.disabled = isLocked;
         }
-const isApproved = project.status === "approved";
-
-projectSelect.disabled = isApproved;
-
-Object.values(fields).forEach(field => {
-    field.readOnly = isApproved;
-});
-
-saveButton.disabled = isApproved;
-submitButton.disabled = isApproved;
     function renderSavedProposals() {
         const saved = projects.filter(hasProposal);
 
@@ -301,15 +274,9 @@ submitButton.disabled = isApproved;
 
     async function load(preferredID = 0) {
         try {
-            const results = await Promise.all([
-                api("/api/projects"),
-                api("/api/teachers")
-            ]);
-
-            projects = Array.isArray(results[0]) ? results[0] : [];
-            teachers = Array.isArray(results[1]) ? results[1] : [];
-
-            renderTeacherOptions();
+            const result = await api("/api/projects");
+            if (!Array.isArray(result)) throw new Error("Invalid project list. Please reload.");
+            projects = result;
             renderProjectOptions(preferredID);
             renderSavedProposals();
 
@@ -324,6 +291,9 @@ submitButton.disabled = isApproved;
             }
         } catch (error) {
             showMessage(error.message, true);
+            projectSelect.innerHTML = '<option value="">Could not load projects — reload to retry</option>';
+            saveButton.disabled = true;
+            submitButton.disabled = true;
             proposalList.textContent = "Could not load saved proposals.";
         }
     }
@@ -373,8 +343,9 @@ function collectProposal() {
         } catch (error) {
             showMessage(error.message, true);
         } finally {
-            saveButton.disabled = false;
-            submitButton.disabled = false;
+            const locked = !currentProject() || !editable(currentProject());
+            saveButton.disabled = locked;
+            submitButton.disabled = locked;
         }
     });
 
@@ -389,7 +360,7 @@ function collectProposal() {
             return;
         }
 
-        if (!data.teacher_id) {
+        if (!Number(currentProject()?.teacher_id)) {
             showMessage(
                 "Choose a supervisor before submitting the proposal.",
                 true
@@ -437,8 +408,9 @@ function collectProposal() {
         } catch (error) {
             showMessage(error.message, true);
         } finally {
-            saveButton.disabled = false;
-            submitButton.disabled = false;
+            const locked = !currentProject() || !editable(currentProject());
+            saveButton.disabled = locked;
+            submitButton.disabled = locked;
         }
     });
 

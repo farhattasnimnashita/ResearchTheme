@@ -1188,48 +1188,40 @@ const response = await fetch("/api/profile-picture", {
         }
     }
     function populateSupervisorProjects(projects, teachers) {
-    const projectSelect = document.getElementById("supervisor-project");
-    const teacherSelect = document.getElementById("supervisor-teacher");
-
-    if (!projectSelect || !teacherSelect) return;
-
-    projectSelect.innerHTML = "";
-    teacherSelect.innerHTML = "";
-
-    const approvedProject = projects.find(
-        project => project.status === "approved"
-    );
-
-    const selectedProject = approvedProject || projects[0];
-
-    if (!selectedProject) {
-        projectSelect.add(new Option("No project available", ""));
-        teacherSelect.add(new Option("Choose a supervisor", ""));
-        return;
+        const projectSelect = document.getElementById("supervisor-project");
+        if (!projectSelect) return;
+        const previousProject = projectSelect.value;
+        projectSelect.replaceChildren();
+        for (const project of projects) {
+            projectSelect.add(new Option(project.title, String(project.id)));
+        }
+        if (!projects.length) projectSelect.add(new Option("Create a project first", ""));
+        const selected = projects.find(p => String(p.id) === previousProject) || projects[0];
+        if (selected) projectSelect.value = String(selected.id);
+        projectSelect.disabled = !projects.length;
+        const updateSelection = () => {
+            const project = projects.find(p => String(p.id) === projectSelect.value);
+            teacherSelect.replaceChildren(new Option("Choose a registered teacher", ""));
+            const added = new Set();
+            teachers.forEach(t => {
+                const accountID = Number(t.account_id || 0);
+                if (!accountID || added.has(accountID)) return;
+                added.add(accountID);
+                teacherSelect.add(new Option(t.name || "Teacher", String(accountID)));
+            });
+            if (project?.teacher_id) {
+                if (!added.has(Number(project.teacher_id))) {
+                    teacherSelect.add(new Option(project.teacher || "Selected supervisor", String(project.teacher_id)));
+                }
+                teacherSelect.value = String(project.teacher_id);
+            }
+            teacherSelect.disabled = Boolean(project?.teacher_id);
+            sendButton.disabled = !project || !["draft", "changes_requested"].includes(project.status);
+            markSelectedTeacher();
+        };
+        projectSelect.onchange = updateSelection;
+        updateSelection();
     }
-
-    projects.forEach(project => {
-        projectSelect.add(
-            new Option(project.title, String(project.id))
-        );
-    });
-
-    projectSelect.value = String(selectedProject.id);
-    projectSelect.disabled = Boolean(approvedProject);
-
-    teachers.forEach(teacher => {
-        teacherSelect.add(
-            new Option(teacher.name, String(teacher.id))
-        );
-    });
-
-    if (selectedProject.teacher_id) {
-        teacherSelect.value = String(selectedProject.teacher_id);
-        teacherSelect.disabled = true;
-    } else {
-        teacherSelect.disabled = false;
-    }
-}
 
     searchBox.addEventListener("input", filterTeachers);
     teacherSelect.addEventListener("change", markSelectedTeacher);
@@ -1258,77 +1250,23 @@ const response = await fetch("/api/profile-picture", {
 
     form.addEventListener("submit", async event => {
         event.preventDefault();
-
+        const projectID = Number(document.getElementById("supervisor-project").value);
         const teacherID = Number(teacherSelect.value);
-        const title = document.getElementById("supervisor-title").value.trim();
-        const area = document.getElementById("supervisor-area").value.trim();
-        const abstract = document.getElementById("supervisor-abstract").value.trim();
-
-        const matchedTeacher = teachers.some(
-            item => Number(item.account_id || 0) === teacherID && teacherID > 0
-        );
-
-        if (!matchedTeacher) {
-            requestMessage.textContent =
-                "Select a teacher with a linked, verified ResearchBridge account.";
+        if (!projectID || !teacherID) {
+            requestMessage.textContent = "Choose a project and a registered supervisor first.";
             return;
         }
-
-        if (title.length < 5 || area.length < 2 || abstract.length < 20) {
-            requestMessage.textContent =
-                "Enter a valid topic, research area and summary of at least 20 characters.";
-            return;
-        }
-
         sendButton.disabled = true;
-        requestMessage.textContent = "Sending your supervision request...";
-
         try {
-            // Save a draft through the current application workflow.
-const projectID = Number(
-    document.getElementById("supervisor-project").value
-);
-
-const teacherID = Number(
-    document.getElementById("supervisor-teacher").value
-);
-
-if (!projectID || !teacherID) {
-    requestMessage.textContent =
-        "Choose a project and a supervisor first.";
-    return;
-}
-
-await api(`/api/projects/${projectID}/supervisor`, {
-    teacher_id: teacherID
-});
-
-requestMessage.textContent =
-    "Supervisor saved for this project. All team members share this selection. Complete your Proposal to submit it for review.";
-
-await loadMyRequests();
-
-            // Submit it to the selected teacher for review.
-            await api(`/api/projects/${draft.id}/submit`, {
-                teacher_id: teacherID,
-                abstract
-            });
-
-            requestMessage.textContent =
-                "Your request has been sent. Wait for the teacher's decision.";
-
-            form.reset();
-
+            await api(`/api/projects/${projectID}/supervisor`, { teacher_id: teacherID });
+            requestMessage.textContent = "Supervisor saved. Complete your Proposal and click Submit for review to send the request and notify your teacher.";
             await loadMyRequests();
-            markSelectedTeacher();
         } catch (error) {
             requestMessage.textContent = error.message;
-            await loadMyRequests();
         } finally {
             sendButton.disabled = false;
         }
     });
 
-    loadTeachers();
-    loadMyRequests();
+    loadTeachers().then(loadMyRequests);
 })();

@@ -1,0 +1,29 @@
+Teacher directory API update
+
+তোমার project-এ main.go replace করো এবং teacher_directory.go, teacher_directory_test.go যোগ করো। ZIP-এর বাকি source তোমার দেওয়া version-এর কপি। .env/DB/executable বাদ আছে; নিজের .env রাখবে। Student UI বদলানো হয়নি।
+
+Login folder-এ:
+gofmt -w teacher_directory.go teacher_directory_test.go
+go test ./...
+go run .
+আগের server চললে Ctrl+C দিয়ে থামাবে। DATABASE_URL আগের Supabase database-ই হবে। তুমি ইতিমধ্যে teacher_directory SQL চালিয়েছ, আবার চালাতে হবে না।
+
+Website-এ login করার পর একই browser-এ:
+http://localhost:8080/api/teacher-directory
+JSON array দেখাবে। Login ছাড়া 401, SQLite mode-এ 503।
+
+Teammate frontend:
+async function loadTeachers() {
+ const response = await fetch('/api/teacher-directory');
+ if (!response.ok) throw new Error('Teacher list load failed: ' + response.status);
+ const teachers = await response.json();
+ return teachers;
+}
+
+Live ব্যবহারের জন্য পরিবর্তন GitHub-এ push করে deploy করতে হবে। Teammate একই app origin থেকে fetch করবে; আলাদা frontend origin-এর CORS configuration এখানে যোগ হয়নি।
+
+ID: 'sust-cse-001' ধরনের string। Existing faculty_directory-এর numeric ID এবং login users-এর ID থেকে আলাদা। Shortlist UI এই string ID রাখবে। Shortlist save API এখনো implement হয়নি। Teacher profile-এর নতুন research interests এই table-এ sync করার ব্যবস্থাও এখনো নেই।
+
+API name, designation, institution, department, phone, email, website_url, photo_url, research_interests, expertise, accepting_students, source, verified ফেরত দেয়। Unknown URL/phone/availability null; interest/skills array। verified imported directory metadata, account approval নয়।
+
+Validation: source/route/SQL column mapping reviewed; authentication and nullable JSON decoding tests added। এই environment-এ Go executable নেই, তাই compile বা go test চালানো যায়নি। Live Supabase query-ও পরীক্ষা করা হয়নি।

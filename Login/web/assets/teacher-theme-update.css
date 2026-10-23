@@ -1,0 +1,69 @@
+/* Load after teacher-visual.css. Uses the existing login illustration. */
+body.teacher-design { isolation: isolate; }
+body.teacher-design::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(100deg, #eef7fb85, #f6fbff99),
+    url('/assets/discovery-background.png') center center / cover no-repeat;
+}
+body.teacher-design .research-top {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f7fcfff0;
+}
+body.teacher-design .session-actions .verified { display: none; }
+body.teacher-design .research-sidebar {
+  --ink: #f3faff;
+  --muted: #d0e8f5;
+  --deep: #fff;
+  --surface: #125e85;
+  --soft: #246f96;
+  --line: #ffffff38;
+  background: linear-gradient(165deg, #095780, #064365);
+  border-color: #ffffff30;
+  color: var(--ink);
+  scrollbar-color: #78b5d2 #064365;
+  scrollbar-width: thin;
+}
+body.teacher-design .research-sidebar .research-brand,
+body.teacher-design .research-sidebar .nav-icon,
+body.teacher-design .research-sidebar .queue-link { color: var(--ink); }
+body.teacher-design .research-sidebar .research-brand > span {
+  background: #ffffff21;
+  color: #fff;
+}
+body.teacher-design .research-sidebar #main-nav a.active,
+body.teacher-design .research-sidebar .more-tools nav a.active {
+  background: #e9f6ff;
+  color: #064365;
+  border-color: #e9f6ff;
+}
+body.teacher-design .research-sidebar #main-nav a.active .nav-icon { color: #095780; }
+body.teacher-design .research-sidebar #main-nav a:hover,
+body.teacher-design .research-sidebar .more-tools nav a:hover {
+  background: #246f96;
+  color: #fff;
+}
+body.teacher-design .research-sidebar #main-nav a:focus-visible,
+body.teacher-design .research-sidebar .more-tools summary:focus-visible,
+body.teacher-design .research-sidebar .more-tools nav a:focus-visible {
+  outline: 2px solid #a7e2ff;
+  outline-offset: 2px;
+}
+html[data-theme=dark] body.teacher-design::before {
+  background: linear-gradient(#081c30bb, #081c30d9),
+    url('/assets/discovery-background.png') center center / cover no-repeat;
+}
+html[data-theme=dark] body.teacher-design .research-top { background: #112b3cf2; }
+html[data-theme=dark] body.teacher-design .research-sidebar {
+  background: linear-gradient(165deg, #123c58, #08293e);
+}
+html[data-theme=dark] body.teacher-design .research-sidebar #main-nav a.active {
+  background: #d9effc;
+  color: #064365;
+  border-color: #d9effc;
+}
