@@ -4,6 +4,7 @@
 
         const titles = {
             dashboard: "Student Dashboard",
+            guidelines: "Thesis Guidelines",
             profile: "My Profile",
             "project-ideas": "Choose Project",
             team: "My Team",
@@ -929,7 +930,7 @@ const response = await fetch("/api/profile-picture", {
                     </div>
                     <div>
                         <dt>Student Capacity</dt>
-                        <dd>${acceptingStatus(teacher.accepting_students)}</dd>
+                        <dd>${acceptingStatus(teacher.accepting_students)}${teacher.capacity?` · ${teacher.capacity.used_teams}/${teacher.capacity.max_teams} teams · ${teacher.capacity.used_students}/${teacher.capacity.max_students} students`:""}</dd>
                     </div>
                     <div>
                         <dt>Directory Source</dt>
@@ -1207,7 +1208,7 @@ const response = await fetch("/api/profile-picture", {
                 const accountID = Number(t.account_id || 0);
                 if (!accountID || added.has(accountID)) return;
                 added.add(accountID);
-                teacherSelect.add(new Option(t.name || "Teacher", String(accountID)));
+                const option=new Option((t.name || "Teacher")+(t.capacity?.full?" — Full":""),String(accountID)); option.disabled=Boolean(t.capacity?.full)&&Number(project?.teacher_id)!==accountID;teacherSelect.add(option);
             });
             if (project?.teacher_id) {
                 if (!added.has(Number(project.teacher_id))) {
@@ -1269,4 +1270,5 @@ const response = await fetch("/api/profile-picture", {
     });
 
     loadTeachers().then(loadMyRequests);
+ window.addEventListener("placement-updated",loadMyRequests);
 })();

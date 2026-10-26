@@ -272,7 +272,7 @@
             </div>
 
             <div class="student-main">
-              <h3>${esc(student.name)}</h3>
+              <h3>${esc(student.name)}</h3><p class="student-meta">${esc(student.membership || "Looking for teammates")} · ${esc(student.supervision || "Not assigned")}</p>
               <p class="student-meta">
                 ${esc(student.institution)} · ${esc(student.department)}
               </p>

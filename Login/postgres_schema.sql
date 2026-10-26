@@ -58,3 +58,4 @@ CREATE TABLE IF NOT EXISTS teacher_directory (
     source TEXT NOT NULL DEFAULT '',
     verified BIGINT NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS supervision_capacity(teacher_id BIGINT PRIMARY KEY REFERENCES users(id),max_teams BIGINT NOT NULL CHECK(max_teams>=0),max_students BIGINT NOT NULL CHECK(max_students>=0));

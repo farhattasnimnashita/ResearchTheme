@@ -1,11 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"database/sql"
 )
 
 type Project struct {
@@ -26,6 +26,7 @@ type Project struct {
 	ScopeLimitations string `json:"scope_limitations"`
 	ProposalStarted  bool   `json:"proposal_started"`
 }
+
 func (a *App) fixedApprovedProjectID(userID int64) (int64, error) {
 	var id int64
 
@@ -86,26 +87,26 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 		fail(w, 401, "Please log in.")
 		return
 	}
-var filter string
-var args []any
+	var filter string
+	var args []any
 
-if u.Role == "teacher" {
-	filter = "p.teacher_id=? AND p.status!='draft'"
-	args = []any{u.ID}
-} else {
-	fixedID, err := a.fixedApprovedProjectID(u.ID)
-	if err != nil {
-		fail(w, 500, "Could not check your approved project.")
-		return
-	}
-
-	if fixedID > 0 {
-		// Approved project: all team members see the same project.
-		filter = "p.id=?"
-		args = []any{fixedID}
+	if u.Role == "teacher" {
+		filter = "p.teacher_id=? AND p.status!='draft'"
+		args = []any{u.ID}
 	} else {
-		// Before approval, show projects owned by or shared with this student.
-		filter = `(
+		fixedID, err := a.fixedApprovedProjectID(u.ID)
+		if err != nil {
+			fail(w, 500, "Could not check your approved project.")
+			return
+		}
+
+		if fixedID > 0 {
+			// Approved project: all team members see the same project.
+			filter = "p.id=?"
+			args = []any{fixedID}
+		} else {
+			// Before approval, show projects owned by or shared with this student.
+			filter = `(
 			p.student_id=?
 			OR EXISTS (
 				SELECT 1
@@ -114,9 +115,9 @@ if u.Role == "teacher" {
 				  AND tm.user_id=?
 			)
 		)`
-		args = []any{u.ID, u.ID}
+			args = []any{u.ID, u.ID}
+		}
 	}
-}
 	rows, e := a.db.Query(`
 	SELECT
 		p.id,
@@ -142,10 +143,10 @@ if u.Role == "teacher" {
 	ORDER BY p.updated_at DESC,p.id DESC
 `, args...)
 
-if e != nil {
-	fail(w, 500, "Could not load projects.")
-	return
-}
+	if e != nil {
+		fail(w, 500, "Could not load projects.")
+		return
+	}
 	defer rows.Close()
 	out := []Project{}
 	for rows.Next() {
@@ -189,7 +190,7 @@ func (a *App) createProject(w http.ResponseWriter, r *http.Request) {
 		fail(w, 403, "Only students can create research proposals.")
 		return
 	}
-		fixedID, err := a.fixedApprovedProjectID(u.ID)
+	fixedID, err := a.fixedApprovedProjectID(u.ID)
 	if err != nil {
 		fail(w, 500, "Could not check your approved project.")
 		return
@@ -298,11 +299,31 @@ func (a *App) reviewProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p.Feedback = strings.TrimSpace(p.Feedback)
+	if p.Status == "approved" && p.Feedback == "" {
+		p.Feedback = "Your team is accepted and your proposal is approved."
+	}
 	if (p.Status != "approved" && p.Status != "changes_requested" && p.Status != "rejected") || len(p.Feedback) < 5 || len(p.Feedback) > 3000 {
 		fail(w, 400, "Choose a decision and add feedback (5–3000 characters).")
 		return
 	}
-	result, e := a.db.Exec("UPDATE projects SET status=?,feedback=?,updated_at=? WHERE id=? AND teacher_id=? AND status='submitted'", p.Status, p.Feedback, time.Now().Unix(), id, u.ID)
+	tx, e := a.db.Begin()
+	if e != nil {
+		fail(w, 500, "Could not save review.")
+		return
+	}
+	defer tx.Rollback()
+	var current string
+	if e = tx.QueryRow("SELECT status FROM projects WHERE id=? AND teacher_id=?", id, u.ID).Scan(&current); e != nil || current != "submitted" {
+		fail(w, 409, "Proposal unavailable or already reviewed.")
+		return
+	}
+	if p.Status == "approved" {
+		if e = checkApprovalCapacity(tx, u.ID, id); e != nil {
+			fail(w, 409, e.Error())
+			return
+		}
+	}
+	result, e := tx.Exec("UPDATE projects SET status=?,feedback=?,updated_at=? WHERE id=? AND teacher_id=? AND status='submitted'", p.Status, p.Feedback, time.Now().Unix(), id, u.ID)
 	if e != nil {
 		fail(w, 500, "Could not save review.")
 		return
@@ -310,6 +331,10 @@ func (a *App) reviewProject(w http.ResponseWriter, r *http.Request) {
 	n, e := result.RowsAffected()
 	if e != nil || n == 0 {
 		fail(w, 409, "Proposal unavailable or already reviewed.")
+		return
+	}
+	if e = tx.Commit(); e != nil {
+		fail(w, 500, "Could not save review.")
 		return
 	}
 	a.notifyProject(id, u.ID, "submission", "Proposal review: "+p.Status)

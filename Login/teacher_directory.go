@@ -30,7 +30,8 @@ type teacherDirectoryEntry struct {
 	// This is the ID from the application's users table,
 	// not the external teacher_directory record ID.
 	// It remains nil when no verified teacher account matches.
-	AccountID *int64 `json:"account_id"`
+	AccountID *int64               `json:"account_id"`
+	Capacity  *SupervisionCapacity `json:"capacity,omitempty"`
 }
 
 func (a *App) teacherDirectory(w http.ResponseWriter, r *http.Request) {
@@ -138,14 +139,24 @@ func (a *App) teacherDirectory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-
 	entries, err = appendRegisteredTeachers(entries, appRows)
 	if err != nil {
 
 		log.Printf("Registered teacher merge failed: %v", err)
 		fail(w, http.StatusInternalServerError, "Registered teachers could not be added.")
 		return
+	}
+	for i := range entries {
+		if entries[i].AccountID != nil {
+			c, e := readCapacity(a.db, *entries[i].AccountID)
+			if e != nil {
+				fail(w, 500, "Could not load supervisor availability.")
+				return
+			}
+			entries[i].Capacity = &c
+			available := !c.Full
+			entries[i].AcceptingStudents = &available
+		}
 	}
 	reply(w, http.StatusOK, entries)
 }

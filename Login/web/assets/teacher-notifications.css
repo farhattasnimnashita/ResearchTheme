@@ -7,3 +7,13 @@
 .rb-live-notice button{position:absolute;top:8px;right:8px;background:transparent;border:0;font-size:24px;color:inherit;cursor:pointer;padding:4px 8px}
 .rb-live-notice a:focus-visible,.rb-live-notice button:focus-visible,.rb-live-bar button:focus-visible{outline:2px solid #218bbd;outline-offset:3px}
 @media(max-width:650px){.rb-live-bar{align-items:flex-start;font-size:10px}.rb-live-feed{right:16px;bottom:78px}}
+
+.top-notification{display:inline-flex!important;align-items:center;justify-content:center;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;padding:0!important;flex:0 0 38px;border-radius:12px!important;background:linear-gradient(145deg,#ffffff,#d9eaf4)!important;border:1px solid #c6dce9!important;box-shadow:inset 1px 2px 2px #fff,0 2px 0 #bed2df,0 4px 8px #143e511a!important;position:relative}.top-notification .rb-bell-3d{width:24px!important;height:24px!important;display:block;flex-shrink:0;filter:drop-shadow(1px 3px 2px #80500033);transform-origin:50% 15%}.top-notification.rb-bell-ring .rb-bell-3d{animation:rb-bell-wiggle .6s ease-in-out 3}.top-notification:focus-visible{outline:3px solid #126b96;outline-offset:5px}@keyframes rb-bell-wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-18deg)}50%{transform:rotate(15deg)}80%{transform:rotate(-8deg)}}@media(prefers-reduced-motion:reduce){.top-notification.rb-bell-ring .rb-bell-3d{animation:none}}
+
+.rb-request-reminder{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 20px;padding:16px 18px;background:#fff8e9;border:1px solid #e6c785;border-left:4px solid #b78023;border-radius:12px;color:#573b12}
+.rb-request-reminder[hidden]{display:none!important}
+.rb-request-reminder strong{font-size:14px;line-height:1.5}
+.rb-request-reminder p{margin:6px 0 0;font-size:12px;line-height:1.6}
+.rb-reminder-link{flex-shrink:0;padding:10px 14px;background:#075c83;color:#fff!important;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none}
+.rb-reminder-link:focus-visible{outline:3px solid #126b96;outline-offset:3px}
+@media(max-width:650px){.rb-request-reminder{align-items:flex-start;flex-direction:column}.rb-reminder-link{align-self:flex-start}}

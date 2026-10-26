@@ -1,0 +1,53 @@
+Teacher supervision capacity update — 23 October 2026
+
+কী যোগ হয়েছে
+- Teacher Profile → Supervision capacity: Maximum teams এবং Maximum students (সব team মিলিয়ে)।
+- প্রথমবার default 5 teams / 20 students। নিজের প্রকৃত capacity দিয়ে Save capacity করুন। 0 দিলে নতুন intake বন্ধ।
+- Approved project একটি team হিসেবে গণনা হয়; owner-সহ আলাদা student গণনা হয়। Pending/draft request capacity ব্যবহার করে না।
+- Team বা student limit পূর্ণ হলে Full দেখায়। Team-এর সদস্যসংখ্যার জন্য পর্যাপ্ত seat না থাকলে backend approval আটকায়।
+- Accept team / Ask for changes / Decline buttons। Accept-এ feedback optional; অন্য সিদ্ধান্তে কারণ দিতে হবে।
+- Accept একই সঙ্গে supervision গ্রহণ ও proposal approval করে (দুটি পৃথক approval workflow নয়)।
+- Teacher-এর Assigned Teams-এ শুধু approved project দেখায়।
+- Approved team-এ member যোগ দেওয়ার সময় student limit আবার যাচাই হয়।
+- Student dashboard-এ team ও supervision status, student search-এ membership badge।
+- Teacher capacity ও student status দৃশ্যমান tab-এ প্রায় 15 seconds পরপর refresh হয়।
+- Teacher directory পরের load/search-এ updated Available/Full ও counts দেখায়।
+- Limit কমালে পুরোনো team মুছে যায় না; নতুন approval বন্ধ হয়।
+- একটি approved project-এর student আরেকটি project-এ approval পাবে না।
+
+বসানোর নিয়ম
+1. পুরোনো project-এর backup রাখুন। Server terminal-এ Ctrl+C দিন।
+2. ZIP Extract All করুন। ZIP-এর Login folder-এর ভিতরের files/folders কপি করে আপনার existing Login folder-এর ভিতরে paste/replace করুন। Login-এর ভিতরে নতুন Login folder করবেন না।
+3. আপনার .env ও database রাখবেন; এগুলো এই ZIP-এ নেই।
+4. existing Login folder থেকে:
+   go test ./...
+   go run .
+5. Browser Ctrl+Shift+R। Teacher → My Profile → Supervision capacity → নিজের limit লিখে Save capacity।
+6. Student proposal submit → Teacher Supervision Requests → Review proposal → Accept team। Student dashboard ও teacher counts যাচাই করুন।
+
+Database
+নতুন supervision_capacity table startup-এ নিজে তৈরি হবে (SQLite ও PostgreSQL migration যুক্ত)। Supabase SQL Editor-এ আলাদা manual SQL প্রয়োজন নেই। নতুন schema file এবং Go files একসঙ্গে copy করবেন।
+বর্তমান projects schema-তে completed/archived status নেই। তাই approved project capacity-তে থাকবে; শুধু workspace record completed করলেই capacity মুক্ত হবে না।
+
+Validation
+- go test ./... passed on SQLite.
+- Added capacity, authorization, team-size, placement, duplicate-count, closed-intake and concurrent-approval regression tests passed.
+- JavaScript syntax checks passed.
+- Live Supabase এবং browser UI-তে এই পরিবেশে পরীক্ষা হয়নি।
+
+পরিবর্তিত/নতুন ফাইল:
+main.go
+projects.go
+workspace.go
+postgres_schema.sql
+teacher_directory.go
+student_directory.go
+supervision_capacity.go
+supervision_capacity_test.go
+web/teacher-dashboard.html
+web/student-dashboard.html
+web/assets/teacher-dashboard.js
+web/assets/nashita-dashboard.js
+web/assets/team-search.js
+web/assets/student-placement.js
+web/assets/supervision-capacity.css

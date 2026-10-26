@@ -7,6 +7,8 @@ import (
 )
 
 type DirectoryStudent struct {
+	Membership   string `json:"membership"`
+	Supervision  string `json:"supervision"`
 	ID           int64  `json:"id"`
 	Name         string `json:"name"`
 	Institution  string `json:"institution"`
@@ -39,7 +41,9 @@ func (a *App) searchStudents(w http.ResponseWriter, r *http.Request) {
         SELECT u.id, u.name, u.institution,
                u.department, u.academic_year, u.semester,
                COALESCE(rp.expertise, ''),
-               COALESCE(rp.interests, '')
+               COALESCE(rp.interests, ''),
+ CASE WHEN EXISTS(SELECT 1 FROM projects p WHERE (p.student_id=u.id OR EXISTS(SELECT 1 FROM team_members m WHERE m.project_id=p.id AND m.user_id=u.id)) AND EXISTS(SELECT 1 FROM team_members m WHERE m.project_id=p.id AND m.user_id<>p.student_id)) THEN 'Team joined' ELSE 'Looking for teammates' END,
+ CASE WHEN EXISTS(SELECT 1 FROM projects p WHERE p.status='approved' AND (p.student_id=u.id OR EXISTS(SELECT 1 FROM team_members m WHERE m.project_id=p.id AND m.user_id=u.id))) THEN 'Supervisor assigned' ELSE 'Not assigned' END
         FROM users u
         LEFT JOIN researcher_profiles rp ON rp.user_id = u.id
         WHERE u.role = 'student'
@@ -70,7 +74,7 @@ func (a *App) searchStudents(w http.ResponseWriter, r *http.Request) {
 		err := rows.Scan(
 			&s.ID, &s.Name, &s.Institution,
 			&s.Department, &s.AcademicYear,
-			&s.Semester, &s.Skills, &s.Interests,
+			&s.Semester, &s.Skills, &s.Interests, &s.Membership, &s.Supervision,
 		)
 		if err != nil {
 			fail(w, 500, "Could not read students.")
