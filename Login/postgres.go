@@ -127,7 +127,12 @@ func openPostgresSchema(connection, schema string) (*Database, error) {
 		db.Close()
 		return nil, errors.New("PostgreSQL schema setup failed: check database CREATE privileges and existing researchbridge tables")
 	}
-	return &Database{DB: db, postgres: true}, nil
+	database := &Database{DB: db, postgres: true}
+	if err := migrateEthicsReviews(database); err != nil {
+		db.Close()
+		return nil, errors.New("could not initialize ethics reviews")
+	}
+	return database, nil
 }
 
 // bindSQL skips SQL string literals and quoted identifiers. Application SQL uses

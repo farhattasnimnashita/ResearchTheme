@@ -7,9 +7,14 @@
     <title>Student Dashboard | ResearchBridge</title>
 
     <link rel="stylesheet" href="/assets/nashita-dashboard.css">
+<link rel="stylesheet" href="/assets/nashita-dashboard.css">
+
 <link rel="stylesheet" href="/assets/supervision-capacity.css?v=20261023">
 <script src="/assets/student-placement.js?v=20261023" defer></script>
 <link rel="stylesheet" href="/assets/thesis-guidelines.css?v=20261024">
+
+<link rel="stylesheet" href="/assets/ethics.css">
+
 </head>
 
 <body>
@@ -961,55 +966,123 @@
 
     </form>
 
-    <!-- Comparison Table -->
-    <section class="research-record-list"
-             aria-label="Research papers">
+<section class="research-record-list" aria-label="Research papers">
+    <div class="literature-record-heading">
+        <div>
+            <p class="research-eyebrow">YOUR RESEARCH LIBRARY</p>
+            <h3>Research Papers Comparison</h3>
+            <p>Compare methods, findings and research gaps.</p>
+        </div>
 
-      <h3>Research Papers Comparison</h3>
+        <span id="literature-paper-count" class="literature-paper-count">
+            0 papers
+        </span>
+    </div>
 
-      <p class="research-empty">
-        No papers added yet. Add your first paper using the form above.
-      </p>
-
-      <div class="research-table-wrap">
-
-        <table
-          class="research-data-table"
-          data-columns="title,authors,year,methodology,key_findings,research_gap"
+    <div class="literature-paper-toolbar">
+        <label for="literature-paper-search">Search papers</label>
+        <input
+            id="literature-paper-search"
+            type="search"
+            placeholder="Search by title, author, method or topic..."
         >
+    </div>
 
-          <thead>
-            <tr>
-              <th>Paper Title</th>
-              <th>Authors</th>
-              <th>Year</th>
-              <th>Methodology</th>
-              <th>Key Findings</th>
-              <th>Research Gap</th>
-              <th>Details</th>
-            </tr>
-          </thead>
+    <p id="literature-paper-empty" class="research-empty">
+        No papers added yet. Add your first research paper above.
+    </p>
 
-          <tbody></tbody>
+    <p id="literature-paper-no-results" hidden>
+        No papers match your search.
+    </p>
 
-        </table>
-
-      </div>
-
-    </section>
+    <div
+        id="literature-paper-list"
+        class="literature-paper-grid"
+        aria-live="polite"
+    ></div>
+</section>
 
   </article>
 
 </section>
 
 <!-- 2. Research Ethics & Approval -->
+<!-- Replace the existing Research Ethics & Approval section with this section. -->
 <section id="research-ethics" class="page" hidden>
-    <article class="card">
-        <h2>Research Ethics & Approval</h2>
-        <div data-feature-root="research-ethics"></div>
-        <p id="research-ethics-status" role="status"></p>
-    </article>
+    <div class="ethics-page">
+        <header class="ethics-hero">
+            <p class="ethics-eyebrow">RESPONSIBLE RESEARCH</p>
+            <h2>Research Ethics &amp; Approval</h2>
+            <p>Track ethics requirements, committee decisions, consent planning and official approval documents.</p>
+            <div class="ethics-important">
+                <span aria-hidden="true">!</span>
+                <p>Teacher review and official ethics approval are different. Set Approved only after the official committee decision.</p>
+            </div>
+        </header>
+
+        <div class="ethics-stats">
+            <article class="ethics-stat"><span>Projects tracked</span><strong id="ethics-total">0</strong></article>
+            <article class="ethics-stat"><span>Awaiting decision</span><strong id="ethics-awaiting">0</strong></article>
+            <article class="ethics-stat"><span>Approved records</span><strong id="ethics-approved">0</strong></article>
+        </div>
+
+        <section class="ethics-panel">
+            <div class="ethics-panel-heading">
+                <div><p class="ethics-eyebrow">REVIEW WORKFLOW</p><h3>Ethics review record</h3><p>Select your existing research project; its name is not entered again.</p></div>
+                <span class="ethics-heading-icon" aria-hidden="true">✓</span>
+            </div>
+
+            <div id="ethics-no-project" class="ethics-empty" hidden>
+                <h4>No research project found</h4>
+                <p>Create or join a project first. It will appear in this list automatically.</p>
+                <a class="ethics-link" href="#project-ideas">Go to Choose Project →</a>
+            </div>
+
+            <form id="ethics-form">
+                <div class="ethics-form-grid">
+                    <div class="ethics-field ethics-field-wide"><label for="ethics-project">Research project *</label><select id="ethics-project" name="project_id" required><option value="">Loading projects...</option></select><small id="ethics-project-hint">Choose the project this ethics record belongs to.</small></div>
+                    <div class="ethics-field"><label for="ethics-required">Ethics review required? *</label><select id="ethics-required" name="ethics_required" required><option value="Not sure">Not sure</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                    <div class="ethics-field"><label for="ethics-review-status">Ethics committee status *</label><select id="ethics-review-status" name="review_status" required><option value="Not started">Not started</option><option value="Preparing">Preparing</option><option value="Submitted">Submitted</option><option value="Changes requested">Changes requested</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option><option value="Exempt">Exempt</option><option value="Not required">Not required</option></select></div>
+                    <div class="ethics-field ethics-field-wide"><p id="ethics-status-help" class="ethics-guidance">Check your university's rules to decide whether review or exemption is required.</p></div>
+
+                    <div class="ethics-divider ethics-field-wide"><h4>Committee &amp; application</h4><p>Record who reviews the application and when it was submitted.</p></div>
+                    <div class="ethics-field"><label for="ethics-committee">Review body / committee</label><input id="ethics-committee" name="committee" maxlength="250" placeholder="e.g. University Ethics Committee"></div>
+                    <div class="ethics-field"><label for="ethics-application-reference">Application reference</label><input id="ethics-application-reference" name="application_reference" maxlength="250" placeholder="Official application reference, if assigned"></div>
+                    <div class="ethics-field"><label for="ethics-submission-date">Application submission date</label><input id="ethics-submission-date" name="submission_date" type="date"></div>
+                    <div class="ethics-field"><label for="ethics-decision-date">Decision date</label><input id="ethics-decision-date" name="decision_date" type="date"></div>
+
+                    <div class="ethics-divider ethics-field-wide"><h4>Approval evidence</h4><p>Complete these details only when the official decision is available.</p></div>
+                    <div class="ethics-field"><label for="ethics-approval-number">Approval / exemption number</label><input id="ethics-approval-number" name="approval_number" maxlength="250" placeholder="Official reference number"></div>
+                    <div class="ethics-field"><label for="ethics-expiry-date">Approval expiry date</label><input id="ethics-expiry-date" name="expiry_date" type="date"></div>
+                    <div class="ethics-field ethics-field-wide"><label for="ethics-document-url">Official document link</label><input id="ethics-document-url" name="document_url" type="url" maxlength="2000" placeholder="https://... secure application or approval document link"><small>Use a restricted-access link for confidential documents.</small></div>
+
+                    <div class="ethics-divider ethics-field-wide"><h4>Participants &amp; consent</h4><p>Store the consent approach here; keep detailed privacy and risk plans in their dedicated tools.</p></div>
+                    <div class="ethics-field"><label for="ethics-participants">Human participants involved?</label><select id="ethics-participants" name="participants_involved"><option value="Not sure">Not sure</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                    <div class="ethics-field"><label for="ethics-consent-method">Consent method</label><select id="ethics-consent-method" name="consent_method"><option value="">Select a method</option><option value="Written informed consent">Written informed consent</option><option value="Online consent">Online consent</option><option value="Verbal consent">Verbal consent</option><option value="Committee-approved waiver">Committee-approved waiver</option><option value="Not applicable">Not applicable</option><option value="Other">Other</option></select></div>
+                    <div class="ethics-field ethics-field-wide"><label for="ethics-consent-plan">Consent plan</label><textarea id="ethics-consent-plan" name="consent_plan" rows="4" maxlength="5000" placeholder="How will participants be informed and give consent? If not applicable, explain briefly."></textarea></div>
+                    <div class="ethics-field ethics-field-wide"><label for="ethics-committee-conditions">Committee conditions / requested changes</label><textarea id="ethics-committee-conditions" name="committee_conditions" rows="3" maxlength="5000" placeholder="Record the committee's conditions or requested changes."></textarea></div>
+                </div>
+
+                <div class="ethics-form-actions">
+                    <button id="ethics-save-button" class="button" type="submit">Save Ethics Record</button>
+                    <button id="ethics-request-review-button" class="button secondary" type="button" disabled>Request Supervisor Review</button>
+                    <button id="ethics-discard-button" class="button secondary" type="button">Discard Unsaved Changes</button>
+                </div>
+                <p id="research-ethics-status" class="ethics-message" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <section class="ethics-panel">
+            <div class="ethics-panel-heading"><div><p class="ethics-eyebrow">SAVED RECORDS</p><h3>Ethics records</h3><p>Check the committee status and the separate supervisor review status.</p></div></div>
+            <p id="ethics-records-empty" class="ethics-empty" hidden>No ethics records have been saved yet.</p>
+            <div id="ethics-records" class="ethics-record-grid"></div>
+        </section>
+
+        <p class="ethics-crosslinks">Detailed project risks belong in the <a href="#risk-decision-log">Risk Register</a>; data permissions belong in <a href="#data-access-settings">Data Access &amp; Embargo Settings</a>.</p>
+    </div>
 </section>
+
 
 <!-- 3. Experiment Reproducibility -->
 <section id="experiment-reproducibility" class="page" hidden>
@@ -1156,6 +1229,7 @@
        <script src="/assets/team-search.js?v=20261023-capacity" defer></script>
        <script src="/assets/project-ideas.js" defer></script>
        <script src="/assets/proposal.js" defer></script>
+       <script src="/assets/ethics.js" defer></script>
        <link rel="stylesheet" href="/assets/student-research-features.css">
    <script src="/assets/student-research-features.js" defer></script>
 </body>

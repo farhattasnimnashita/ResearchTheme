@@ -184,7 +184,27 @@ func openSQLite(path string) (*sql.DB, error) {
  CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('student','teacher')),verified INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS verifications(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,expires INTEGER NOT NULL);
- CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,student_id INTEGER NOT NULL REFERENCES users(id),teacher_id INTEGER REFERENCES users(id),title TEXT NOT NULL,area TEXT NOT NULL,abstract TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','submitted','approved','changes_requested','rejected')),feedback TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL);`)
+ CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,student_id INTEGER NOT NULL REFERENCES users(id),teacher_id INTEGER REFERENCES users(id),title TEXT NOT NULL,area TEXT NOT NULL,abstract TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','submitted','approved','changes_requested','rejected')),feedback TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS literature_papers (
+    id INTEGER PRIMARY KEY,
+    student_id INTEGER NOT NULL
+        REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    authors TEXT NOT NULL,
+    publication_year INTEGER NOT NULL DEFAULT 0,
+    venue TEXT NOT NULL DEFAULT '',
+    doi TEXT NOT NULL DEFAULT '',
+    paper_url TEXT NOT NULL DEFAULT '',
+    objective TEXT NOT NULL DEFAULT '',
+    methodology TEXT NOT NULL DEFAULT '',
+    dataset TEXT NOT NULL DEFAULT '',
+    key_findings TEXT NOT NULL DEFAULT '',
+    limitations TEXT NOT NULL DEFAULT '',
+    research_gap TEXT NOT NULL DEFAULT '',
+    relevance TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL
+);`)
+
 	if e != nil {
 		db.Close()
 		return nil, e
@@ -206,7 +226,10 @@ func openSQLite(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, e
 	}
-
+	if e = migrateEthicsReviews(&Database{DB: db}); e != nil {
+		db.Close()
+		return nil, e
+	}
 	return db, nil
 }
 func token() (string, error) {
@@ -276,6 +299,9 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("GET /api/supervision-capacity", a.supervisionCapacity)
 	m.HandleFunc("POST /api/supervision-capacity", a.supervisionCapacity)
 	m.HandleFunc("GET /api/student-placement", a.studentPlacement)
+
+	m.HandleFunc("GET /api/literature-papers", a.literaturePapers)
+	m.HandleFunc("POST /api/literature-papers", a.literaturePapers)
 	m.HandleFunc("POST /api/researcher-profile", a.researcherProfile)
 	m.HandleFunc("GET /api/collaboration-projects", a.collaborationProjects)
 	m.HandleFunc("GET /api/workspace/{id}/members", a.workspaceMembers)
@@ -297,6 +323,8 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("POST /api/verify", a.verify)
 	m.HandleFunc("POST /api/resend", a.resend)
 	m.HandleFunc("POST /api/logout", a.logout)
+	m.HandleFunc("GET /api/research-ethics", a.researchEthics)
+	m.HandleFunc("POST /api/research-ethics", a.researchEthics)
 	m.HandleFunc("GET /api/me", func(w http.ResponseWriter, r *http.Request) {
 		u, e := a.user(r)
 		if e != nil {

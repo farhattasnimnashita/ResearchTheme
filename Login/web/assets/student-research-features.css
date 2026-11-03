@@ -25,3 +25,201 @@
 .research-record-delete { margin-top: .4rem; }
 .research-empty { color: #6f6265; font-size: .9rem; }
 @media (max-width: 720px) { .research-fields-grid { grid-template-columns: 1fr; } .research-feature-header { padding: 1rem; } }
+/* Literature Review Matrix: comparison cards */
+
+.literature-record-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.literature-record-heading h3 {
+    margin: 0.25rem 0 0.4rem;
+}
+
+.literature-record-heading p {
+    margin: 0.25rem 0;
+    color: #6f6265;
+}
+
+.literature-paper-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: #f8eeee;
+    color: #68152b;
+    font-size: 0.85rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.literature-paper-toolbar {
+    display: grid;
+    gap: 0.45rem;
+    max-width: 560px;
+}
+
+.literature-paper-toolbar label {
+    color: #430d18;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.literature-paper-toolbar input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid #d8c7ca;
+    border-radius: 10px;
+    background: #fff;
+    color: #271a1c;
+    font: inherit;
+}
+
+.literature-paper-toolbar input:focus {
+    outline: 2px solid #94445c;
+    outline-offset: 1px;
+}
+
+.literature-paper-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.literature-paper-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 1.1rem;
+    border: 1px solid #ead6d8;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #fff, #fffaf8);
+    box-shadow: 0 5px 18px rgba(67, 13, 24, 0.06);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.literature-paper-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(67, 13, 24, 0.1);
+}
+
+.literature-paper-card h4 {
+    margin: 0 0 0.6rem;
+    color: #430d18;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.literature-paper-authors {
+    margin: 0;
+    color: #65565a;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.literature-paper-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.85rem 0 1rem;
+}
+
+.literature-paper-tag {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    border-radius: 7px;
+    background: #f8eeee;
+    color: #68152b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.literature-paper-info {
+    padding: 0.8rem 0;
+    border-top: 1px solid #f0e4e5;
+}
+
+.literature-paper-info strong {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #68152b;
+    font-size: 0.86rem;
+}
+
+.literature-paper-info p {
+    margin: 0;
+    color: #3e3437;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.literature-paper-card details {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    border-top: 1px solid #eadfe0;
+}
+
+.literature-paper-card details summary {
+    cursor: pointer;
+    color: #68152b;
+    font-size: 0.9rem;
+    font-weight: 750;
+}
+
+.literature-paper-details-list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+}
+
+.literature-paper-details-list dt {
+    margin-bottom: 0.2rem;
+    color: #68152b;
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.literature-paper-details-list dd {
+    margin: 0;
+    color: #3e3437;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.literature-paper-details-list a {
+    color: #68152b;
+    overflow-wrap: anywhere;
+}
+
+#literature-paper-no-results {
+    color: #6f6265;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 850px) {
+    .literature-paper-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .literature-paper-card {
+        transition: none;
+    }
+
+    .literature-paper-card:hover {
+        transform: none;
+    }
+}
