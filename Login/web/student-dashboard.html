@@ -1086,19 +1086,199 @@
 
 <!-- 3. Experiment Reproducibility -->
 <section id="experiment-reproducibility" class="page" hidden>
-    <article class="card">
-        <h2>Experiment Reproducibility</h2>
-        <div data-feature-root="experiment-reproducibility"></div>
-        <p id="experiment-reproducibility-status" role="status"></p>
+    <article class="research-feature-card">
+        <header class="research-feature-header">
+            <p class="research-eyebrow">RESEARCH TOOLS</p>
+            <h2>Experiment Reproducibility</h2>
+            <p>Record experiment settings, code, datasets and results so your team can reproduce each run.</p>
+        </header>
+
+        <form id="experiment-form" class="research-feature-form">
+            <input type="hidden" name="id" value="">
+
+            <div class="research-fields-grid">
+                <div class="research-field">
+                    <label for="experiment-project">Research Project *</label>
+                    <select id="experiment-project" name="project_id" required></select>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-name">Experiment Name *</label>
+                    <input id="experiment-name" name="experiment_name" maxlength="250" required placeholder="e.g. CNN model training - Run 1">
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-run-date">Run Date *</label>
+                    <input id="experiment-run-date" name="run_date" type="date" required>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-seed">Random Seed</label>
+                    <input id="experiment-seed" name="random_seed" placeholder="e.g. 42">
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-dataset">Dataset Version</label>
+                    <input id="experiment-dataset" name="dataset_version" placeholder="e.g. dataset-v1.2">
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-code">Code Link</label>
+                    <input id="experiment-code" name="code_link" type="url" placeholder="https://github.com/...">
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-artifact">Artifact Link</label>
+                    <input id="experiment-artifact" name="artifact_link" type="url" placeholder="Notebook, logs or output link">
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-hypothesis">Hypothesis</label>
+                    <textarea id="experiment-hypothesis" name="hypothesis" rows="3" placeholder="What do you expect to happen?"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-protocol">Protocol *</label>
+                    <textarea id="experiment-protocol" name="protocol" rows="4" required placeholder="Write the experiment steps and conditions"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-environment">Environment *</label>
+                    <textarea id="experiment-environment" name="environment" rows="3" required placeholder="OS, hardware, Python and library versions"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-parameters">Parameters</label>
+                    <textarea id="experiment-parameters" name="parameters" rows="3" placeholder="Learning rate, epochs, batch size, etc."></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-results">Result Summary *</label>
+                    <textarea id="experiment-results" name="result_summary" rows="4" required placeholder="Measured metrics, units and baseline comparison"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="experiment-notes">Notes</label>
+                    <textarea id="experiment-notes" name="notes" rows="3" placeholder="Problems or deviations from the protocol"></textarea>
+                </div>
+            </div>
+
+            <div class="tracking-actions">
+                <button type="submit" id="experiment-save">Save Experiment</button>
+                <button type="button" id="experiment-cancel" hidden>Cancel Edit</button>
+            </div>
+            <p id="experiment-message" role="status"></p>
+        </form>
+
+        <div class="tracking-list-heading">
+            <h3>Saved Experiments</h3>
+            <input id="experiment-search" type="search" placeholder="Search experiments...">
+        </div>
+        <p id="experiment-empty">No experiment records yet. Add your first experiment above.</p>
+        <div id="experiment-record-list" class="tracking-record-grid"></div>
     </article>
 </section>
 
-<!-- 4. Reviewer Feedback Resolution -->
+<!-- 4. Reviewer Feedback Resolution Tracker -->
 <section id="feedback-resolution" class="page" hidden>
-    <article class="card">
-        <h2>Reviewer Feedback Resolution Tracker</h2>
-        <div data-feature-root="feedback-resolution"></div>
-        <p id="feedback-resolution-status" role="status"></p>
+    <article class="research-feature-card">
+        <header class="research-feature-header">
+            <p class="research-eyebrow">RESEARCH TOOLS</p>
+            <h2>Reviewer Feedback Resolution Tracker</h2>
+            <p>Track reviewer and supervisor comments, response plans, deadlines and completed revisions.</p>
+        </header>
+
+        <form id="feedback-form" class="research-feature-form">
+            <input type="hidden" name="id" value="">
+
+            <div class="research-fields-grid">
+                <div class="research-field">
+                    <label for="feedback-project">Research Project *</label>
+                    <select id="feedback-project" name="project_id" required></select>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-source">Source *</label>
+                    <select id="feedback-source" name="source" required>
+                        <option value="">Select source</option>
+                        <option>Reviewer</option>
+                        <option>Supervisor</option>
+                        <option>Meeting</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-date">Received Date *</label>
+                    <input id="feedback-date" name="received_date" type="date" required>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-priority">Priority *</label>
+                    <select id="feedback-priority" name="priority" required>
+                        <option value="">Select priority</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-owner">Owner *</label>
+                    <input id="feedback-owner" name="owner" required maxlength="250" placeholder="Team member responsible">
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-status">Status *</label>
+                    <select id="feedback-status" name="status" required>
+                        <option>Open</option>
+                        <option>In progress</option>
+                        <option>Waiting for review</option>
+                        <option>Resolved</option>
+                        <option>Blocked</option>
+                    </select>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-due-date">Due Date</label>
+                    <input id="feedback-due-date" name="due_date" type="date">
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-evidence">Evidence Link</label>
+                    <input id="feedback-evidence" name="evidence_link" type="url" placeholder="Updated paper, commit or response letter">
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-comment">Comment Summary *</label>
+                    <textarea id="feedback-comment" name="comment_summary" rows="4" required placeholder="What did the reviewer or supervisor ask you to change?"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-plan">Response Plan *</label>
+                    <textarea id="feedback-plan" name="response_plan" rows="4" required placeholder="How will your team address this comment?"></textarea>
+                </div>
+
+                <div class="research-field">
+                    <label for="feedback-resolution-note">Resolution Note</label>
+                    <textarea id="feedback-resolution-note" name="resolution_note" rows="4" placeholder="What was changed and why?"></textarea>
+                </div>
+            </div>
+
+            <div class="tracking-actions">
+                <button type="submit" id="feedback-save">Save Feedback</button>
+                <button type="button" id="feedback-cancel" hidden>Cancel Edit</button>
+            </div>
+            <p id="feedback-message" role="status"></p>
+        </form>
+
+        <div class="tracking-list-heading">
+            <h3>Feedback Records</h3>
+            <input id="feedback-search" type="search" placeholder="Search feedback...">
+        </div>
+        <p id="feedback-empty">No feedback records yet. Add your first feedback above.</p>
+        <div id="feedback-record-list" class="tracking-record-grid"></div>
     </article>
 </section>
 
@@ -1232,5 +1412,6 @@
        <script src="/assets/ethics.js" defer></script>
        <link rel="stylesheet" href="/assets/student-research-features.css">
    <script src="/assets/student-research-features.js" defer></script>
+   <script src="/assets/research-tracking.js" defer></script>
 </body>
 </html>

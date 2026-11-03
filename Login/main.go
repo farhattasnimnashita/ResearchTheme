@@ -230,6 +230,10 @@ CREATE TABLE IF NOT EXISTS literature_papers (
 		db.Close()
 		return nil, e
 	}
+	if e = migrateResearchTracking(&Database{DB: db}); e != nil {
+		db.Close()
+		return nil, e
+	}
 	return db, nil
 }
 func token() (string, error) {
@@ -302,6 +306,13 @@ func (a *App) routes() http.Handler {
 
 	m.HandleFunc("GET /api/literature-papers", a.literaturePapers)
 	m.HandleFunc("POST /api/literature-papers", a.literaturePapers)
+	m.HandleFunc("GET /api/experiment-reproducibility", a.experimentReproducibility)
+	m.HandleFunc("POST /api/experiment-reproducibility", a.experimentReproducibility)
+	m.HandleFunc("DELETE /api/experiment-reproducibility", a.experimentReproducibility)
+
+	m.HandleFunc("GET /api/feedback-resolution", a.feedbackResolution)
+	m.HandleFunc("POST /api/feedback-resolution", a.feedbackResolution)
+	m.HandleFunc("DELETE /api/feedback-resolution", a.feedbackResolution)
 	m.HandleFunc("POST /api/researcher-profile", a.researcherProfile)
 	m.HandleFunc("GET /api/collaboration-projects", a.collaborationProjects)
 	m.HandleFunc("GET /api/workspace/{id}/members", a.workspaceMembers)

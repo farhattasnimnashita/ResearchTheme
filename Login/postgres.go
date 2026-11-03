@@ -132,6 +132,10 @@ func openPostgresSchema(connection, schema string) (*Database, error) {
 		db.Close()
 		return nil, errors.New("could not initialize ethics reviews")
 	}
+	if err := migrateResearchTracking(database); err != nil {
+		db.Close()
+		return nil, errors.New("could not initialize research tracking")
+	}
 	return database, nil
 }
 
