@@ -9,22 +9,23 @@ import (
 )
 
 type Project struct {
-	TeacherID        int64  `json:"teacher_id"`
-	ID               int64  `json:"id"`
-	Title            string `json:"title"`
-	Area             string `json:"area"`
-	Abstract         string `json:"abstract"`
-	Status           string `json:"status"`
-	Feedback         string `json:"feedback"`
-	Student          string `json:"student"`
-	Teacher          string `json:"teacher"`
-	Updated          int64  `json:"updated"`
-	ProblemStatement string `json:"problem_statement"`
-	Objectives       string `json:"objectives"`
-	Methodology      string `json:"methodology"`
-	ExpectedOutcomes string `json:"expected_outcomes"`
-	ScopeLimitations string `json:"scope_limitations"`
-	ProposalStarted  bool   `json:"proposal_started"`
+	TeacherID         int64  `json:"teacher_id"`
+	ID                int64  `json:"id"`
+	Title             string `json:"title"`
+	Area              string `json:"area"`
+	Abstract          string `json:"abstract"`
+	Status            string `json:"status"`
+	Feedback          string `json:"feedback"`
+	Student           string `json:"student"`
+	Teacher           string `json:"teacher"`
+	Updated           int64  `json:"updated"`
+	ProblemStatement  string `json:"problem_statement"`
+	Objectives        string `json:"objectives"`
+	Methodology       string `json:"methodology"`
+	ExpectedOutcomes  string `json:"expected_outcomes"`
+	ScopeLimitations  string `json:"scope_limitations"`
+	ProposalStarted   bool   `json:"proposal_started"`
+	SupervisionStatus string `json:"supervision_status"`
 }
 
 func (a *App) fixedApprovedProjectID(userID int64) (int64, error) {
@@ -91,7 +92,7 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 	var args []any
 
 	if u.Role == "teacher" {
-		filter = "p.teacher_id=? AND p.status!='draft'"
+		filter = "p.teacher_id=? AND (p.supervision_status IN ('pending','accepted','declined') OR p.status!='draft')"
 		args = []any{u.ID}
 	} else {
 		fixedID, err := a.fixedApprovedProjectID(u.ID)
@@ -135,7 +136,8 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 		p.methodology,
 		p.expected_outcomes,
 		p.scope_limitations,
-		p.proposal_started
+		p.proposal_started,
+		COALESCE(p.supervision_status, 'none')
 	FROM projects p
 	JOIN users s ON p.student_id=s.id
 	LEFT JOIN users t ON p.teacher_id=t.id
@@ -168,6 +170,7 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 			&p.ExpectedOutcomes,
 			&p.ScopeLimitations,
 			&p.ProposalStarted,
+			&p.SupervisionStatus,
 		) != nil {
 			fail(w, 500, "Could not read projects.")
 			return
@@ -337,6 +340,6 @@ func (a *App) reviewProject(w http.ResponseWriter, r *http.Request) {
 		fail(w, 500, "Could not save review.")
 		return
 	}
-	a.notifyProject(id, u.ID, "submission", "Proposal review: "+p.Status)
+	a.notifyProjectTeam(id, u.ID, "submission", "Full proposal review: "+p.Status)
 	reply(w, 200, map[string]string{"message": "Review saved and shared with the student."})
 }

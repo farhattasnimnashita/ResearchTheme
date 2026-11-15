@@ -213,6 +213,10 @@ CREATE TABLE IF NOT EXISTS literature_papers (
 		db.Close()
 		return nil, e
 	}
+	if e = migrateSupervisionWorkflow(db); e != nil {
+		db.Close()
+		return nil, e
+	}
 	if e = migrateUserProfile(db); e != nil {
 		db.Close()
 		return nil, e
@@ -352,6 +356,7 @@ func (a *App) routes() http.Handler {
 		"POST /api/projects/{id}/supervisor",
 		a.selectProjectSupervisor,
 	)
+	m.HandleFunc("POST /api/projects/{id}/supervision-review", a.reviewSupervisionRequest)
 	m.HandleFunc("POST /api/projects/{id}/submit", a.submitProject)
 	m.HandleFunc("POST /api/projects/{id}/review", a.reviewProject)
 	m.HandleFunc(

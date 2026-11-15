@@ -40,8 +40,8 @@
     }
 
     function editable(project) {
-        return project.status === "draft" ||
-            (project.status === "changes_requested" && hasProposal(project));
+        return project.supervision_status === "accepted" && (project.status === "draft" ||
+            (project.status === "changes_requested" && hasProposal(project)));
     }
 
     function showMessage(text, isError = false) {
@@ -103,7 +103,7 @@
                 '<option value="">No editable project available</option>';
 
             projectSummary.textContent =
-                "Go to Choose Project and save a research project first.";
+                "Send a supervision request first. The full proposal form unlocks after your supervisor accepts.";
 
             fillSelectedProject();
             return;

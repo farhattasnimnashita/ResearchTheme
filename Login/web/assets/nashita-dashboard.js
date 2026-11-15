@@ -1156,30 +1156,33 @@ const response = await fetch("/api/profile-picture", {
             }
 
             const statusLabels = {
-                draft: "Draft — not sent",
-                submitted: "Pending teacher decision",
-                approved: "Accepted — supervision approved",
+                none: "No supervision request sent",
+                pending: "Supervision request pending",
+                accepted: "Supervision accepted — full proposal unlocked",
+                declined: "Supervision request declined",
+                submitted: "Full proposal awaiting review",
+                approved: "Full proposal approved",
                 changes_requested: "Changes requested",
-                rejected: "Rejected"
+                rejected: "Full proposal rejected"
             };
 
             requestList.innerHTML = projects.map(project => {
-                const status = project.status || "draft";
+                const status = project.supervision_status && project.supervision_status !== "none" ? project.supervision_status : (project.status || "draft");
                 const statusClass =
-                    status === "approved" ? "rb-status-approved" :
-                    status === "rejected" ? "rb-status-rejected" : "";
+                    ["approved","accepted"].includes(status) ? "rb-status-approved" :
+                    ["rejected","declined"].includes(status) ? "rb-status-rejected" : "";
 
                 return `
                     <article class="rb-request-card">
                         <h3>${shown(project.title)}</h3>
                         <p><strong>Research Area:</strong> ${shown(project.area)}</p>
-                        <p><strong>Teacher:</strong> ${shown(project.teacher)}</p>
+                        <p><strong>Supervisor:</strong> ${shown(project.teacher)}</p>
                         <span class="rb-request-status ${statusClass}">
                             ${escapeHTML(statusLabels[status] || status)}
                         </span>
-                        ${project.feedback
+                        ${project.supervision_feedback || project.feedback
                             ? `<p><strong>Teacher feedback:</strong>
-                               ${escapeHTML(project.feedback)}</p>`
+                               ${escapeHTML(project.supervision_feedback || project.feedback)}</p>`
                             : ""}
                     </article>
                 `;
@@ -1216,8 +1219,8 @@ const response = await fetch("/api/profile-picture", {
                 }
                 teacherSelect.value = String(project.teacher_id);
             }
-            teacherSelect.disabled = Boolean(project?.teacher_id);
-            sendButton.disabled = !project || !["draft", "changes_requested"].includes(project.status);
+            teacherSelect.disabled = Boolean(project?.teacher_id && project.supervision_status !== "declined");
+            sendButton.disabled = !project || project.supervision_status === "pending" || project.supervision_status === "accepted" || project.status === "submitted" || project.status === "approved";
             markSelectedTeacher();
         };
         projectSelect.onchange = updateSelection;
@@ -1260,7 +1263,7 @@ const response = await fetch("/api/profile-picture", {
         sendButton.disabled = true;
         try {
             await api(`/api/projects/${projectID}/supervisor`, { teacher_id: teacherID });
-            requestMessage.textContent = "Supervisor saved. Complete your Proposal and click Submit for review to send the request and notify your teacher.";
+            requestMessage.textContent = "Supervision request sent using your project title. The full proposal will unlock after the supervisor accepts.";
             await loadMyRequests();
         } catch (error) {
             requestMessage.textContent = error.message;

@@ -85,7 +85,7 @@ func (a *App) researcherProfile(w http.ResponseWriter, r *http.Request) {
 func (a *App) projectAccess(u User, id int64) bool {
 	var n int
 	if u.Role == "teacher" {
-		a.db.QueryRow("SELECT COUNT(*) FROM projects WHERE id=? AND teacher_id=? AND status!='draft'", id, u.ID).Scan(&n)
+		a.db.QueryRow("SELECT COUNT(*) FROM projects WHERE id=? AND teacher_id=? AND (status!='draft' OR supervision_status='pending' OR supervision_status='accepted')", id, u.ID).Scan(&n)
 	} else {
 		a.db.QueryRow("SELECT COUNT(*) FROM projects WHERE id=? AND (student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=projects.id AND user_id=?))", id, u.ID, u.ID).Scan(&n)
 	}
@@ -720,7 +720,7 @@ func (a *App) collaborationProjects(w http.ResponseWriter, r *http.Request) {
 	args := []any{u.ID, u.ID}
 
 	if u.Role == "teacher" {
-		filter = "p.teacher_id=? AND p.status!='draft'"
+		filter = "p.teacher_id=? AND (p.status!='draft' OR p.supervision_status='accepted')"
 		args = []any{u.ID}
 	} else {
 		fixedID, err := a.fixedApprovedProjectID(u.ID)

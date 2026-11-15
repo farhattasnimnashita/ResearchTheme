@@ -8,6 +8,41 @@ import (
 	"time"
 )
 
+// Adds the two-stage supervision workflow fields to existing SQLite databases.
+func migrateSupervisionWorkflow(db *sql.DB) error {
+	rows, err := db.Query("PRAGMA table_info(projects)")
+	if err != nil {
+		return err
+	}
+	existing := map[string]bool{}
+	for rows.Next() {
+		var cid, notNull, primary int
+		var name, typ string
+		var def sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notNull, &def, &primary); err != nil {
+			rows.Close()
+			return err
+		}
+		existing[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return err
+	}
+	rows.Close()
+	if !existing["supervision_status"] {
+		if _, err = db.Exec("ALTER TABLE projects ADD COLUMN supervision_status TEXT NOT NULL DEFAULT 'none'"); err != nil {
+			return err
+		}
+	}
+	if !existing["supervision_feedback"] {
+		if _, err = db.Exec("ALTER TABLE projects ADD COLUMN supervision_feedback TEXT NOT NULL DEFAULT ''"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Existing SQLite database-এ Proposal-এর নতুন column যোগ করে।
 func migrateProjectProposalColumns(db *sql.DB) error {
 	rows, err := db.Query("PRAGMA table_info(projects)")
@@ -121,9 +156,9 @@ func (a *App) saveProjectProposal(
 	var status string
 
 	err = a.db.QueryRow(
-		"SELECT status FROM projects WHERE id=? AND student_id=?",
+		"SELECT status FROM projects WHERE id=? AND (student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=projects.id AND user_id=?)) AND supervision_status='accepted'",
 		id,
-		u.ID,
+		u.ID, u.ID,
 	).Scan(&status)
 
 	if err != nil {
@@ -177,7 +212,8 @@ func (a *App) saveProjectProposal(
 		    proposal_started=1,
 		    updated_at=?
 		WHERE id=?
-		  AND student_id=?
+		  AND (student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=projects.id AND user_id=?))
+		  AND supervision_status='accepted'
 		  AND status IN ('draft','changes_requested')
 	`,
 		in.ProblemStatement,
@@ -187,7 +223,7 @@ func (a *App) saveProjectProposal(
 		in.ScopeLimitations,
 		time.Now().Unix(),
 		id,
-		u.ID,
+		u.ID, u.ID,
 	)
 
 	if err != nil {
@@ -242,11 +278,12 @@ func (a *App) submitDetailedProjectProposal(
 		       status
 		FROM projects
 		WHERE id=?
-		  AND student_id=?
+		  AND (student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=projects.id AND user_id=?))
+		  AND supervision_status='accepted'
 		  AND proposal_started=1
 	`,
 		id,
-		u.ID,
+		u.ID, u.ID,
 	).Scan(
 		&teacherID,
 		&problem,
@@ -314,14 +351,15 @@ func (a *App) submitDetailedProjectProposal(
 		UPDATE projects
 		SET status='submitted', updated_at=?
 		WHERE id=?
-		  AND student_id=?
+		  AND (student_id=? OR EXISTS(SELECT 1 FROM team_members WHERE project_id=projects.id AND user_id=?))
+		  AND supervision_status='accepted'
 		  AND proposal_started=1
 		  AND status IN ('draft','changes_requested')
 		  AND teacher_id=?
 	`,
 		time.Now().Unix(),
 		id,
-		u.ID,
+		u.ID, u.ID,
 		teacherID,
 	)
 
@@ -388,14 +426,14 @@ func (a *App) selectProjectSupervisor(
 		return
 	}
 
-	var status string
+	var status, supervisionStatus string
 	var existingTeacher int64
 
 	err = a.db.QueryRow(`
-		SELECT status, COALESCE(teacher_id, 0)
+		SELECT status, COALESCE(teacher_id, 0), COALESCE(supervision_status, 'none')
 		FROM projects
 		WHERE id=?
-	`, id).Scan(&status, &existingTeacher)
+	`, id).Scan(&status, &existingTeacher, &supervisionStatus)
 
 	if err != nil {
 		fail(w, 404, "Project not found.")
@@ -407,7 +445,7 @@ func (a *App) selectProjectSupervisor(
 		return
 	}
 
-	if existingTeacher > 0 && existingTeacher != input.TeacherID {
+	if existingTeacher > 0 && existingTeacher != input.TeacherID && supervisionStatus != "declined" {
 		fail(
 			w,
 			409,
@@ -430,16 +468,11 @@ func (a *App) selectProjectSupervisor(
 
 	result, err := a.db.Exec(`
 		UPDATE projects
-		SET teacher_id=?, updated_at=?
+		SET teacher_id=?, supervision_status='pending', supervision_feedback='', updated_at=?
 		WHERE id=?
 		  AND status IN ('draft','changes_requested')
-		  AND (teacher_id IS NULL OR teacher_id=?)
-	`,
-		input.TeacherID,
-		time.Now().Unix(),
-		id,
-		input.TeacherID,
-	)
+		  AND COALESCE(supervision_status,'none') IN ('none','declined')
+	`, input.TeacherID, time.Now().Unix(), id)
 
 	if err != nil {
 		fail(w, 500, "Could not save the supervisor.")
@@ -456,7 +489,65 @@ func (a *App) selectProjectSupervisor(
 		return
 	}
 
-	reply(w, 200, map[string]string{
-		"message": "Supervisor fixed for this project and shared by all team members.",
-	})
+	a.notifyProjectTeam(id, u.ID, "request", "New supervision request: "+strings.TrimSpace(projectTitle(a.db, id)))
+	reply(w, 200, map[string]string{"message": "Supervision request sent. The full proposal will unlock after the supervisor accepts."})
+}
+
+func projectTitle(db *Database, id int64) string {
+	var title string
+	_ = db.QueryRow("SELECT title FROM projects WHERE id=?", id).Scan(&title)
+	return title
+}
+
+func (a *App) reviewSupervisionRequest(w http.ResponseWriter, r *http.Request) {
+	u, err := a.user(r)
+	if err != nil {
+		fail(w, 401, "Please log in.")
+		return
+	}
+	if u.Role != "teacher" {
+		fail(w, 403, "Only teachers can decide supervision requests.")
+		return
+	}
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		fail(w, 400, "Invalid project.")
+		return
+	}
+	var in struct {
+		Status   string `json:"status"`
+		Feedback string `json:"feedback"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	in.Feedback = strings.TrimSpace(in.Feedback)
+	if in.Status != "accepted" && in.Status != "declined" {
+		fail(w, 400, "Choose accept or decline.")
+		return
+	}
+	if in.Status == "declined" && len(in.Feedback) < 5 {
+		fail(w, 400, "Please provide a short reason for declining.")
+		return
+	}
+	result, err := a.db.Exec("UPDATE projects SET supervision_status=?, supervision_feedback=?, updated_at=? WHERE id=? AND teacher_id=? AND supervision_status='pending'", in.Status, in.Feedback, time.Now().Unix(), id, u.ID)
+	if err != nil {
+		fail(w, 500, "Could not save the supervision decision.")
+		return
+	}
+	n, _ := result.RowsAffected()
+	if n == 0 {
+		fail(w, 409, "This supervision request is no longer pending.")
+		return
+	}
+	msg := "Supervision request accepted. Your team can now submit its full research proposal."
+	if in.Status == "declined" {
+		msg = "Supervision request declined. Feedback: " + in.Feedback
+	}
+	a.notifyProjectTeam(id, u.ID, "submission", msg)
+	reply(w, 200, map[string]string{"message": "Decision saved and shared with the team."})
+}
+
+func (a *App) notifyProjectTeam(projectID, actorID int64, kind, message string) {
+	_, _ = a.db.Exec(`INSERT INTO workspace_notifications(user_id,project_id,kind,message,created_at) SELECT DISTINCT member_id,?,?,?,? FROM (SELECT student_id AS member_id FROM projects WHERE id=? UNION SELECT user_id AS member_id FROM team_members WHERE project_id=?) members`, projectID, kind, message, time.Now().Unix(), projectID, projectID)
 }
