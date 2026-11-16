@@ -204,7 +204,20 @@ func (a *App) teamAcademicProfiles(w http.ResponseWriter, r *http.Request) {
 		fail(w, 403, "You are not authorized to view this team's academic profiles.")
 		return
 	}
-	rows, err := a.db.Query(`SELECT u.id,u.name,u.email FROM users u WHERE (u.id=(SELECT student_id FROM projects WHERE id=?) OR EXISTS(SELECT 1 FROM team_members tm WHERE tm.project_id=? AND tm.user_id=u.id)) ORDER BY u.name`, id, id)
+	rows, err := a.db.Query(`
+		SELECT u.id, u.name, u.email
+		FROM users u
+		JOIN (
+			SELECT student_id AS user_id
+			FROM projects
+			WHERE id = ?
+			UNION
+			SELECT user_id
+			FROM team_members
+			WHERE project_id = ?
+		) team ON team.user_id = u.id
+		ORDER BY u.name
+	`, id, id)
 	if err != nil {
 		fail(w, 500, "Could not load team.")
 		return

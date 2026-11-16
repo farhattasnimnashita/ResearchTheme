@@ -37,6 +37,38 @@ const globalKinds=['opportunity','lab','campus_problem'];
 const studentKinds=['submission','extension','contribution','paper','experiment','meeting','blocker','final_submission','correction','publication','note'];
 function notice(message,error=false){statusNode.textContent=message;statusNode.classList.toggle('error',error);}
 async function api(path,data,method){const options={credentials:'same-origin'};if(data!==undefined){options.method=method||'POST';options.headers={'X-Requested-With':'ResearchBridge'};if(data instanceof FormData) options.body=data;else {options.headers['Content-Type']='application/json';options.body=JSON.stringify(data)}}const response=await fetch(path,options);if(response.status===401){location.replace('/login/'+(teacher()?'teacher':'student'));throw Error('Your session expired. Please log in.')}let result;try{result=await response.json()}catch{throw Error('The server did not return a valid response. Please try again.')}if(!response.ok)throw Error(result.error||'Request failed.');return result;}
+// Load a project's complete team from both authorized sources and merge by user ID.
+async function loadProjectMembers(projectID) {
+    const results = await Promise.allSettled([
+        api('/api/workspace/' + projectID + '/members'),
+        api('/api/projects/' + projectID + '/team-academics')
+    ]);
+
+    const merged = new Map();
+
+    for (const result of results) {
+        if (result.status !== 'fulfilled' || !Array.isArray(result.value)) {
+            continue;
+        }
+
+        for (const member of result.value) {
+            const id = Number(member.id ?? member.user_id ?? 0);
+            const key = id || String(member.email || member.name || 'unknown-member');
+
+            const previous = merged.get(key) || {};
+            merged.set(key, {
+                ...previous,
+                ...member,
+                id: id || previous.id || 0,
+                name: member.name || previous.name || 'Unknown member'
+            });
+        }
+    }
+
+    return [...merged.values()].sort((a, b) =>
+        String(a.name).localeCompare(String(b.name))
+    );
+}
 function blank(title,description){return `<div class="empty"><span class="empty-icon" aria-hidden="true">♧</span><h3>${h(title)}</h3><p>${h(description)}</p></div>`}
 function heading(title,description){document.getElementById('page-title').textContent=title;return `<div class="heading"><p>${h(description)}</p></div>`}
 function badge(status){return `<span class="badge ${h(status)}">${h(words(status))}</span>`}
@@ -146,14 +178,187 @@ async function renderOverview(){
  <div><section class="panel"><h2>Next Meeting</h2>${meeting?`<h3>${h(meeting.title)}</h3><p>${h(date(meeting.due_at))}</p><p class="subtle">${h(meeting.project_title)}</p>`:'<h3>No meeting scheduled</h3><p class="subtle">Your confirmed meetings will appear here.</p>'}<a class="record-link" href="${meeting?'#projects/'+meeting.project_id+'/meeting':'#tools/meeting'}">View meetings →</a></section><section class="panel"><h2>Pending Reviews</h2><p>${pending.length} supervision requests · ${rows.filter(r=>r.status==='pending'&&r.author_id!==S.user.id).length} work records awaiting review</p><a class="record-link" href="#review">Open review queue →</a></section><section class="panel"><h2>Recent Activity</h2>${S.notifications.length?S.notifications.slice(0,4).map(n=>`<a class="activity-item" href="${h(teacherNotificationLink(n))}">${h(n.message)}<p>${h(date(n.created_at))}</p></a>`).join(''):'<p class="subtle">No activity yet. Team updates and submissions will appear here.</p>'}<a class="record-link" href="#review">All notifications →</a></section><section class="panel"><h2>Research Community</h2><a class="activity-item" href="#tools/opportunity">Opportunity Board →</a><a class="activity-item" href="#tools/lab">Lab Pages →</a><a class="activity-item" href="#tools/campus_problem">Campus Problem Bank →</a></section></div></div>`;
  }catch(error){if(ticket===S.version){content.innerHTML=blank('Could not load dashboard.', 'Refresh the page to try again.');notice(error.message,true)}}
 }
-function renderSupervision(){
- const pending=S.proposals.filter(p=>p.supervision_status==='pending');
- const approved=S.projects.filter(p=>p.status==='approved');
- const latest=S.projects[0];
- const projectRows=S.projects.length?S.projects.map(p=>`<article class="project-card"><div class="card-top"><div><p class="eyebrow">ASSIGNED RESEARCH</p><h3>${h(p.title)}</h3></div>${badge(p.status)}</div><p class="mini">${h(p.area||'Research project')}</p><a class="button secondary" href="#projects/${p.id}/team">Open team workspace →</a></article>`).join(''):blank('No assigned teams yet.','Accepted supervision projects will appear here.');
- const requestRows=pending.length?pending.map(p=>projectCard(p,true)).join(''):blank('No pending supervision requests.','New student requests will appear here after a proposal is submitted.');
- content.innerHTML=heading('Your Supervision','Everything you are currently supervising, reviewing and guiding in one place.')+`<section class="stats dashboard-stats supervision-summary" aria-label="Supervision summary"><article class="stat"><p>ASSIGNED TEAMS</p><strong>${h(S.projects.length)}</strong><a href="#tools/team">View teams →</a></article><article class="stat"><p>PENDING REQUESTS</p><strong>${h(pending.length)}</strong><a href="#requests">Review requests →</a></article><article class="stat"><p>APPROVED PROJECTS</p><strong>${h(approved.length)}</strong><a href="#proposals">Proposal review →</a></article><article class="stat"><p>CURRENT TOPIC</p><strong>${h(latest?.title||'Not assigned')}</strong><a href="#tools/team">Open workspace →</a></article></section><div class="dashboard-columns"><div><section class="panel"><div class="section-title"><h2>Assigned Research Teams</h2><span>${S.projects.length} ${S.projects.length===1?'team':'teams'}</span></div>${projectRows}</section><section class="panel"><div class="section-title"><h2>Pending Supervision Requests</h2><span>${pending.length} pending</span></div>${requestRows}<a class="record-link" href="#requests">Open all supervision requests →</a></section></div><div><section class="panel"><h2>Your Research Profile</h2><p class="eyebrow">RESEARCH INTERESTS</p><p class="record-body">${h(S.profile.interests||'Add your research interests from My Profile.')}</p><p class="eyebrow">EXPERTISE / SKILLS</p><p class="record-body">${h(S.profile.expertise||'Add your expertise and skills from My Profile.')}</p><a class="record-link" href="#profile">Edit research profile →</a></section><section class="panel"><h2>Supervision Shortcuts</h2><a class="getting-step" href="#requests"><span>1</span><div><strong>Review requests</strong><p>Accept, reject or ask students for corrections.</p></div></a><a class="getting-step" href="#tools/milestone"><span>2</span><div><strong>Track milestones</strong><p>Follow research stages and progress.</p></div></a><a class="getting-step" href="#tools/files"><span>3</span><div><strong>Review files & feedback</strong><p>Open submitted files, versions and feedback.</p></div></a><a class="getting-step" href="#tools/meeting"><span>4</span><div><strong>Manage meetings</strong><p>Schedule and review supervision meetings.</p></div></a></section></div></div>`;
+async function renderSupervision() {
+    const ticket = S.version;
+
+    const pending = S.proposals.filter(
+        project => project.supervision_status === 'pending'
+    );
+    const approved = S.projects.filter(
+        project => project.status === 'approved'
+    );
+    const latest = S.projects[0];
+
+    // Load complete team membership for every assigned project.
+    const memberEntries = await Promise.all(
+        S.projects.map(async project => {
+            try {
+                return [
+                    project.id,
+                    await loadProjectMembers(project.id)
+                ];
+            } catch (error) {
+                console.error(
+                    'Could not load team members for project:',
+                    project.id,
+                    error
+                );
+                return [project.id, []];
+            }
+        })
+    );
+
+    if (ticket !== S.version) return;
+
+    const teamMembers = Object.fromEntries(memberEntries);
+
+    const projectRows = S.projects.length
+        ? S.projects.map(project => {
+            const members = teamMembers[project.id] || [];
+            const memberNames = members.length
+                ? members.map(member => h(member.name)).join(', ')
+                : 'Member information unavailable';
+
+            return `
+                <article class="project-card">
+                    <div class="card-top">
+                        <div>
+                            <p class="eyebrow">ASSIGNED RESEARCH</p>
+                            <h3>${h(project.title)}</h3>
+                        </div>
+                        ${badge(project.status)}
+                    </div>
+
+                    <p class="mini">${h(project.area || 'Research project')}</p>
+
+                    <div class="team-member-summary">
+                        <strong>Team Members (${members.length})</strong>
+                        <p>${memberNames}</p>
+                    </div>
+
+                    <a class="button secondary"
+                       href="#projects/${project.id}/team">
+                        Open team workspace →
+                    </a>
+                </article>
+            `;
+        }).join('')
+        : blank(
+            'No assigned teams yet.',
+            'Accepted supervision projects will appear here.'
+        );
+
+    const requestRows = pending.length
+        ? pending.map(project => projectCard(project, true)).join('')
+        : blank(
+            'No pending supervision requests.',
+            'New student requests will appear here after a supervision request is sent.'
+        );
+
+    if (ticket !== S.version) return;
+
+    content.innerHTML =
+        heading(
+            'Your Supervision',
+            'Everything you are currently supervising, reviewing and guiding in one place.'
+        ) +
+        `
+        <section class="stats dashboard-stats supervision-summary"
+                 aria-label="Supervision summary">
+            <article class="stat">
+                <p>ASSIGNED TEAMS</p>
+                <strong>${h(S.projects.length)}</strong>
+                <a href="#tools/team">View teams →</a>
+            </article>
+            <article class="stat">
+                <p>PENDING REQUESTS</p>
+                <strong>${h(pending.length)}</strong>
+                <a href="#requests">Review requests →</a>
+            </article>
+            <article class="stat">
+                <p>APPROVED PROJECTS</p>
+                <strong>${h(approved.length)}</strong>
+                <a href="#proposals">Proposal review →</a>
+            </article>
+            <article class="stat">
+                <p>CURRENT TOPIC</p>
+                <strong>${h(latest?.title || 'Not assigned')}</strong>
+                <a href="#tools/team">Open workspace →</a>
+            </article>
+        </section>
+
+        <div class="dashboard-columns">
+            <div>
+                <section class="panel">
+                    <div class="section-title">
+                        <h2>Assigned Research Teams</h2>
+                        <span>${S.projects.length} ${S.projects.length === 1 ? 'team' : 'teams'}</span>
+                    </div>
+                    ${projectRows}
+                </section>
+
+                <section class="panel">
+                    <div class="section-title">
+                        <h2>Pending Supervision Requests</h2>
+                        <span>${pending.length} pending</span>
+                    </div>
+                    ${requestRows}
+                    <a class="record-link" href="#requests">
+                        Open all supervision requests →
+                    </a>
+                </section>
+            </div>
+
+            <div>
+                <section class="panel">
+                    <h2>Your Research Profile</h2>
+                    <p class="eyebrow">RESEARCH INTERESTS</p>
+                    <p class="record-body">
+                        ${h(S.profile.interests || 'Add your research interests from My Profile.')}
+                    </p>
+                    <p class="eyebrow">EXPERTISE / SKILLS</p>
+                    <p class="record-body">
+                        ${h(S.profile.expertise || 'Add your expertise and skills from My Profile.')}
+                    </p>
+                    <a class="record-link" href="#profile">Edit research profile →</a>
+                </section>
+
+                <section class="panel">
+                    <h2>Supervision Shortcuts</h2>
+                    <a class="getting-step" href="#requests">
+                        <span>1</span>
+                        <div>
+                            <strong>Review requests</strong>
+                            <p>Accept, reject or ask students for corrections.</p>
+                        </div>
+                    </a>
+                    <a class="getting-step" href="#tools/milestone">
+                        <span>2</span>
+                        <div>
+                            <strong>Track milestones</strong>
+                            <p>Follow research stages and progress.</p>
+                        </div>
+                    </a>
+                    <a class="getting-step" href="#tools/files">
+                        <span>3</span>
+                        <div>
+                            <strong>Review files & feedback</strong>
+                            <p>Open submitted files, versions and feedback.</p>
+                        </div>
+                    </a>
+                    <a class="getting-step" href="#tools/meeting">
+                        <span>4</span>
+                        <div>
+                            <strong>Manage meetings</strong>
+                            <p>Schedule and review supervision meetings.</p>
+                        </div>
+                    </a>
+                </section>
+            </div>
+        </div>
+        `;
 }
+
 function renderProposals(requests=false){const rows=requests?S.proposals.filter(p=>p.supervision_status==='pending'):S.proposals.filter(p=>p.status==='submitted');content.innerHTML=heading(requests?'Supervision Requests':'Proposal Review',requests?'Accept supervision requests, decline them or ask for corrections.':'Review proposals and track your decisions.')+(rows.length?rows.map(p=>projectCard(p,true)).join(''):blank(requests?'No pending supervision requests.':'No proposals assigned yet.','A student must select you as supervisor and submit a proposal before it appears here.'));}
 async function openTool(k){
  if(!modules[k]){renderOverview();return}
@@ -164,7 +369,201 @@ async function openTool(k){
  await loadWorkspace();
 }
 function workspaceShell(){let choices=S.projects.map(p=>`<option value="${p.id}" ${S.project===p.id?'selected':''}>${h(p.title)}</option>`).join('');choices+=`<option value="0" ${S.project===0?'selected':''}>Research resources — Opportunities, Labs & Campus problems</option>`;const kinds=S.project?Object.keys(modules).filter(k=>!globalKinds.includes(k)):globalKinds;return heading(modules[S.module][0],'Choose a project to manage its research work.')+`<div class="workspace-toolbar"><label class="field">Project or research resources<select id="project-picker">${choices}</select></label>${!teacher()?'<a class="button secondary" href="/workspace/student#projects">Create or submit a proposal →</a>':''}</div><div class="module-tabs" role="group" aria-label="Research features">${kinds.map(k=>`<button data-module="${k}" class="${S.module===k?'active':''}" aria-pressed="${S.module===k}">${h(modules[k][0])}</button>`).join('')}</div><div id="module-body"></div>`}
-function recordCard(record){const canEdit=teacher()?(S.project>0||record.author_id===S.user.id):(record.author_id===S.user.id&&['pending','changes_requested'].includes(record.status));const progress=['milestone','publication','task'].includes(record.kind);return `<article class="record-card"><div class="card-top"><div><p class="eyebrow">${h(words(record.kind))}</p><h3>${h(record.title)}</h3></div>${badge(record.status)}</div><p class="record-body">${h(record.body)}</p>${record.link?`<a class="record-link" href="${h(record.link)}" target="_blank" rel="noopener noreferrer">Open supporting file or link ↗</a>`:''}${record.due_at?`<p class="mini">${record.kind==='meeting'?'Meeting time':'Due / target date'}: ${h(date(record.due_at))}</p>`:''}${record.assignee_id?`<p class="mini">Assigned to: ${h(S.members.find(m=>m.id===record.assignee_id)?.name||'Team member')}</p>`:''}${progress?`<p class="mini">Progress: ${record.progress}%</p><progress class="progress" value="${record.progress}" max="100">${record.progress}%</progress>`:''}${record.kind==='evaluation'?`<p><strong>${record.score}/100</strong></p><p class="record-body">Criteria: ${h(record.criteria)}</p>`:''}${record.feedback?`<div class="feedback-box"><strong>Feedback / decision notes</strong><br>${h(record.feedback)}</div>`:''}<p class="mini">${h(record.author)} · Updated ${h(date(record.updated_at,true))}${record.parent_id?' · Revised from record #'+record.parent_id:''}</p><div class="actions">${canEdit?`<button class="button secondary" data-edit="${record.id}">${teacher()&&record.author_id!==S.user.id?'Review':'Edit / update'}</button>`:''}${!teacher()&&studentKinds.includes(record.kind)?`<button class="button secondary" data-revise="${record.id}">Submit new version</button>`:''}<button class="text-button" data-history="${record.id}">Version history</button></div></article>`}
+function recordCard(record) {
+    const canEdit = teacher()
+        ? (S.project > 0 || record.author_id === S.user.id)
+        : (
+            record.author_id === S.user.id &&
+            ["pending", "changes_requested"].includes(record.status)
+        );
+
+    const progress = [
+        "milestone",
+        "publication",
+        "task"
+    ].includes(record.kind);
+
+    const project = S.projects.find(
+        p => p.id === S.project
+    );
+
+    const showTeamDetails =
+        teacher() &&
+        S.project > 0 &&
+        (record.kind === "correction" || record.parent_id);
+
+    const teamDetails = showTeamDetails
+        ? `
+            <div class="revision-team-details">
+                <p>
+                    <strong>Project:</strong>
+                    ${h(project?.title || "Research project")}
+                </p>
+
+                <p>
+                    <strong>Team Members:</strong>
+                    ${
+                        S.members.length
+                            ? S.members.map(m => h(m.name)).join(", ")
+                            : "No member information available"
+                    }
+                </p>
+
+                <p>
+                    <strong>Submitted by:</strong>
+                    ${h(record.author || "Unknown")}
+                </p>
+            </div>
+        `
+        : "";
+
+    return `
+        <article class="record-card">
+
+            <div class="card-top">
+                <div>
+                    <p class="eyebrow">${h(words(record.kind))}</p>
+                    <h3>${h(record.title)}</h3>
+                </div>
+
+                ${badge(record.status)}
+            </div>
+
+            ${teamDetails}
+
+            <p class="record-body">
+                ${h(record.body)}
+            </p>
+
+            ${
+                record.link
+                    ? `
+                        <a
+                            class="record-link"
+                            href="${h(record.link)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Open supporting file or link ↗
+                        </a>
+                    `
+                    : ""
+            }
+
+            ${
+                record.due_at
+                    ? `
+                        <p class="mini">
+                            ${record.kind === "meeting" ? "Meeting time" : "Due / target date"}:
+                            ${h(date(record.due_at))}
+                        </p>
+                    `
+                    : ""
+            }
+
+            ${
+                record.assignee_id
+                    ? `
+                        <p class="mini">
+                            Assigned to:
+                            ${h(
+                                S.members.find(
+                                    m => m.id === record.assignee_id
+                                )?.name || "Team member"
+                            )}
+                        </p>
+                    `
+                    : ""
+            }
+
+            ${
+                progress
+                    ? `
+                        <p class="mini">Progress: ${record.progress}%</p>
+                        <progress
+                            class="progress"
+                            value="${record.progress}"
+                            max="100"
+                        >
+                            ${record.progress}%
+                        </progress>
+                    `
+                    : ""
+            }
+
+            ${
+                record.kind === "evaluation"
+                    ? `
+                        <p><strong>${record.score}/100</strong></p>
+                        <p class="record-body">
+                            Criteria: ${h(record.criteria)}
+                        </p>
+                    `
+                    : ""
+            }
+
+            ${
+                record.feedback
+                    ? `
+                        <div class="feedback-box">
+                            <strong>Feedback / decision notes</strong>
+                            <br>
+                            ${h(record.feedback)}
+                        </div>
+                    `
+                    : ""
+            }
+
+            <p class="mini">
+                ${h(record.author)}
+                · Updated ${h(date(record.updated_at, true))}
+                ${record.parent_id ? " · Revised from record #" + record.parent_id : ""}
+            </p>
+
+            <div class="actions">
+
+                ${
+                    canEdit
+                        ? `
+                            <button
+                                class="button secondary"
+                                data-edit="${record.id}"
+                            >
+                                ${
+                                    teacher() && record.author_id !== S.user.id
+                                        ? "Review"
+                                        : "Edit / update"
+                                }
+                            </button>
+                        `
+                        : ""
+                }
+
+                ${
+                    !teacher() && studentKinds.includes(record.kind)
+                        ? `
+                            <button
+                                class="button secondary"
+                                data-revise="${record.id}"
+                            >
+                                Submit new version
+                            </button>
+                        `
+                        : ""
+                }
+
+                <button
+                    class="text-button"
+                    data-history="${record.id}"
+                >
+                    Version history
+                </button>
+
+            </div>
+
+        </article>
+    `;
+}
 function renderModule(){const target=document.getElementById('module-body');if(!target)return;const k=S.module;target.innerHTML=`<div class="feature-heading"><div><p>${h(modules[k][1])}</p></div>${!['team','files','progress','permissions'].includes(k)&&(teacher()||studentKinds.includes(k))?'<button class="button" id="new-record">＋ Add '+h(k==='meeting'&&!teacher()?'request':words(k))+'</button>':''}</div>`;if(k==='team'){target.innerHTML+=`<section class="panel"><h3>${h(S.projects.find(p=>p.id===S.project)?.title)}</h3><ul class="member-list">${S.members.map(m=>`<li><strong>${h(m.name)}</strong><br><span class="mini">${h(m.email)}</span></li>`).join('')}</ul>${!teacher()&&S.projects.find(p=>p.id===S.project)?.student_id===S.user.id?`<form id="invite-form"><label class="field">Invite a verified student<input name="email" type="email" placeholder="student@university.edu" required></label><button class="button" type="submit">Send team invitation</button><p class="mini">The student must accept before gaining project access.</p></form>`:''}</section>`;return}
  if(k==='permissions'){const owner=!teacher()&&S.projects.find(p=>p.id===S.project)?.student_id===S.user.id;target.innerHTML+=`<section class="panel"><p class="role-note">In this project, the student project owner delegates reviewer responsibilities to the assigned supervisor. These are project permissions, not university or administrator appointments.</p><form id="permissions-form"><label class="check"><input type="checkbox" name="can_evaluate" ${S.permissions.can_evaluate?'checked':''} ${owner?'':'disabled'}> Allow assigned supervisor to evaluate work</label><label class="check"><input type="checkbox" name="can_extend" ${S.permissions.can_extend?'checked':''} ${owner?'':'disabled'}> Allow assigned supervisor to decide deadline extensions</label>${owner?'<button class="button">Save responsibilities</button>':'<p class="mini">Only the student project owner can change these responsibilities.</p>'}</form></section>`;return}
  if(k==='files'){target.innerHTML+=`<section class="panel"><form id="file-form"><label class="field">Upload a report, slides, code or supporting file<input name="file" type="file" required><small>Up to 8 MB per file; 64 MB per project. Same-name uploads are kept as separate versions.</small></label><button class="button">Upload file</button></form><ul class="file-list">${S.files.map(f=>`<li><div><a href="${h(f.link)}" class="record-link">${h(f.name)} ↓</a><div class="mini">${h(f.author)} · ${Math.ceil(f.size/1024)} KB · ${h(date(f.created_at))}</div><code>${h(f.link)}</code></div><button class="text-button" data-use-file="${f.id}">Submit for review</button></li>`).join('')}</ul></section>`;return}
@@ -173,7 +572,295 @@ function renderModule(){const target=document.getElementById('module-body');if(!
  if(k==='showcase')target.innerHTML+='<p class="role-note">Project demos are visible only to members and the assigned supervisor. Public publishing is not enabled.</p>';
 }
 async function loadWorkspace(){content.innerHTML=workspaceShell();document.getElementById('module-body').innerHTML='<p class="loading">Loading project records…</p>';const version=++S.version,pid=S.project;try{const data=await Promise.all([api('/api/workspace/'+pid+'/records'),...(pid?[api('/api/workspace/'+pid+'/members'),api('/api/workspace/'+pid+'/files'),api('/api/workspace/'+pid+'/permissions')]:[])]);if(version!==S.version)return;[S.records,S.members=[],S.files=[],S.permissions={}]=data;renderModule()}catch(error){if(version===S.version)notice(error.message,true)}}
-async function renderReview(){const ticket=++S.version;content.innerHTML=heading(teacher()?'Pending work dashboard':'Requests & notifications','Proposal reviews, pending work and upcoming meetings in one place.')+'<p class="loading">Loading review queue…</p>';try{const bundles=await Promise.all(S.projects.map(async p=>({project:p,records:await api('/api/workspace/'+p.id+'/records')})));if(ticket!==S.version)return;const pending=bundles.flatMap(b=>b.records.filter(r=>r.status==='pending'&&r.author_id!==S.user.id).map(record=>({record,project:b.project}))),meetings=bundles.flatMap(b=>b.records.filter(r=>r.kind==='meeting'&&r.status==='scheduled'&&r.due_at>Date.now()/1000).map(record=>({record,project:b.project}))).sort((a,b)=>a.record.due_at-b.record.due_at);let html=heading(teacher()?'Pending work dashboard':'Requests & notifications','Proposal reviews, pending work and upcoming meetings in one place.');const proposals=S.proposals.filter(p=>p.supervision_status==='pending'||p.status==='submitted');html+='<div class="section-title"><h2>Proposal & supervision requests</h2><span>'+proposals.length+' pending</span></div>'+(proposals.length?proposals.map(p=>projectCard(p,true)).join(''):blank('No pending proposals.','New supervision requests appear here after students submit.'));html+='<div class="section-title"><h2>Work awaiting attention</h2><span>'+pending.length+' records</span></div>'+(pending.length?pending.map(({record:r,project:p})=>`<article class="project-card"><p class="eyebrow">${h(words(r.kind))}</p><h3>${h(r.title)}</h3><p class="mini">${h(p.title)}</p><a class="button secondary" href="#projects/${p.id}/${r.kind}">Open for review →</a></article>`).join(''):blank('Your review queue is clear.','Submitted work, blockers and meeting requests appear here.'));html+='<div class="section-title"><h2>Upcoming meetings</h2></div>'+(meetings.length?meetings.map(({record:r,project:p})=>`<article class="panel"><h3>${h(r.title)}</h3><p>${h(date(r.due_at))}</p><a class="record-link" href="#projects/${p.id}/meeting">${h(p.title)} →</a></article>`).join(''):blank('No upcoming meetings.','Schedule a meeting inside the relevant project workspace.'));if(!teacher()){const invites=await api('/api/invitations');html+='<div class="section-title"><h2>Team invitations</h2></div>'+(invites.length?invites.map(i=>`<article class="panel"><h3>${h(i.title)}</h3><p>Invited by ${h(i.name)}</p><div class="actions"><button class="button" data-invitation="${i.id}" data-accept="true">Accept</button><button class="button secondary" data-invitation="${i.id}" data-accept="false">Decline</button></div></article>`).join(''):blank('No invitations.','A project owner can invite you using your signup email.'))}html+='<div class="section-title"><h2>Notifications</h2><button class="text-button" id="read-notifications">Mark all read</button></div><section class="panel">'+(S.notifications.length?S.notifications.map(n=>`<div class="notification ${n.read_at?'':'unread'}"><a href="${h(teacherNotificationLink(n))}">${h(n.message)}</a><p class="mini">${h(date(n.created_at))}</p></div>`).join(''):'No notifications yet.')+'</section>';if(ticket===S.version)content.innerHTML=html}catch(error){notice(error.message,true)}}
+
+
+async function renderReview() {
+    const ticket = ++S.version;
+
+    content.innerHTML =
+        heading(
+            teacher()
+                ? "Pending work dashboard"
+                : "Requests & notifications",
+            "Proposal reviews, pending work and upcoming meetings in one place."
+        ) +
+        '<p class="loading">Loading review queue…</p>';
+
+    try {
+        // Load records and team members for every project.
+        const bundles = await Promise.all(
+            S.projects.map(async project => {
+                const [records, members] = await Promise.all([
+                    api('/api/workspace/' + project.id + '/records'),
+                    loadProjectMembers(project.id)
+                ]);
+
+                return {
+                    project,
+                    records: Array.isArray(records) ? records : [],
+                    members: Array.isArray(members) ? members : []
+                };
+            })
+        );
+
+        if (ticket !== S.version) return;
+
+        // Pending records awaiting teacher attention.
+        const pending = bundles.flatMap(bundle =>
+            bundle.records
+                .filter(record =>
+                    record.status === 'pending' &&
+                    record.author_id !== S.user.id
+                )
+                .map(record => ({
+                    record,
+                    project: bundle.project,
+                    members: bundle.members
+                }))
+        );
+
+        // Upcoming scheduled meetings.
+        const meetings = bundles
+            .flatMap(bundle =>
+                bundle.records
+                    .filter(record =>
+                        record.kind === 'meeting' &&
+                        record.status === 'scheduled' &&
+                        record.due_at > Date.now() / 1000
+                    )
+                    .map(record => ({
+                        record,
+                        project: bundle.project
+                    }))
+            )
+            .sort((a, b) =>
+                a.record.due_at - b.record.due_at
+            );
+
+        let html = heading(
+            teacher()
+                ? "Pending work dashboard"
+                : "Requests & notifications",
+            "Proposal reviews, pending work and upcoming meetings in one place."
+        );
+
+        // Proposal and supervision requests.
+        const proposals = S.proposals.filter(project =>
+            project.supervision_status === 'pending' ||
+            project.status === 'submitted'
+        );
+
+        html +=
+            '<div class="section-title">' +
+                '<h2>Proposal & supervision requests</h2>' +
+                '<span>' + proposals.length + ' pending</span>' +
+            '</div>' +
+            (
+                proposals.length
+                    ? proposals.map(project =>
+                        projectCard(project, true)
+                    ).join('')
+                    : blank(
+                        'No pending proposals.',
+                        'New supervision requests appear here after students submit.'
+                    )
+            );
+
+        // Work awaiting attention.
+        html +=
+            '<div class="section-title">' +
+                '<h2>Work awaiting attention</h2>' +
+                '<span>' + pending.length + ' records</span>' +
+            '</div>';
+
+        html += pending.length
+            ? pending.map(({ record, project, members }) => {
+
+                const teamMembers = Array.isArray(members)
+                    ? members
+                    : [];
+
+                const memberNames = teamMembers.length
+                    ? teamMembers
+                        .map(member => h(member.name || 'Unknown'))
+                        .join(', ')
+                    : 'Member information unavailable';
+
+                return `
+                    <article class="project-card">
+
+                        <p class="eyebrow">
+                            ${record.parent_id ? 'REVISION SUBMISSION' : h(words(record.kind))}
+                        </p>
+
+                        <h3>${h(record.title || 'Untitled record')}</h3>
+
+                        <p class="mini">
+                            <strong>Project:</strong>
+                            ${h(project.title || 'Untitled project')}
+                        </p>
+
+                        <p class="mini">
+                            <strong>Team Members (${teamMembers.length}):</strong>
+                            ${memberNames}
+                        </p>
+
+                        <p class="mini">
+                            <strong>Submitted by:</strong>
+                            ${h(record.author || 'Unknown')}
+                        </p>
+
+                        ${
+                            record.parent_id
+                                ? `
+                                    <p class="mini">
+                                        <strong>Revision:</strong>
+                                        Revised from record #${h(String(record.parent_id))}
+                                    </p>
+                                `
+                                : ''
+                        }
+
+                        <a
+                            class="button secondary"
+                            href="#projects/${project.id}/${record.kind}"
+                        >
+                            Open for review →
+                        </a>
+
+                    </article>
+                `;
+            }).join('')
+            : blank(
+                'Your review queue is clear.',
+                'Submitted work, blockers and meeting requests appear here.'
+            );
+
+        // Upcoming meetings.
+        html +=
+            '<div class="section-title">' +
+                '<h2>Upcoming meetings</h2>' +
+            '</div>';
+
+        html += meetings.length
+            ? meetings.map(({ record, project }) => `
+                <article class="panel">
+
+                    <h3>${h(record.title || 'Untitled meeting')}</h3>
+
+                    <p>${h(date(record.due_at))}</p>
+
+                    <a
+                        class="record-link"
+                        href="#projects/${project.id}/meeting"
+                    >
+                        ${h(project.title)} →
+                    </a>
+
+                </article>
+            `).join('')
+            : blank(
+                'No upcoming meetings.',
+                'Schedule a meeting inside the relevant project workspace.'
+            );
+
+        // Student team invitations.
+        if (!teacher()) {
+            const invites = await api('/api/invitations');
+
+            if (ticket !== S.version) return;
+
+            html +=
+                '<div class="section-title">' +
+                    '<h2>Team invitations</h2>' +
+                '</div>' +
+                (
+                    invites.length
+                        ? invites.map(invitation => `
+                            <article class="panel">
+
+                                <h3>${h(invitation.title)}</h3>
+
+                                <p>
+                                    Invited by ${h(invitation.name)}
+                                </p>
+
+                                <div class="actions">
+
+                                    <button
+                                        class="button"
+                                        data-invitation="${invitation.id}"
+                                        data-accept="true"
+                                    >
+                                        Accept
+                                    </button>
+
+                                    <button
+                                        class="button secondary"
+                                        data-invitation="${invitation.id}"
+                                        data-accept="false"
+                                    >
+                                        Decline
+                                    </button>
+
+                                </div>
+
+                            </article>
+                        `).join('')
+                        : blank(
+                            'No invitations.',
+                            'A project owner can invite you using your signup email.'
+                        )
+                );
+        }
+
+        // Notifications.
+        html +=
+            '<div class="section-title">' +
+                '<h2>Notifications</h2>' +
+                '<button class="text-button" id="read-notifications">' +
+                    'Mark all read' +
+                '</button>' +
+            '</div>' +
+
+            '<section class="panel">' +
+
+                (
+                    S.notifications.length
+                        ? S.notifications.map(notification => `
+                            <div class="notification ${
+                                notification.read_at ? '' : 'unread'
+                            }">
+
+                                <a href="${h(
+                                    teacherNotificationLink(notification)
+                                )}">
+                                    ${h(notification.message)}
+                                </a>
+
+                                <p class="mini">
+                                    ${h(date(notification.created_at))}
+                                </p>
+
+                            </div>
+                        `).join('')
+                        : 'No notifications yet.'
+                ) +
+
+            '</section>';
+
+        if (ticket === S.version) {
+            content.innerHTML = html;
+        }
+
+    } catch (error) {
+        if (ticket === S.version) {
+            notice(error.message, true);
+        }
+    }
+}
+
+
 function profileAvatar(){return S.profile.photo?`<img class="profile-avatar" src="${h(S.profile.photo)}" alt="Profile photo">`:`<span class="profile-avatar placeholder" aria-label="No profile photo">${h(S.user?.name?.trim()?.charAt(0)||'U')}</span>`}
 function renderProfile(){const u=S.user,p=S.profile;content.innerHTML=heading('My Profile','Personal information, qualifications and notification preferences.')+`<div class="grid-two"><section class="panel profile-summary"><div id="profile-avatar-wrap">${profileAvatar()}</div><h2>${h(u.name)}</h2><p>${h(u.email)}</p><p>${h(u.institution)}</p><p class="mini">${teacher()?'Teacher / Supervisor':'Student researcher'} · Email verified</p>${p.qualification?`<h3>Education</h3><p class="record-body">${h(p.qualification)}</p>`:''}<a class="record-link" href="/forgot-password">Reset your password →</a></section><section class="panel"><form id="profile-form"><label class="field">Profile picture (PNG / JPG / WebP, max 300 KB)<input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp"></label><button class="button secondary" type="button" id="remove-profile-photo">Remove photo</button><label class="field">${teacher()?'Educational qualifications (optional)':'Education (optional)'}<textarea name="qualification" maxlength="2000" placeholder="e.g. MSc in Computer Science, PhD in Machine Learning, University name">${h(p.qualification)}</textarea></label><label class="field">About you<textarea name="bio" maxlength="3000">${h(p.bio)}</textarea></label><label class="field">Research interests<textarea name="interests" maxlength="1500">${h(p.interests)}</textarea></label><label class="field">Expertise / skills<textarea name="expertise" maxlength="1500">${h(p.expertise)}</textarea></label><h3>Notification preferences</h3><label class="check"><input name="notify_requests" type="checkbox" ${p.notify_requests?'checked':''}> Requests and blocker notifications</label><label class="check"><input name="notify_submissions" type="checkbox" ${p.notify_submissions?'checked':''}> Submission and review notifications</label><label class="check"><input name="notify_meetings" type="checkbox" ${p.notify_meetings?'checked':''}> Meeting and notes notifications</label><p class="mini">Your profile information is saved to your account.</p><button class="button">Save profile & settings</button></form></section></div>${teacher()?capacityForm():''}`};
 

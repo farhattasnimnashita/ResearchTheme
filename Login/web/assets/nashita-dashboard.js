@@ -324,98 +324,77 @@ form.elements.namedItem("bio").value = extra.bio || "";
             editButton.focus();
         });
 
-        form.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            if (!form.reportValidity()) return;
+form.addEventListener("submit", async event => {
+    event.preventDefault();
+    saveButton.disabled = true;
+    status.textContent = "Saving profile...";
 
-            const values = new FormData(form);
-            const payload = {
-                name: values.get("name").trim(),
-                institution: values.get("institution").trim(),
-                department: values.get("department").trim(),
-                academic_year: Number(values.get("academic_year")),
-                semester: Number(values.get("semester"))
-            };
+    const values = Object.fromEntries(new FormData(form));
 
-            saveButton.disabled = true;
-            cancelButton.disabled = true;
-            status.textContent = "Saving...";
-
-            try {
-                const response = await fetch("/api/student-profile", {
-                    method: "POST",
-                    credentials: "same-origin",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "ResearchBridge"
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Could not save profile.");
-                }
-                // Load existing profile settings
-const extraResponse = await fetch("/api/researcher-profile");
-
-if (!extraResponse.ok) {
-    throw new Error("Could not load research profile.");
-}
-
-const existingProfile = await extraResponse.json();
-
-// Skills, Research Interests, About Me
-const extraPayload = {
-    ...existingProfile,
-    expertise: String(values.get("expertise") || "").trim(),
-    interests: String(values.get("interests") || "").trim(),
-    bio: String(values.get("bio") || "").trim()
-};
-
-// Save additional profile information
-const extraSave = await fetch("/api/researcher-profile", {
-    method: "POST",
-    credentials: "same-origin",
-    headers: {
-        "Content-Type": "application/json",
-        "X-Requested-With": "ResearchBridge"
-    },
-    body: JSON.stringify(extraPayload)
-});
-
-if (!extraSave.ok) {
-    const error = await extraSave.json();
-    throw new Error(error.error || "Could not save skills.");
-}
-
-                form.hidden = true;
-                editButton.hidden = false;
-                status.textContent = "Profile saved successfully.";
-
-                try {
-                    const updatedUser = await readProfile();
-
-const updatedResponse = await fetch("/api/researcher-profile");
-if (!updatedResponse.ok) {
-    throw new Error("Could not reload profile.");
-}
-
-updatedUser.extra = await updatedResponse.json();
-
-showProfile(updatedUser);
-                } catch {
-                    status.textContent =
-                        "Profile saved. Refresh to load the updated details.";
-                }
-            } catch (error) {
-                status.textContent = error.message;
-            } finally {
-                saveButton.disabled = false;
-                cancelButton.disabled = false;
-            }
+    async function sendJSON(url, data) {
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "ResearchBridge"
+            },
+            body: JSON.stringify(data)
         });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(result.error || result.message || "Could not save profile.");
+        }
+        return result;
+    }
+
+    try {
+        await sendJSON("/api/student-profile", {
+            name: values.name,
+            institution: values.institution,
+            department: values.department,
+            academic_year: Number(values.academic_year),
+            semester: Number(values.semester)
+        });
+
+        // Preserve existing notification/photo/qualification settings.
+        const extraResponse = await fetch("/api/researcher-profile", {
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+        if (!extraResponse.ok) {
+            throw new Error("Basic profile saved, but research profile could not be loaded.");
+        }
+
+        const extra = await extraResponse.json();
+        await sendJSON("/api/researcher-profile", {
+            ...extra,
+            bio: values.bio,
+            expertise: values.expertise,
+            interests: values.interests
+        });
+
+        const user = await readProfile();
+        const refreshedExtraResponse = await fetch("/api/researcher-profile", {
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+        user.extra = refreshedExtraResponse.ok
+            ? await refreshedExtraResponse.json()
+            : extra;
+
+        showProfile(user);
+        form.hidden = true;
+        editButton.hidden = false;
+        status.textContent = "Profile saved successfully.";
+    } catch (error) {
+        status.textContent = error.message;
+    } finally {
+        saveButton.disabled = false;
+    }
+});
 
    readProfile()
     .then(async (user) => {
@@ -1072,6 +1051,33 @@ const response = await fetch("/api/profile-picture", {
         return result;
     }
 
+    function redirectToAcademicProfile(message, focusMissingField = false) {
+        requestMessage.textContent = message;
+        location.hash = "#profile";
+
+        // Wait for the profile tab to become visible before scrolling/focusing.
+        window.setTimeout(() => {
+            const profilePage = document.getElementById("profile");
+            profilePage?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+            const editor = document.getElementById("academic-profile-editor");
+            editor?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+            if (focusMissingField) {
+                const hasRecord = Array.from(
+                    { length: 6 },
+                    (_, index) => document.getElementById(`cgpa-year-${index + 1}`)?.value.trim()
+                ).some(Boolean);
+
+                const target = !hasRecord
+                    ? document.getElementById("cgpa-year-1")
+                    : document.getElementById("academic-skills");
+
+                target?.focus();
+            }
+        }, 120);
+    }
+
     async function loadTeachers() {
         cardsBox.innerHTML = "";
         countBox.textContent = "Loading...";
@@ -1254,19 +1260,65 @@ const response = await fetch("/api/profile-picture", {
 
     form.addEventListener("submit", async event => {
         event.preventDefault();
-        const projectID = Number(document.getElementById("supervisor-project").value);
+
+        const projectID = Number(
+            document.getElementById("supervisor-project").value
+        );
         const teacherID = Number(teacherSelect.value);
+
         if (!projectID || !teacherID) {
-            requestMessage.textContent = "Choose a project and a registered supervisor first.";
+            requestMessage.textContent =
+                "Choose a project and a registered supervisor first.";
             return;
         }
+
         sendButton.disabled = true;
+        requestMessage.textContent = "Checking your Academic Profile...";
+
         try {
-            await api(`/api/projects/${projectID}/supervisor`, { teacher_id: teacherID });
-            requestMessage.textContent = "Supervision request sent using your project title. The full proposal will unlock after the supervisor accepts.";
+            // Frontend check: the requester must complete their own profile first.
+            const academicProfile = await api("/api/student-academic-profile");
+
+            const hasAcademicRecords =
+                Array.isArray(academicProfile.records) &&
+                academicProfile.records.length > 0;
+
+            const hasSkills =
+                Array.isArray(academicProfile.skills) &&
+                academicProfile.skills.some(skill =>
+                    String(skill).trim().length > 0
+                );
+
+            if (!hasAcademicRecords || !hasSkills) {
+                redirectToAcademicProfile(
+                    "Request not sent. Add at least one year-wise CGPA and your skills in Academic Profile.",
+                    true
+                );
+                return;
+            }
+
+            // Backend also validates the owner and every confirmed teammate.
+            await api(`/api/projects/${projectID}/supervisor`, {
+                teacher_id: teacherID
+            });
+
+            requestMessage.textContent =
+                "Supervision request sent successfully. The full proposal will unlock after the supervisor accepts.";
+
             await loadMyRequests();
         } catch (error) {
             requestMessage.textContent = error.message;
+
+            // If a teammate is incomplete, the server names the affected members.
+            if (
+                error.message.includes("Supervision request not sent") ||
+                error.message.includes("Academic Profile")
+            ) {
+                redirectToAcademicProfile(
+                    error.message +
+                    " Each affected student must sign in and update their own Academic Profile."
+                );
+            }
         } finally {
             sendButton.disabled = false;
         }

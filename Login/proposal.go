@@ -412,7 +412,62 @@ func (a *App) selectProjectSupervisor(
 		fail(w, 403, "This project is not assigned to you.")
 		return
 	}
+	// Validate the profile of the project owner AND every confirmed team member.
+	// A supervision request must never be sent if any member is incomplete.
+	missingRows, err := a.db.Query(`
+		SELECT u.name
+		FROM users u
+		JOIN (
+			SELECT student_id AS user_id
+			FROM projects
+			WHERE id = ?
+			UNION
+			SELECT user_id
+			FROM team_members
+			WHERE project_id = ?
+		) team ON team.user_id = u.id
+		WHERE
+			NOT EXISTS (
+				SELECT 1
+				FROM student_academic_records ar
+				WHERE ar.user_id = u.id
+			)
+			OR NOT EXISTS (
+				SELECT 1
+				FROM student_skills ss
+				WHERE ss.user_id = u.id
+			)
+		ORDER BY u.name
+	`, id, id)
+	if err != nil {
+		fail(w, 500, "Could not validate team academic information.")
+		return
+	}
+	missingMembers := []string{}
+	for missingRows.Next() {
+		var name string
+		if err := missingRows.Scan(&name); err != nil {
+			missingRows.Close()
+			fail(w, 500, "Could not read team academic information.")
+			return
+		}
+		missingMembers = append(missingMembers, name)
+	}
+	if err := missingRows.Err(); err != nil {
+		missingRows.Close()
+		fail(w, 500, "Could not read team academic information.")
+		return
+	}
+	missingRows.Close()
 
+	if len(missingMembers) > 0 {
+		fail(
+			w,
+			400,
+			"Supervision request not sent. These team members must complete Academic Profile with at least one year-wise CGPA record and at least one skill: "+strings.Join(missingMembers, ", ")+".",
+		)
+		return
+	}
 	var input struct {
 		TeacherID int64 `json:"teacher_id"`
 	}

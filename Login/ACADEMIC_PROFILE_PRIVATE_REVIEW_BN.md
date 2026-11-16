@@ -24,3 +24,12 @@ For Supabase, these tables are created in the private `researchbridge` schema by
 
 ## Important validation note
 The Go source was formatted and the changed JavaScript files passed `node --check`. A full `go test ./...` could not be completed in this environment because required Go modules were not cached and outbound network access was unavailable. Run `go test ./...` locally after dependencies are available, then test the profile save and teacher review flow with two teacher accounts to verify the 403 privacy boundary.
+
+
+## Mandatory supervision-request validation
+
+- The requester must have at least one year-wise CGPA record and one private Academic Profile skill. The browser redirects to My Profile when either is missing.
+- The backend validates the project owner and every confirmed `team_members` row before accepting `POST /api/projects/{id}/supervisor`.
+- If a teammate is incomplete, the API rejects the request and names the affected student(s); each student must update their own account.
+- General profile `expertise` is not treated as the private `student_skills` list for this check.
+- Teacher Assigned Teams and Pending Work / Revision now merge the project-member endpoint with the selected-teacher academic endpoint, deduplicate by user ID, and show the project title, complete team list and submitter.

@@ -139,7 +139,22 @@ func (a *App) workspaceMembers(w http.ResponseWriter, r *http.Request) {
 		reply(w, 201, map[string]string{"message": "Invitation saved. The student can accept from Research workspace → Invitations."})
 		return
 	}
-	rows, e := a.db.Query("SELECT id,name,email FROM users WHERE id=(SELECT student_id FROM projects WHERE id=?) OR id IN(SELECT user_id FROM team_members WHERE project_id=?) ORDER BY name", id, id)
+	// Return the project owner and every confirmed team member exactly once.
+	// UNION also prevents duplicate rows if membership data was imported twice.
+	rows, e := a.db.Query(`
+		SELECT u.id, u.name, u.email
+		FROM users u
+		JOIN (
+			SELECT student_id AS user_id
+			FROM projects
+			WHERE id = ?
+			UNION
+			SELECT user_id
+			FROM team_members
+			WHERE project_id = ?
+		) team ON team.user_id = u.id
+		ORDER BY u.name
+	`, id, id)
 	if e != nil {
 		fail(w, 500, "Could not load members.")
 		return
