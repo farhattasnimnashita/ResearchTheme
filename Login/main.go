@@ -221,6 +221,10 @@ CREATE TABLE IF NOT EXISTS literature_papers (
 		db.Close()
 		return nil, e
 	}
+	if e = migrateAcademicProfile(&Database{DB: db}); e != nil {
+		db.Close()
+		return nil, e
+	}
 	if e = migrateWorkspace(db); e != nil {
 		db.Close()
 		return nil, e
@@ -281,6 +285,9 @@ func (a *App) routes() http.Handler {
 		reply(w, 200, map[string]bool{"supabase": a.cfg.EmailMode == "supabase"})
 	})
 	m.HandleFunc("POST /api/student-profile", a.editStudentProfile)
+	m.HandleFunc("GET /api/student-academic-profile", a.studentAcademicProfile)
+	m.HandleFunc("PUT /api/student-academic-profile", a.studentAcademicProfile)
+	m.HandleFunc("GET /api/projects/{id}/team-academics", a.teamAcademicProfiles)
 	m.HandleFunc("GET /api/profile-picture", a.getProfilePicture)
 	m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)

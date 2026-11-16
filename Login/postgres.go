@@ -128,6 +128,10 @@ func openPostgresSchema(connection, schema string) (*Database, error) {
 		return nil, errors.New("PostgreSQL schema setup failed: check database CREATE privileges and existing researchbridge tables")
 	}
 	database := &Database{DB: db, postgres: true}
+	if err := migrateAcademicProfile(database); err != nil {
+		db.Close()
+		return nil, errors.New("could not initialize private student academic profiles")
+	}
 	if err := migrateEthicsReviews(database); err != nil {
 		db.Close()
 		return nil, errors.New("could not initialize ethics reviews")

@@ -340,6 +340,26 @@
     </div>
 </dl>
 
+<section class="card" id="academic-profile-editor" style="margin-top:18px">
+  <h3>Academic History & Skills (Private)</h3>
+  <p class="description">Add your CGPA for each completed academic year. This information is shared only with the teacher you send a supervision request to.</p>
+  <form id="academic-profile-form">
+    <div class="academic-year-grid">
+      <label>1st Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-1" placeholder="e.g. 3.50"></label>
+      <label>2nd Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-2" placeholder="e.g. 3.65"></label>
+      <label>3rd Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-3" placeholder="e.g. 3.72"></label>
+      <label>4th Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-4" placeholder="e.g. 3.80"></label>
+      <label>5th Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-5"></label>
+      <label>6th Year CGPA <input type="number" min="0" max="4" step="0.01" id="cgpa-year-6"></label>
+    </div>
+    <label for="academic-skills">Skills (comma separated)</label>
+    <input id="academic-skills" maxlength="2000" placeholder="Go, Python, Machine Learning, UI/UX">
+    <label for="academic-interests">Research Interests</label>
+    <textarea id="academic-interests" maxlength="2000" rows="3" placeholder="Your research interests"></textarea>
+    <button type="submit" class="button">Save Academic Profile</button>
+    <p id="academic-profile-message" role="status"></p>
+  </form>
+</section>
 <p id="profile-message" role="status"></p>
 
                <button type="button" class="button" id="edit-profile-button">
@@ -1413,5 +1433,5 @@
        <link rel="stylesheet" href="/assets/student-research-features.css">
    <script src="/assets/student-research-features.js" defer></script>
    <script src="/assets/research-tracking.js" defer></script>
-</body>
+<script src="/assets/academic-profile.js?v=20261115" defer></script>\n</body>
 </html>
