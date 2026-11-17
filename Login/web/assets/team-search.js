@@ -26,6 +26,11 @@
         <div id="fixed-team-members">
           <p>No confirmed team members yet.</p>
         </div>
+        <div class="team-history-wrap"><div class="team-history-heading"><h3>Invitation history</h3><span>Pending · Accepted · Declined · Removed</span></div><div id="team-invitation-history"><p>Loading invitation history...</p></div></div>
+      </article>
+      <article class="card team-inbox-card">
+        <div class="team-history-heading"><div><p class="eyebrow">YOUR INVITATIONS</p><h3>Incoming team invitations</h3></div><span>Respond to join a project</span></div>
+        <div id="incoming-team-invitations"><p>Loading invitations...</p></div>
       </article>
 
       <div class="team-toolbar">
@@ -77,6 +82,8 @@
   const fixedTeamTitle = section.querySelector("#fixed-team-title");
   const fixedTeamStatus = section.querySelector("#fixed-team-status");
   const fixedTeamMembers = section.querySelector("#fixed-team-members");
+  const teamHistory = section.querySelector("#team-invitation-history");
+  const incomingInvitations = section.querySelector("#incoming-team-invitations");
 
   let projectList = [];
   let currentProject = null;
@@ -234,12 +241,37 @@
       }
 
       updateDashboardTeam(members, currentProject);
+      const teamData = await api(`/api/projects/${Number(select.value)}/team-status`);
+      teamHistory.innerHTML = teamData.invitations.length ? teamData.invitations.map(item => `
+        <div class="team-history-row">
+          <div><strong>${esc(item.name)}</strong><small>${esc(item.email)}</small></div>
+          <span class="team-state ${esc(item.status)}">${esc(item.status)}</span>
+        </div>`).join("") : '<p class="team-muted">No invitations have been sent for this project yet.</p>';
+      if (teamData.can_manage) {
+        fixedTeamMembers.innerHTML = members.map(member => `
+          <div class="fixed-team-member member-row">
+            <div><strong>${esc(member.name)}</strong><span>${member.owner ? "Team owner" : "Accepted member"}</span></div>
+            ${member.owner ? "" : `<button type="button" class="team-remove-button" data-remove-member="${Number(member.id)}">Remove</button>`}
+          </div>`).join("");
+      }
     } catch (error) {
       membersText.textContent = error.message;
       fixedTeamTitle.textContent = "Team unavailable";
       fixedTeamStatus.textContent =
         "Could not load team members. Please refresh the page.";
     }
+  }
+
+  async function loadIncomingInvitations() {
+    try {
+      const items = await api("/api/invitations");
+      const pending = items.filter(item => item.status === "pending");
+      incomingInvitations.innerHTML = pending.length ? pending.map(item => `
+        <div class="incoming-invite-row">
+          <div><strong>${esc(item.title)}</strong><small>Invited by ${esc(item.name)}</small></div>
+          <div class="incoming-invite-actions"><button type="button" class="button accept-invite" data-invitation="${Number(item.id)}" data-accept="true">Accept</button><button type="button" class="button secondary decline-invite" data-invitation="${Number(item.id)}" data-accept="false">Decline</button></div>
+        </div>`).join("") : '<p class="team-muted">You have no pending invitations.</p>';
+    } catch (error) { incomingInvitations.textContent = error.message; }
   }
 
   async function searchStudents() {
@@ -329,6 +361,32 @@
 
   select.addEventListener("change", async () => {
     await loadMembers();
+  });
+
+  fixedTeamMembers.addEventListener("click", async event => {
+    const button = event.target.closest("[data-remove-member]");
+    if (!button || !select.value) return;
+    if (!window.confirm("Remove this student from your team?")) return;
+    button.disabled = true;
+    try {
+      const result = await api(`/api/workspace/${Number(select.value)}/members`, {action:"remove", email:String(button.dataset.removeMember)});
+      status.textContent = result.message;
+      await loadMembers();
+      window.dispatchEvent(new Event("team-members-changed"));
+    } catch (error) { status.textContent = error.message; button.disabled = false; }
+  });
+
+  incomingInvitations.addEventListener("click", async event => {
+    const button = event.target.closest("[data-invitation]");
+    if (!button) return;
+    button.disabled = true;
+    try {
+      const result = await api("/api/invitations", {id:Number(button.dataset.invitation), accept:button.dataset.accept==="true"});
+      status.textContent = result.message;
+      await loadIncomingInvitations();
+      await loadMembers();
+      window.dispatchEvent(new Event("team-members-changed"));
+    } catch (error) { status.textContent = error.message; button.disabled = false; }
   });
 
   results.addEventListener("click", async event => {
@@ -422,6 +480,7 @@ if (selectedProject) {
       }
 
       await searchStudents();
+      await loadIncomingInvitations();
     } catch (error) {
       status.textContent = error.message;
     }
@@ -432,6 +491,7 @@ if (selectedProject) {
   window.addEventListener("hashchange", () => {
     if (location.hash === "#team") {
       loadMembers();
+      loadIncomingInvitations();
     }
   });
 

@@ -114,7 +114,47 @@ func (a *App) workspaceMembers(w http.ResponseWriter, r *http.Request) {
 		if !decode(w, r, &in) {
 			return
 		}
-		// Membership is opt-in: a student can join only using their own email and a current member's invitation record.
+		if in.Action == "remove" {
+			var owner int64
+			if u.Role != "student" || a.db.QueryRow("SELECT student_id FROM projects WHERE id=?", id).Scan(&owner) != nil || owner != u.ID {
+				fail(w, 403, "Only the project owner may remove team members.")
+				return
+			}
+			parsed, parseErr := strconv.ParseInt(strings.TrimSpace(in.Email), 10, 64)
+			if parseErr != nil || parsed <= 0 || parsed == owner {
+				fail(w, 400, "Invalid member.")
+				return
+			}
+			target := parsed
+			tx, err := a.db.Begin()
+			if err != nil {
+				fail(w, 500, "Could not remove member.")
+				return
+			}
+			defer tx.Rollback()
+			res, err := tx.Exec("DELETE FROM team_members WHERE project_id=? AND user_id=?", id, target)
+			if err != nil {
+				fail(w, 500, "Could not remove member.")
+				return
+			}
+			n, _ := res.RowsAffected()
+			if n == 0 {
+				fail(w, 404, "Team member not found.")
+				return
+			}
+			_, err = tx.Exec("UPDATE workspace_records SET status='removed',updated_at=? WHERE project_id=? AND assignee_id=? AND kind='invitation' AND status='accepted'", time.Now().Unix(), id, target)
+			if err != nil {
+				fail(w, 500, "Could not update invitation history.")
+				return
+			}
+			if err = tx.Commit(); err != nil {
+				fail(w, 500, "Could not finish removal.")
+				return
+			}
+			reply(w, 200, map[string]string{"message": "Member removed from the team."})
+			return
+		}
+		// Membership is opt-in: only the project owner can invite a verified student.
 		em, ok := email(in.Email)
 		if !ok {
 			fail(w, 400, "Enter a student email.")
@@ -126,35 +166,60 @@ func (a *App) workspaceMembers(w http.ResponseWriter, r *http.Request) {
 			fail(w, 403, "Only the project owner may invite members.")
 			return
 		}
+		tx, txErr := a.db.Begin()
+		if txErr != nil {
+			fail(w, 500, "Could not send invitation.")
+			return
+		}
+		defer tx.Rollback()
 		var student int64
-		if a.db.QueryRow("SELECT id FROM users WHERE email=? AND role='student' AND verified=1", em).Scan(&student) != nil || student == owner {
+		if tx.QueryRow("SELECT id FROM users WHERE email=? AND role='student' AND verified=1", em).Scan(&student) != nil || student == owner {
 			fail(w, 400, "Choose another registered, verified student.")
 			return
 		}
-		_, e = a.db.Exec("INSERT INTO workspace_records(project_id,author_id,kind,title,body,status,assignee_id,updated_at) VALUES(?,?,'invitation','Team invitation','','pending',?,?)", id, u.ID, student, time.Now().Unix())
+		var duplicate int
+		if tx.QueryRow(`SELECT (SELECT COUNT(*) FROM team_members WHERE project_id=? AND user_id=?)
+            + (SELECT COUNT(*) FROM workspace_records WHERE project_id=? AND assignee_id=? AND kind='invitation' AND status='pending')`,
+			id, student, id, student).Scan(&duplicate) != nil {
+			fail(w, 500, "Could not check invitation.")
+			return
+		}
+		if duplicate > 0 {
+			fail(w, 409, "Student is already invited or in your team.")
+			return
+		}
+		var reserved int
+		if tx.QueryRow(`SELECT (SELECT COUNT(*) FROM team_members WHERE project_id=?)
+            + (SELECT COUNT(*) FROM workspace_records WHERE project_id=? AND kind='invitation' AND status='pending')`,
+			id, id).Scan(&reserved) != nil {
+			fail(w, 500, "Could not check team capacity.")
+			return
+		}
+		if reserved >= 2 {
+			fail(w, 409, "Team limit reached. A team can contain up to 3 students including its owner.")
+			return
+		}
+		_, e = tx.Exec("INSERT INTO workspace_records(project_id,author_id,kind,title,body,status,assignee_id,updated_at) VALUES(?,?,'invitation','Team invitation','','pending',?,?)", id, u.ID, student, time.Now().Unix())
 		if e != nil {
 			fail(w, 500, "Could not save invitation.")
 			return
 		}
-		reply(w, 201, map[string]string{"message": "Invitation saved. The student can accept from Research workspace → Invitations."})
+		if e = tx.Commit(); e != nil {
+			fail(w, 500, "Could not finish invitation.")
+			return
+		}
+		reply(w, 201, map[string]string{"message": "Invitation sent. Waiting for student acceptance."})
 		return
 	}
 	// Return the project owner and every confirmed team member exactly once.
 	// UNION also prevents duplicate rows if membership data was imported twice.
 	rows, e := a.db.Query(`
-		SELECT u.id, u.name, u.email
-		FROM users u
-		JOIN (
-			SELECT student_id AS user_id
-			FROM projects
-			WHERE id = ?
-			UNION
-			SELECT user_id
-			FROM team_members
-			WHERE project_id = ?
-		) team ON team.user_id = u.id
-		ORDER BY u.name
-	`, id, id)
+		SELECT u.id, u.name, u.email,
+            CASE WHEN u.id=p.student_id THEN 'owner' ELSE 'accepted' END
+        FROM projects p JOIN users u ON (u.id=p.student_id OR u.id IN
+            (SELECT user_id FROM team_members WHERE project_id=p.id))
+        WHERE p.id=? ORDER BY CASE WHEN u.id=p.student_id THEN 0 ELSE 1 END, lower(u.name)
+    `, id)
 	if e != nil {
 		fail(w, 500, "Could not load members.")
 		return
@@ -163,12 +228,12 @@ func (a *App) workspaceMembers(w http.ResponseWriter, r *http.Request) {
 	members := []map[string]any{}
 	for rows.Next() {
 		var uid int64
-		var name, em string
-		if rows.Scan(&uid, &name, &em) != nil {
+		var name, em, status string
+		if rows.Scan(&uid, &name, &em, &status) != nil {
 			fail(w, 500, "Could not read members.")
 			return
 		}
-		members = append(members, map[string]any{"id": uid, "name": name, "email": em})
+		members = append(members, map[string]any{"id": uid, "name": name, "email": em, "status": status, "owner": status == "owner"})
 	}
 	if rows.Err() != nil {
 		fail(w, 500, "Could not read members.")
@@ -271,18 +336,17 @@ func (a *App) invitations(w http.ResponseWriter, r *http.Request) {
 			var memberCount int
 
 			err = tx.QueryRow(`
-        SELECT COUNT(*)
-        FROM team_members
-        WHERE project_id = ?
-    `, projectID).Scan(&memberCount)
+        SELECT 1 + (SELECT COUNT(*) FROM team_members WHERE project_id = ?)
+          + (SELECT COUNT(*) FROM workspace_records WHERE project_id=? AND kind='invitation' AND status='pending' AND id<>?)
+    `, projectID, projectID, in.ID).Scan(&memberCount)
 
 			if err != nil {
 				fail(w, 500, "Could not check team size.")
 				return
 			}
 
-			if memberCount >= 2 {
-				fail(w, 409, "This team is already full.")
+			if memberCount >= 3 {
+				fail(w, 409, "This team is already full (maximum 3 students, including the owner).")
 				return
 			}
 
@@ -343,7 +407,7 @@ func (a *App) invitations(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	rows, e := a.db.Query("SELECT r.id,p.title,u.name FROM workspace_records r JOIN projects p ON p.id=r.project_id JOIN users u ON u.id=r.author_id WHERE r.kind='invitation' AND r.status='pending' AND r.assignee_id=?", u.ID)
+	rows, e := a.db.Query("SELECT r.id,p.title,u.name,r.status,r.updated_at FROM workspace_records r JOIN projects p ON p.id=r.project_id JOIN users u ON u.id=r.author_id WHERE r.kind='invitation' AND r.assignee_id=? ORDER BY r.updated_at DESC,r.id DESC", u.ID)
 	if e != nil {
 		fail(w, 500, "Could not load invitations.")
 		return
@@ -352,12 +416,13 @@ func (a *App) invitations(w http.ResponseWriter, r *http.Request) {
 	out := []map[string]any{}
 	for rows.Next() {
 		var id int64
-		var title, name string
-		if rows.Scan(&id, &title, &name) != nil {
+		var title, name, status string
+		var updated int64
+		if rows.Scan(&id, &title, &name, &status, &updated) != nil {
 			fail(w, 500, "Could not read invitations.")
 			return
 		}
-		out = append(out, map[string]any{"id": id, "title": title, "name": name})
+		out = append(out, map[string]any{"id": id, "title": title, "name": name, "status": status, "updated": updated})
 	}
 	if rows.Err() != nil {
 		fail(w, 500, "Could not read invitations.")

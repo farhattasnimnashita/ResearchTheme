@@ -288,6 +288,7 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("GET /api/student-academic-profile", a.studentAcademicProfile)
 	m.HandleFunc("PUT /api/student-academic-profile", a.studentAcademicProfile)
 	m.HandleFunc("GET /api/projects/{id}/team-academics", a.teamAcademicProfiles)
+	m.HandleFunc("GET /api/projects/{id}/team-status", a.teamStatus)
 	m.HandleFunc("GET /api/profile-picture", a.getProfilePicture)
 	m.HandleFunc("POST /api/profile-picture", a.uploadProfilePicture)
 	m.HandleFunc("GET /api/students", a.searchStudents)

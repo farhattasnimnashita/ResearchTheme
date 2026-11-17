@@ -107,6 +107,8 @@
 
         const user = await response.json();
         const welcome = document.getElementById("student-welcome");
+        const profileHeading = document.getElementById("profile-name-heading");
+        if (profileHeading) profileHeading.textContent = user.name || "Your profile";
 
 if (welcome) {
     welcome.textContent = "Welcome, " + user.name + "! ";

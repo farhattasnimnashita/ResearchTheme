@@ -14,7 +14,7 @@
       const panel = form.parentElement;
       const view = document.createElement('section');
       view.className = 'profile-reference-view';
-      view.innerHTML = '<h2>My Profile</h2><div class="profile-reference-photo"><div class="profile-reference-avatar"></div><div><h3>Profile Picture</h3><p>Choose a JPG, PNG or WebP image. Maximum size: 300 KB.</p><button type="button" class="button" data-profile-picture>Change Picture</button></div></div><p class="profile-reference-intro">Your academic information, expertise and research interests.</p><dl class="profile-reference-details"></dl><button type="button" class="button" data-profile-edit>Edit Profile</button>';
+      view.innerHTML = '<div class="profile-reference-heading"><div><span class="profile-reference-kicker">YOUR RESEARCH IDENTITY</span><h2>My Profile</h2><p>Manage your personal details, qualifications and research expertise.</p></div><span class="profile-reference-status"><i></i> Teacher account</span></div><div class="profile-reference-hero"><div class="profile-reference-photo"><div class="profile-reference-avatar"></div><div><h3>Profile Picture</h3><p>Choose a JPG, PNG or WebP image. Maximum size: 300 KB.</p><button type="button" class="button" data-profile-picture>Change Picture</button></div></div><div class="profile-reference-identity"><span>PROFILE OVERVIEW</span><h3 data-profile-name></h3><p>Share your academic background and guide student research.</p><div class="profile-reference-tags"><b>Academic qualifications</b><b>Research interests</b><b>Expertise</b></div></div></div><p class="profile-reference-intro">Your account information and academic details.</p><dl class="profile-reference-details"></dl><div class="profile-reference-actions"><button type="button" class="button" data-profile-edit>Edit Profile</button></div>';
       const avatar = summary.querySelector('.profile-avatar');
       if (avatar) view.querySelector('.profile-reference-avatar').append(avatar.cloneNode(true));
       const paragraphs = summary.querySelectorAll(':scope > p');
@@ -28,6 +28,7 @@
         ['Research Interests', form.elements.interests?.value],
         ['About Me', form.elements.bio?.value]
       ];
+      view.querySelector('[data-profile-name]').textContent = summary.querySelector('h2')?.textContent || 'Teacher';
       const list = view.querySelector('dl');
       for (const [label, value] of rows) {
         const row = document.createElement('div');

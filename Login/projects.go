@@ -26,6 +26,7 @@ type Project struct {
 	ScopeLimitations  string `json:"scope_limitations"`
 	ProposalStarted   bool   `json:"proposal_started"`
 	SupervisionStatus string `json:"supervision_status"`
+	TeamMembers       string `json:"team_members"`
 }
 
 func (a *App) fixedApprovedProjectID(userID int64) (int64, error) {
@@ -180,6 +181,38 @@ func (a *App) listProjects(w http.ResponseWriter, r *http.Request) {
 	if rows.Err() != nil {
 		fail(w, 500, "Could not read projects.")
 		return
+	}
+	if err := rows.Close(); err != nil {
+		fail(w, 500, "Could not finish loading projects.")
+		return
+	}
+	if u.Role == "teacher" {
+		for i := range out {
+			memberRows, memberErr := a.db.Query(`SELECT name FROM users WHERE id IN
+                (SELECT student_id FROM projects WHERE id=? UNION SELECT user_id FROM team_members WHERE project_id=?)
+                ORDER BY lower(name)`, out[i].ID, out[i].ID)
+			if memberErr != nil {
+				fail(w, 500, "Could not load team members.")
+				return
+			}
+			names := []string{}
+			for memberRows.Next() {
+				var name string
+				if memberRows.Scan(&name) != nil {
+					memberRows.Close()
+					fail(w, 500, "Could not read team members.")
+					return
+				}
+				names = append(names, name)
+			}
+			if memberRows.Err() != nil {
+				memberRows.Close()
+				fail(w, 500, "Could not read team members.")
+				return
+			}
+			memberRows.Close()
+			out[i].TeamMembers = strings.Join(names, ", ")
+		}
 	}
 	reply(w, 200, out)
 }

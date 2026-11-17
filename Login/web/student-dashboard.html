@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="/assets/thesis-guidelines.css?v=20261024">
 
 <link rel="stylesheet" href="/assets/ethics.css">
+<link rel="stylesheet" href="/assets/student-workflow.css?v=20261117-phase6">
 
 </head>
 
@@ -264,9 +265,10 @@
 
         <!-- Profile -->
         <section id="profile" class="page" hidden>
-            <article class="card">
-                <h2>My Profile</h2>
+            <article class="card profile-shell">
+                <div class="profile-heading"><div><p class="profile-kicker">YOUR RESEARCH IDENTITY</p><h2>My Profile</h2><p class="description">Manage your personal details and academic background in one place.</p></div><span class="profile-status"><i></i> Student account</span></div>
                 
+<div class="profile-hero">
 <div class="profile-picture-section">
     <img
         id="student-profile-picture"
@@ -308,12 +310,11 @@
         <p id="profile-picture-message" role="status"></p>
     </div>
 </div>
+<div class="profile-identity"><span class="profile-kicker">PROFILE OVERVIEW</span><h3 id="profile-name-heading">Your profile</h3><p>Build a clear academic snapshot for your research journey.</p><div class="profile-tags"><span>Academic profile</span><span>Research interests</span><span>Skills</span></div></div>
+</div>
+                <p class="description profile-intro">Your account information and academic details.</p>
 
-                <p class="description">
-                    Add your academic information, skills and interests.
-                </p>
-
-              <dl class="details">
+              <dl class="details profile-details">
     <div>
         <dt>Name</dt>
         <dd id="profile-name">Loading...</dd>
@@ -340,8 +341,8 @@
     </div>
 </dl>
 
-<section class="card" id="academic-profile-editor" style="margin-top:18px">
-  <h3>Academic History & Skills (Private)</h3>
+<section class="card academic-editor" id="academic-profile-editor" style="margin-top:18px">
+  <div class="academic-editor-heading"><div><span class="profile-kicker">PRIVATE INFORMATION</span><h3>Academic History & Skills</h3></div><span class="privacy-pill">🔒 Private</span></div>
   <p class="description">Add your CGPA for each completed academic year. This information is shared only with the teacher you send a supervision request to.</p>
   <form id="academic-profile-form">
     <div class="academic-year-grid">
@@ -425,23 +426,11 @@
 </section>
         <!-- Team -->
         <section id="team" class="page" hidden>
-            <article class="card">
-                <h2>My Team</h2>
-                <div class="empty">
-                    <h3>You do not have a team yet.</h3>
-                    <p>Create your own team or find one to join.</p>
-
-                    <div class="actions">
-                        <button class="button" data-feature="Team creation">
-                            Create a Team
-                        </button>
-
-                        <button class="button secondary"
-                                data-feature="Team search">
-                            Find a Team
-                        </button>
-                    </div>
-                </div>
+            <article class="card team-management-shell">
+                <div class="team-heading"><div><p class="profile-kicker">COLLABORATION SPACE</p><h2>My Team</h2><p class="description">Invite classmates, track responses and manage your project members.</p></div><span class="team-capacity" id="team-capacity">Up to 3 students</span></div>
+                <div id="team-project-picker" class="team-project-picker"></div>
+                <div id="team-management-status" role="status"></div>
+                <div id="team-management-content"><div class="empty"><h3>Loading your team...</h3></div></div>
             </article>
         </section>
         <!-- Notifications -->
@@ -683,61 +672,53 @@
     </article>
 </section>
 
-        <!-- Milestones -->
+        <!-- Phase 6: live project milestones -->
         <section id="milestones" class="page" hidden>
-            <article class="card">
-                <h2>Milestones</h2>
-                <div class="empty">
-                    <h3>No milestones yet</h3>
-                    <p>
-                        Assigned tasks, deadlines and approval status
-                        will appear here.
-                    </p>
-                </div>
+            <article class="card workflow-card">
+                <div class="workflow-heading"><div><p class="workflow-eyebrow">RESEARCH WORKFLOW</p><h2>Milestones & Progress</h2><p>Track milestones assigned by your supervisor and see progress updates.</p></div><span class="workflow-icon">⚑</span></div>
+                <label class="workflow-field">Project <select id="workflow-milestone-project"></select></label>
+                <div id="workflow-milestones" class="workflow-list" aria-live="polite"><p>Loading milestones…</p></div>
             </article>
         </section>
 
-        <!-- Files -->
+        <!-- Phase 6: submissions, revisions and feedback -->
         <section id="files" class="page" hidden>
-            <article class="card">
-                <h2>Files & Feedback</h2>
-                <div class="empty">
-                    <h3>No submissions yet</h3>
-                    <p>Keep your reports, code links and feedback together.</p>
-
-                    <button class="button" data-feature="File submission">
-                        Submit Work
-                    </button>
-                </div>
+            <article class="card workflow-card">
+                <div class="workflow-heading"><div><p class="workflow-eyebrow">SHARED RESEARCH FILES</p><h2>Files & Feedback</h2><p>Upload work, submit a version for review and read your supervisor’s feedback.</p></div><span class="workflow-icon">▤</span></div>
+                <label class="workflow-field">Project <select id="workflow-files-project"></select></label>
+                <form id="workflow-upload-form" class="workflow-upload"><label class="workflow-field">Choose a file (maximum 8 MB)<input type="file" name="file" required></label><button class="button" type="submit">Upload file</button><p id="workflow-upload-status" role="status"></p></form>
+                <div id="workflow-files-list" class="workflow-list"><p>Loading files…</p></div>
+                <div class="workflow-divider"></div>
+                <h3>Submit work for supervisor review</h3>
+                <form id="workflow-submission-form" class="workflow-form">
+                    <label class="workflow-field">Submission title<input name="title" required minlength="2" maxlength="180" placeholder="e.g. Literature review draft"></label>
+                    <label class="workflow-field">Description / revision note<textarea name="body" rows="4" maxlength="10000" required placeholder="Summarize what you are submitting or what you changed…"></textarea></label>
+                    <label class="workflow-field">Attach uploaded file (optional)<select name="file_id" id="workflow-submission-file"><option value="">No file selected</option></select></label>
+                    <button class="button" type="submit">Submit for review →</button><p id="workflow-submission-status" role="status"></p>
+                </form>
+                <div class="workflow-divider"></div>
+                <h3>Submission history & supervisor feedback</h3>
+                <div id="workflow-feedback-list" class="workflow-list"><p>Loading submissions…</p></div>
             </article>
         </section>
 
-        <!-- Meetings -->
-<section id="meetings" class="page" hidden>
-    <article class="card">
-        <h2>Meetings</h2>
-
-        <div class="meeting-card">
-            <span class="meeting-tag">Google Meet</span>
-
-            <h3>Research Discussion</h3>
-
-            <p class="description">
-                Join your team and supervisor for a research discussion.
-            </p>
-
-            <!-- href-এর জায়গায় তোমার আসল Meet link বসাও -->
-            <a
-                href="https://meet.google.com/xxx-yyyy-zzz"
-                class="button"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                Join Google Meet ↗
-            </a>
-        </div>
-    </article>
-</section>
+        <!-- Phase 6: request and manage research meetings -->
+        <section id="meetings" class="page" hidden>
+            <article class="card workflow-card">
+                <div class="workflow-heading"><div><p class="workflow-eyebrow">SUPERVISION & COLLABORATION</p><h2>Meeting Management</h2><p>Request a meeting with your supervisor and track its confirmation.</p></div><span class="workflow-icon">▦</span></div>
+                <label class="workflow-field">Project <select id="workflow-meeting-project"></select></label>
+                <form id="workflow-meeting-form" class="workflow-form">
+                    <label class="workflow-field">Meeting topic<input name="title" required minlength="2" maxlength="180" placeholder="e.g. Discuss methodology and dataset"></label>
+                    <label class="workflow-field">Agenda / questions<textarea name="body" rows="3" maxlength="10000" placeholder="What would you like to discuss?"></textarea></label>
+                    <label class="workflow-field">Preferred date & time<input name="due_at" type="datetime-local" required></label>
+                    <label class="workflow-field">Online meeting link (optional)<input name="link" type="url" placeholder="https://meet.google.com/…"></label>
+                    <button class="button" type="submit">Request meeting →</button><p id="workflow-meeting-status" role="status"></p>
+                </form>
+                <div class="workflow-divider"></div>
+                <h3>Meeting requests & schedule</h3>
+                <div id="workflow-meetings-list" class="workflow-list"><p>Loading meetings…</p></div>
+            </article>
+        </section>
 <!-- 1. Literature Review Matrix -->
 <section id="literature-review" class="page" hidden>
 
@@ -1426,11 +1407,13 @@
     </dialog>
 <div id="research-feature-sections"></div>
        <script src="/assets/nashita-dashboard.js?v=20261117-academic-request" defer></script>
-       <script src="/assets/team-search.js?v=20261023-capacity" defer></script>
+       <script src="/assets/student-workflow.js?v=20261117-phase6" defer></script>
+       <script src="/assets/team-search.js?v=20261117-teamflow" defer></script>
        <script src="/assets/project-ideas.js" defer></script>
        <script src="/assets/proposal.js" defer></script>
        <script src="/assets/ethics.js" defer></script>
        <link rel="stylesheet" href="/assets/student-research-features.css">
+<link rel="stylesheet" href="/assets/team-profile-polish.css?v=20261117-burgundy-pink">
    <script src="/assets/student-research-features.js" defer></script>
    <script src="/assets/research-tracking.js" defer></script>
 <script src="/assets/academic-profile.js?v=20261117-required" defer></script>
