@@ -176,13 +176,13 @@ func TestOptInTeamMembershipAndProtectedFiles(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-        e = a.db.QueryRow(
-                "SELECT id FROM users WHERE email=?",
-                "mate@example.com",
-        ).Scan(&mateID)
-        if e != nil {
-                t.Fatal("could not find mate user:", e)
-        }
+	e = a.db.QueryRow(
+		"SELECT id FROM users WHERE email=?",
+		"mate@example.com",
+	).Scan(&mateID)
+	if e != nil {
+		t.Fatal("could not find mate user:", e)
+	}
 	raw := "mate-session"
 	a.db.Exec("INSERT INTO sessions(hash,user_id,expires) VALUES(?,?,?)", digest(raw), mateID, time.Now().Add(time.Hour).Unix())
 	mate := &http.Cookie{Name: "rb_session", Value: raw}

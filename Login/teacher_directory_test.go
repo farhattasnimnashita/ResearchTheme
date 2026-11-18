@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -153,16 +152,16 @@ func TestTeacherDirectoryReadAndAccountMapping(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-if err := attachRegisteredTeacherAccounts(entries, accountRows); err != nil {
-    t.Fatal(err)
-}
+	if err := attachRegisteredTeacherAccounts(entries, accountRows); err != nil {
+		t.Fatal(err)
+	}
 
-// Read the updated entry after account mapping.
-teacher = entries[0]
+	// Read the updated entry after account mapping.
+	teacher = entries[0]
 
-if teacher.AccountID == nil {
-    t.Fatal("expected the registered teacher account to be linked")
-}
+	if teacher.AccountID == nil {
+		t.Fatal("expected the registered teacher account to be linked")
+	}
 
 	var expectedID int64
 	if err := a.db.QueryRow(

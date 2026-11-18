@@ -55,9 +55,9 @@ func main() {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-	message := strings.ReplaceAll(err.Error(), connection, "[DATABASE_URL hidden]")
-	fmt.Println("Connection failed:", message)
-	os.Exit(1)
-}  
+		message := strings.ReplaceAll(err.Error(), connection, "[DATABASE_URL hidden]")
+		fmt.Println("Connection failed:", message)
+		os.Exit(1)
+	}
 	fmt.Println("Supabase connection successful!")
 }

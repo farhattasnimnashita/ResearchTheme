@@ -140,6 +140,10 @@ func openPostgresSchema(connection, schema string) (*Database, error) {
 		db.Close()
 		return nil, errors.New("could not initialize research tracking")
 	}
+	if err := migrateResearchTools(database); err != nil {
+		db.Close()
+		return nil, errors.New("could not initialize research tools")
+	}
 	return database, nil
 }
 

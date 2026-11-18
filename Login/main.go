@@ -242,6 +242,10 @@ CREATE TABLE IF NOT EXISTS literature_papers (
 		db.Close()
 		return nil, e
 	}
+	if e = migrateResearchTools(&Database{DB: db}); e != nil {
+		db.Close()
+		return nil, e
+	}
 	return db, nil
 }
 func token() (string, error) {
@@ -322,6 +326,12 @@ func (a *App) routes() http.Handler {
 	m.HandleFunc("POST /api/experiment-reproducibility", a.experimentReproducibility)
 	m.HandleFunc("DELETE /api/experiment-reproducibility", a.experimentReproducibility)
 
+	m.HandleFunc("GET /api/research-tools/export", a.exportResearchProject)
+	m.HandleFunc("GET /api/research-tools/citation-sources", a.researchToolCitationSources)
+	m.HandleFunc("GET /api/research-tools/{feature}", a.researchToolRecords)
+	m.HandleFunc("POST /api/research-tools/{feature}", a.researchToolRecords)
+	m.HandleFunc("PUT /api/research-tools/{feature}", a.researchToolRecords)
+	m.HandleFunc("DELETE /api/research-tools/{feature}", a.researchToolRecords)
 	m.HandleFunc("GET /api/feedback-resolution", a.feedbackResolution)
 	m.HandleFunc("POST /api/feedback-resolution", a.feedbackResolution)
 	m.HandleFunc("DELETE /api/feedback-resolution", a.feedbackResolution)

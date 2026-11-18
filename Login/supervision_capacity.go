@@ -149,7 +149,47 @@ func (a *App) studentPlacement(w http.ResponseWriter, r *http.Request) {
 	var id int64
 	var title, status, teacher string
 	var size int
-	e = a.db.QueryRow(`SELECT p.id,p.title,p.status,COALESCE(t.name,''),(SELECT COUNT(*) FROM users m WHERE m.id=p.student_id OR m.id IN(SELECT user_id FROM team_members WHERE project_id=p.id)) FROM projects p LEFT JOIN users t ON t.id=p.teacher_id WHERE p.student_id=? OR EXISTS(SELECT 1 FROM team_members m WHERE m.project_id=p.id AND m.user_id=?) ORDER BY CASE WHEN p.status='approved' THEN 0 WHEN EXISTS(SELECT 1 FROM team_members m WHERE m.project_id=p.id) THEN 1 ELSE 2 END,p.updated_at DESC,p.id DESC LIMIT 1`, u.ID, u.ID).Scan(&id, &title, &status, &teacher, &size)
+	e = a.db.QueryRow(`
+    SELECT
+        p.id,
+        p.title,
+        CASE
+            WHEN p.supervision_status = 'accepted' THEN 'approved'
+            WHEN p.supervision_status = 'pending' THEN 'submitted'
+            WHEN p.supervision_status = 'declined' THEN 'rejected'
+            ELSE p.status
+        END,
+        COALESCE(t.name, ''),
+        (
+            SELECT COUNT(*)
+            FROM users m
+            WHERE m.id = p.student_id
+               OR m.id IN (
+                   SELECT user_id
+                   FROM team_members
+                   WHERE project_id = p.id
+               )
+        )
+    FROM projects p
+    LEFT JOIN users t ON t.id = p.teacher_id
+    WHERE p.student_id = ?
+       OR EXISTS (
+           SELECT 1
+           FROM team_members m
+           WHERE m.project_id = p.id AND m.user_id = ?
+       )
+    ORDER BY
+        CASE
+            WHEN p.supervision_status = 'accepted'
+              OR p.status = 'approved' THEN 0
+            WHEN p.supervision_status = 'pending'
+              OR p.status = 'submitted' THEN 1
+            ELSE 2
+        END,
+        p.updated_at DESC,
+        p.id DESC
+    LIMIT 1
+`, u.ID, u.ID).Scan(&id, &title, &status, &teacher, &size)
 	if e != nil && !errors.Is(e, sql.ErrNoRows) {
 		fail(w, 500, "Could not load team status.")
 		return
